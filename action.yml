@@ -1,0 +1,22 @@
+name: "Scan Docker Image"
+description: "Scan a Docker image actions for best practices."
+author: "Joao Pedro Ramos de Oliveira"
+inputs:
+  GITHUB_TOKEN:
+    description: "GitHub token for authentication"
+    required: true
+  ISSUE_ID:
+    description: "Issue ID to link the scan results"
+    required: true
+  COMMENT:
+    description: "Comment to post the scan results"
+    required: true
+outputs:
+  COMMENT_ID:
+    description: "ID of the comment where the scan results were posted"
+runs:
+  using: "node20"
+  main: "dist/index.js"
+branding:
+  icon: "info"
+  color: "blue"
