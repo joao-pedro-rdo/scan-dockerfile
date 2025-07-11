@@ -28,7 +28,7 @@ export class LR_007_dependencies_order implements ILinterRule {
       const dockerfile = new AdapterDockerfileAST(dockerfileContent);
 
       // ask the AST to search for COPY
-      const searchResult = await dockerfile.searchKeyword({
+      const searchResult = await dockerfile.searchConsecutiveKeyword({
         keyword: "COPY",
         args: [],
       });
