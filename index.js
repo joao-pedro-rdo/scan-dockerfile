@@ -6,7 +6,7 @@ async function run() {
         // Get the inputs from the action
         const token = core.getInput('GITHUB_TOKEN');
         const issueID = core.getInput('ISSUE_ID');
-        const comment = core.getInput('');
+        const comment = core.getInput('COMMENT');
         // Initialize Octokit with the provided token
         const octokit = github.getOctokit(token);
 
