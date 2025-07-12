@@ -7,6 +7,7 @@ async function run() {
         const token = core.getInput('GITHUB_TOKEN');
         const issueID = core.getInput('ISSUE_ID');
         const comment = core.getInput('COMMENT');
+
         // Initialize Octokit with the provided token
         const octokit = github.getOctokit(token);
 
@@ -17,7 +18,7 @@ async function run() {
         const response = await octokit.rest.issues.createComment({
             owner: owner,
             repo: repo,
-            issue_number: issueID,
+            issue_number: parseInt(issueID), // Garantir que é um número
             body: comment,
         });
 
@@ -32,4 +33,6 @@ async function run() {
         console.error(`Error adding comment: ${error.message}`);
         core.setFailed(`Action failed with error: ${error.message}`);
     }
-}   
+}
+
+run();
