@@ -31841,8 +31841,7 @@ async function run() {
     try {
         // Get the inputs from the action
         const token = core.getInput('GITHUB_TOKEN');
-        const issueID = core.getInput('ISSUE_ID');
-        const comment = core.getInput('COMMENT');
+
 
         // Initialize Octokit with the provided token
         const octokit = github.getOctokit(token);
@@ -31854,19 +31853,19 @@ async function run() {
         const response = await octokit.rest.issues.createComment({
             owner: owner,
             repo: repo,
-            issue_number: parseInt(issueID), // Garantir que é um número
-            body: comment,
+            title: 'Comment from GitHub Action',
+            body: 'Comment test from GitHub Action',
         });
 
         // Obtain the ID of the created comment
-        const commentID = response.data.id;
+        console.log('Comment created successfully:', response.data.title);
+        // const commentID = response.data.id;
 
-        // Set the output with the comment ID
-        core.setOutput('COMMENT_ID', commentID);
-        console.log(`Comment added with ID: ${commentID}`);
+        core.setOutput('COMMENT_TITLE', response.data.title);
+        core.notice(`Comment created successfully: ${response.data.title}`);
+        core.info(`Comment ID: ${response.data.id}`);
 
     } catch (error) {
-        console.error(`Error adding comment: ${error.message}`);
         core.setFailed(`Action failed with error: ${error.message}`);
     }
 }
