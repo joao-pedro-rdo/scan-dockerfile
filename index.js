@@ -14,7 +14,7 @@ async function run() {
         const { owner, repo } = context.repo;
 
         // Add a comment to the specified issue or PR
-        const response = await octokit.rest.issues.createComment({
+        const newIssue = await octokit.rest.issues.create({
             owner: owner,
             repo: repo,
             title: 'Comment from GitHub Action',
@@ -22,12 +22,12 @@ async function run() {
         });
 
         // Obtain the ID of the created comment
-        console.log('Comment created successfully:', response.data.title);
-        // const commentID = response.data.id;
+        console.log('Comment created successfully:', newIssue.data.title);
+        // const commentID = newIssue.data.id;
 
-        core.setOutput('COMMENT_TITLE', response.data.title);
-        core.notice(`Comment created successfully: ${response.data.title}`);
-        core.info(`Comment ID: ${response.data.id}`);
+        core.setOutput('COMMENT_TITLE', newIssue.data.title);
+        core.notice(`Comment created successfully: ${newIssue.data.title}`);
+        core.info(`Comment ID: ${newIssue.data.id}`);
 
     } catch (error) {
         core.setFailed(`Action failed with error: ${error.message}`);
