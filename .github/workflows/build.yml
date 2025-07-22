@@ -28,7 +28,7 @@ jobs:
         run: npm install
 
       - name: Build the action
-        run: ncc build index.js --license licenses.txt
+        run: npm run build
 
       - name: Commit and push built action
         run: |
