@@ -25,9 +25,17 @@ async function run() {
         console.log('Comment created successfully:', newIssue.data.title);
         // const commentID = newIssue.data.id;
 
-        core.setOutput('COMMENT_TITLE', newIssue.data.title);
         core.notice(`Comment created successfully: ${newIssue.data.title}`);
-        core.info(`Comment ID: ${newIssue.data.id}`);
+
+        core.summary
+            .addHeading('GitHub Action Summary de teste')
+            .addCodeBlock(`Comment created successfully: ${newIssue.data.title}`, 'markdown')
+            .addSeparator()
+            .addRaw('Teste <br> teste:')
+            .addLink('Check the suggestion', 'https://github.com/actions/toolkit');
+
+        await core.summary.write();
+        core.notice('The summary has been written successfully.');
 
     } catch (error) {
         core.setFailed(`Action failed with error: ${error.message}`);

@@ -1,0 +1,49 @@
+name: Docker Image Build and Push
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - develop
+    paths-ignore:
+      - "**.md"
+      - "dist/**" # Evitar loop infinito
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the action
+        run: ncc build index.js --license licenses.txt
+
+      - name: Commit and push built action
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add dist/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🤖 Update built action"
+            git push
+          fi
+
+      - name: Upload built action
+        uses: actions/upload-artifact@v4
+        with:
+          name: action
+          path: dist
