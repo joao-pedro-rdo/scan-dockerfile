@@ -19,7 +19,8 @@
   "homepage": "https://github.com/joao-pedro-rdo/scan-dockefile#readme",
   "dependencies": {
     "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.1"
+    "@actions/github": "^6.0.1",
+    "fast-glob": "^3.3.2"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.38.3"

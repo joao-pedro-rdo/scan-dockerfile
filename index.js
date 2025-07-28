@@ -1,10 +1,28 @@
 const github = require('@actions/github');
 const core = require('@actions/core');
+// const fg = require('fast-glob');
+const {
+    finderDockerignore
+} = require('./func.js');
 
 async function run() {
     try {
         // Get the inputs from the action
         const token = core.getInput('GITHUB_TOKEN');
+
+        const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
+        core.info(`Scanning workspace: ${workspace}`);
+
+        const lookdockerignore = await finderDockerignore(workspace);
+        let result = '';
+        if (lookdockerignore) {
+            core.info(`Found .dockerignore files: ${lookdockerignore.join(', ')}`);
+            result = 'found';
+        } else {
+            core.info('No .dockerignore files found.');
+            result = 'No .dockerignore files found.';
+        }
+
 
 
         // Initialize Octokit with the provided token
@@ -17,7 +35,7 @@ async function run() {
         const newIssue = await octokit.rest.issues.create({
             owner: owner,
             repo: repo,
-            title: 'Comment from GitHub Action',
+            title: `🐳 Dockerfile-${result}`,
             body: 'Comment test from GitHub Action',
         });
 
@@ -28,11 +46,13 @@ async function run() {
         core.notice(`Comment created successfully: ${newIssue.data.title}`);
 
         core.summary
-            .addHeading('GitHub Action Summary de teste')
+            .addHeading('🐳 Dockerfile Scan Results')
             .addCodeBlock(`Comment created successfully: ${newIssue.data.title}`, 'markdown')
             .addSeparator()
-            .addRaw('Teste <br> teste:')
-            .addLink('Check the suggestion', 'https://github.com/actions/toolkit');
+            .addRaw(`${result}- dockerfile`)
+
+            // .addLink('Check the suggestion', 'https://github.com/actions/toolkit');
+            .addLink('View the Dockerfile', newIssue.data.html_url);
 
         await core.summary.write();
         core.notice('The summary has been written successfully.');
