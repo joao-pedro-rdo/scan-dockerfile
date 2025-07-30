@@ -10,6 +10,8 @@ const finderDockerignore = async (dir) => {
             ignore: ['node_modules/**', 'dist/**', 'build/**'], //TODO: Add more ignores if needed
             onlyFiles: true, // Only return files
         });
+        console.log('teste scan', scan);
+        core.debug(`Found .dockerignore files: ${scan}`);
 
         return scan.map(file => path.join(dir, file));
 
