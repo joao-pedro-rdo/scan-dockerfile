@@ -18,6 +18,7 @@ async function run() {
         const lookdockerignore = await finderDockerignore(workspace);
         console.log('executei o findd');
         console.log('lookdockerignore:', lookdockerignore);
+
         let result = '';
         if (lookdockerignore) {
             core.info(`Found .dockerignore files: ${lookdockerignore.join(', ')}`);
