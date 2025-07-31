@@ -10,10 +10,17 @@ async function run() {
         // Get the inputs from the action
         const token = core.getInput('GITHUB_TOKEN');
 
+<<<<<<< HEAD
         const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
         console.log(`Workspace: ${workspace}`);
         console.log(`workspace e tem algo aqui: ${workspace}`);
         core.info(`Scanning workspace: ${workspace}`);
+=======
+
+        //! remove this line to make a test for the action
+        // const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
+        // core.info(`Scanning workspace: ${workspace}`);
+>>>>>>> f95934f (Adiciona comentário sobre a remoção da linha de teste no script)
 
         const lookdockerignore = await finderDockerignore(workspace);
         console.log('executei o findd');

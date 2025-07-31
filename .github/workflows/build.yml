@@ -64,6 +64,7 @@ jobs:
           name: action
           path: dist
   test-execution:
+    #TODO Make a matrix to run tests in parallel and use only steps. using variable
     runs-on: ubuntu-latest
     steps:
       - name: Trigger test execution
