@@ -12,7 +12,7 @@ async function run() {
 
         const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
         core.info(`Scanning workspace: ${workspace}`);
-
+        //add comente de teste
         const lookdockerignore = await finderDockerignore(workspace);
         console.log('executei o findd');
         console.log('lookdockerignore:', lookdockerignore);
