@@ -9,6 +9,9 @@ on:
     paths-ignore:
       - "**.md"
       - "dist/**" # Evitar loop infinito
+      - ".github/workflows/**"
+      - ".gitignore"
+      - ".vscode/**"
 jobs:
   build:
     runs-on: ubuntu-latest
