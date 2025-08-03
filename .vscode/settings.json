@@ -1,0 +1,37 @@
+// .vscode/settings.json
+{
+  // --- FORMATAÇÃO E QUALIDADE DE CÓDIGO ---
+  // Define o Prettier como formatador padrão para os arquivos suportados
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // Formata o arquivo automaticamente ao salvar
+  "editor.formatOnSave": true,
+  // Ativa o "Code Actions on Save" para o ESLint auto-corrigir erros
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  // Valida o ESLint para estes tipos de arquivo
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  // --- CONFIGURAÇÕES DO EXPLORADOR DE ARQUIVOS ---
+  // Esconde pastas e arquivos desnecessários da árvore de arquivos
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "node_modules/": true,
+    "dist/": true,
+    ".cache/": true
+  },
+  // --- CONFIGURAÇÕES ESPECÍFICAS DE LINGUAGEM ---
+  // Exemplo: Para arquivos Markdown, ativar a quebra de linha automática
+  "[markdown]": {
+    "editor.wordWrap": "on"
+  }
+}

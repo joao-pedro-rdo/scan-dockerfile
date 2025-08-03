@@ -1,0 +1,13 @@
+// .vscode/extensions.json
+{
+  // Lista de extensões recomendadas para este projeto
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "gruntfuggly.todo-tree",
+    "aaron-bond.better-comments",
+    "redhat.vscode-yaml",
+    "mhutchie.git-graph",
+    "usernamehw.errorlen"
+  ]
+}
