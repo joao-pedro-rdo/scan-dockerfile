@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - develop
+      - feature/new-architecture
     paths-ignore:
       - "**.md"
       - "dist/**" # Evitar loop infinito
