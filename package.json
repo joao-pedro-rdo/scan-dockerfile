@@ -2,10 +2,13 @@
   "name": "scan-dockerfile-action",
   "version": "1.0.0",
   "description": "Scan a Docker image actions for best practices",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
+    "type-check": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "ncc build index.js --license licenses.txt"
+    "build": "ncc build src/index.ts --license licenses.txt",
+    "start": "node dist/index.js",
+    "build:ci": "npm run type-check && npm run build"
   },
   "repository": {
     "type": "git",
@@ -23,6 +26,7 @@
     "fast-glob": "^3.3.2"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.38.3"
+    "@vercel/ncc": "^0.38.3",
+    "typescript": "^5.9.2"
   }
 }
