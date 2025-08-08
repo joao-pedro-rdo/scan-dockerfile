@@ -10,11 +10,12 @@ async function run() {
       process.env.GITHUB_WORKSPACE || process.cwd()
     );
 
-    core.info(adapter.debug());
-    core.debug(adapter.debug());
-    core.notice(adapter.debug());
+    // core.info(adapter.debug());
+    // core.debug(adapter.debug());
+    // core.notice(adapter.debug());
+    console.log(adapter.debug());
   } catch (error) {
-    core.info("deu ruim");
+    console.log("deu ruim");
   }
 }
 

@@ -27,6 +27,11 @@ export class GitHubActionsAdapter {
     return this.context;
   }
   debug() {
-    return JSON.stringify(this);
+    return JSON.stringify({
+      owner: this.owner,
+      repo: this.repo,
+      token: this.token,
+      workspace: this.workspace,
+    });
   }
 }
