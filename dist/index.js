@@ -29979,7 +29979,12 @@ class GitHubActionsAdapter {
         return this.context;
     }
     debug() {
-        return JSON.stringify(this);
+        return JSON.stringify({
+            owner: this.owner,
+            repo: this.repo,
+            token: this.token,
+            workspace: this.workspace,
+        });
     }
 }
 exports.GitHubActionsAdapter = GitHubActionsAdapter;
@@ -30032,12 +30037,13 @@ const githubActions_1 = __nccwpck_require__(6850);
 async function run() {
     try {
         const adapter = new githubActions_1.GitHubActionsAdapter(core.getInput("GITHUB_TOKEN"), process.env.GITHUB_WORKSPACE || process.cwd());
-        core.info(adapter.debug());
-        core.debug(adapter.debug());
-        core.notice(adapter.debug());
+        // core.info(adapter.debug());
+        // core.debug(adapter.debug());
+        // core.notice(adapter.debug());
+        console.log(adapter.debug());
     }
     catch (error) {
-        core.info("deu ruim");
+        console.log("deu ruim");
     }
 }
 run();
