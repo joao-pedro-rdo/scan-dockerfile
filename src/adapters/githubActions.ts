@@ -1,8 +1,9 @@
 import * as github from "@actions/github";
+import { IGitHubActionsAdapter } from "./IAdapter";
 
-export class GitHubActionsAdapter {
+export class GitHubActionsAdapter implements IGitHubActionsAdapter {
   // TODO: Verify if need to private
-  private token: string;
+  public token: string; //? I Think this should be private but Interface does not allow
   public workspace: string;
   public owner: string;
   public repo: string;
@@ -12,10 +13,8 @@ export class GitHubActionsAdapter {
   constructor(token: string, workspace: string) {
     this.token = token;
     this.workspace = workspace;
-
     this.octokit = github.getOctokit(token);
     this.context = github.context;
-
     this.owner = this.context.repo.owner;
     this.repo = this.context.repo.repo;
   }

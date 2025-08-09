@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
 
 import { GitHubActionsAdapter } from "./adapters/githubActions";
-
+import * as utils from "./utils";
 // Initialize the GitHub Actions adapter with the provided token and workspace
 async function run() {
   try {
@@ -10,9 +10,19 @@ async function run() {
       process.env.GITHUB_WORKSPACE || process.cwd()
     );
 
-    // core.info(adapter.debug());
-    // core.debug(adapter.debug());
-    // core.notice(adapter.debug());
+    // * Func to search for .dockerignore files
+    const dockerignoreFiles = await utils.finder({
+      dir: adapter.workspace,
+      file: ".dockerignore",
+      ignore: ["node_modules/**"],
+      onlyFiles: true,
+    });
+
+    console.log("Found .dockerignore files:", dockerignoreFiles);
+
+    utils.listDirectory(adapter.workspace);
+    utils.showDirectoryListing(adapter.workspace);
+
     console.log(adapter.debug());
   } catch (error) {
     console.log("deu ruim");
