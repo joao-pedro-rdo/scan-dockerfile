@@ -1,5 +1,6 @@
-export declare class GitHubActionsAdapter {
-    private token;
+import { IGitHubActionsAdapter } from "./IAdapter";
+export declare class GitHubActionsAdapter implements IGitHubActionsAdapter {
+    token: string;
     workspace: string;
     owner: string;
     repo: string;
