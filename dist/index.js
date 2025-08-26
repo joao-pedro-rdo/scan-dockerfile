@@ -37180,7 +37180,7 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 6850:
+/***/ 6888:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -37290,12 +37290,12 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7484));
-const githubActions_1 = __nccwpck_require__(6850);
+const ClassGithubActions_1 = __nccwpck_require__(6888);
 const utils = __importStar(__nccwpck_require__(1798));
 // Initialize the GitHub Actions adapter with the provided token and workspace
 async function run() {
     try {
-        const adapter = new githubActions_1.GitHubActionsAdapter(core.getInput("GITHUB_TOKEN"), process.env.GITHUB_WORKSPACE || process.cwd());
+        const adapter = new ClassGithubActions_1.GitHubActionsAdapter(core.getInput("GITHUB_TOKEN"), process.env.GITHUB_WORKSPACE || process.cwd());
         // * Func to search for .dockerignore files
         const dockerignoreFiles = await utils.finder({
             dir: adapter.workspace,
