@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 
-import { GitHubActionsAdapter } from "./adapters/githubActions";
+import { GitHubActionsAdapter } from "./adapters/ClassGithubActions";
 import * as utils from "./utils";
 // Initialize the GitHub Actions adapter with the provided token and workspace
 async function run() {

@@ -1,5 +1,5 @@
 import * as github from "@actions/github";
-import { IGitHubActionsAdapter } from "./IAdapter";
+import { IGitHubActionsAdapter } from "./adpter";
 
 export class GitHubActionsAdapter implements IGitHubActionsAdapter {
   // TODO: Verify if need to private
