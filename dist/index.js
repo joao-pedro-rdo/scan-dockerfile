@@ -37226,7 +37226,7 @@ class GitHubActionsAdapter {
         this.token = token;
         this.workspace = workspace;
         this.octokit = github.getOctokit(token);
-        this.context = github.context;
+        this.context = github.context; //? where is coming from
         this.owner = this.context.repo.owner;
         this.repo = this.context.repo.repo;
     }
