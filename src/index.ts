@@ -29,7 +29,7 @@ async function run() {
 
     console.log("----------------🐋🐋🐋🐋🐋🐋--------------");
     console.log("Verifying permissions...");
-    console.log("Permissions verified:", await adapter.verifyPermissions());
+    console.log("Permissions verified:", await adapter.checkPermissions());
 
     console.log("----------------🐋🐋🐋🐋🐋🐋--------------");
     console.log("Teste issue and PR");
