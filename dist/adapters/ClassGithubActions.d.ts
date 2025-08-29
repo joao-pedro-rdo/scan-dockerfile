@@ -13,6 +13,7 @@ export declare class GitHubActionsAdapter implements IGitHubActionsAdapter {
     /**
      * Create New Issue
      * @param obj: INewIssue
+     * @see https://octokit.github.io/rest.js/v22/#issues
      */
     newIssue(obj: INewIssue): Promise<void>;
     debug(): string;

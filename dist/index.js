@@ -37252,10 +37252,11 @@ class GitHubActionsAdapter {
     /**
      * Create New Issue
      * @param obj: INewIssue
+     * @see https://octokit.github.io/rest.js/v22/#issues
      */
     async newIssue(obj) {
         console.log("🤢 Ockotkit: ", this.octokit);
-        await this.octokit.issues.create({
+        await this.octokit.rest.issues.create({
             owner: this.owner,
             repo: this.repo,
             title: obj.title,
