@@ -9,4 +9,13 @@ export interface IGitHubActionsAdapter extends IAdapter {
     octokit: any;
     context: any;
 }
+export interface INewIssue {
+    title: string;
+    body: string;
+    labels: string[];
+}
+export interface INewPR {
+    title: string;
+    body: string;
+}
 export {};

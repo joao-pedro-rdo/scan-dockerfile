@@ -37291,11 +37291,13 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7484));
 const ClassGithubActions_1 = __nccwpck_require__(6888);
+const ClassReporters_1 = __nccwpck_require__(6054);
 const utils = __importStar(__nccwpck_require__(1798));
 // Initialize the GitHub Actions adapter with the provided token and workspace
 async function run() {
     try {
         const adapter = new ClassGithubActions_1.GitHubActionsAdapter(core.getInput("GITHUB_TOKEN"), process.env.GITHUB_WORKSPACE || process.cwd());
+        const reporter = new ClassReporters_1.ClassReporter(adapter);
         // * Func to search for .dockerignore files
         const dockerignoreFiles = await utils.finder({
             dir: adapter.workspace,
@@ -37307,12 +37309,73 @@ async function run() {
         utils.listDirectory(adapter.workspace);
         utils.showDirectoryListing(adapter.workspace);
         console.log(adapter.debug());
+        reporter.newIssue({
+            title: "New Issue Title",
+            body: "Description of the new issue",
+            labels: ["dockerfile", "scan-dockerfile"],
+        });
+        reporter.newPr({
+            title: "New Pull Request Title",
+            body: "Description of the new pull request",
+        });
     }
     catch (error) {
         console.log("deu ruim");
     }
 }
 run();
+
+
+/***/ }),
+
+/***/ 6054:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ClassReporter = void 0;
+/**
+ * Class for reporting GitHub Actions events.
+ */
+class ClassReporter {
+    constructor(adapter) {
+        this.IGitHubActionsAdapter = adapter;
+    }
+    info() {
+        // TODO: Implement info reporting
+    }
+    summary() {
+        // TODO: Implement summary reporting
+        // Core summary
+    }
+    /**
+     * Create New Issue
+     * @param obj: INewIssue
+     */
+    newIssue(obj) {
+        this.IGitHubActionsAdapter.octokit.issues.create({
+            owner: this.IGitHubActionsAdapter.owner,
+            repo: this.IGitHubActionsAdapter.repo,
+            title: obj.title,
+            body: obj.body,
+            labels: obj.labels,
+        });
+    }
+    /**
+     * Create New Pull Request
+     * @param obj: INewPR
+     */
+    newPr(obj) {
+        this.IGitHubActionsAdapter.octokit.pulls.create({
+            owner: this.IGitHubActionsAdapter.owner,
+            repo: this.IGitHubActionsAdapter.repo,
+            title: obj.title,
+            body: obj.body,
+        });
+    }
+}
+exports.ClassReporter = ClassReporter;
 
 
 /***/ }),
