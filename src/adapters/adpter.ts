@@ -22,4 +22,5 @@ export interface INewIssue {
 export interface INewPR {
   title: string;
   body: string;
+  head: string;
 }

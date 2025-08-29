@@ -47,6 +47,7 @@ export class ClassReporter implements reporter {
       repo: this.IGitHubActionsAdapter.repo,
       title: obj.title,
       body: obj.body,
+      head: obj.head,
     });
   }
 }

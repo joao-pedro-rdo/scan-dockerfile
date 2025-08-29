@@ -44,6 +44,7 @@ async function run() {
     reporter.newPr({
       title: "New Pull Request Title",
       body: "Description of the new pull request",
+      head: "joao-pedro-rdo:develop",
     });
   } catch (error) {
     console.log("deu ruim");
