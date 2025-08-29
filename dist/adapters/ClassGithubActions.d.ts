@@ -10,5 +10,6 @@ export declare class GitHubActionsAdapter implements IGitHubActionsAdapter {
     getOctokit(): any;
     getContext(): any;
     verifyPermissions(): Promise<any>;
+    checkPermissions(): Promise<any>;
     debug(): string;
 }
