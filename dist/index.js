@@ -37309,11 +37309,14 @@ async function run() {
         utils.listDirectory(adapter.workspace);
         utils.showDirectoryListing(adapter.workspace);
         console.log(adapter.debug());
+        console.log("test of new issue");
+        console.log("something");
         reporter.newIssue({
             title: "New Issue Title",
             body: "Description of the new issue",
             labels: ["dockerfile", "scan-dockerfile"],
         });
+        console.log("teste of new PR");
         reporter.newPr({
             title: "New Pull Request Title",
             body: "Description of the new pull request",
