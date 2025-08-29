@@ -21,7 +21,22 @@ export class ClassReporter implements reporter {
     // TODO: Implement summary reporting
     // Core summary
   }
+  /**
+   * Create New Issue
+   * @param obj: INewIssue
+   * @see {@link https://octokit.github.io/rest.js/ | Octokit.js Documentation}
+   */
 
+  async newIssue(obj: INewIssue) {
+    // console.log("🤢 Ockotkit: ", this.IGitHubActionsAdapter.octokit);
+    await this.IGitHubActionsAdapter.octokit.rest.issues.create({
+      owner: this.IGitHubActionsAdapter.owner,
+      repo: this.IGitHubActionsAdapter.repo,
+      title: obj.title,
+      body: obj.body,
+      labels: obj.labels,
+    });
+  }
   /**
    * Create New Pull Request
    * @param obj: INewPR

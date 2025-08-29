@@ -38,21 +38,6 @@ export class GitHubActionsAdapter implements IGitHubActionsAdapter {
     }
   }
 
-  /**
-   * Create New Issue
-   * @param obj: INewIssue
-   * @see https://octokit.github.io/rest.js/v22/#issues
-   */
-  async newIssue(obj: INewIssue) {
-    console.log("🤢 Ockotkit: ", this.octokit);
-    await this.octokit.rest.issues.create({
-      owner: this.owner,
-      repo: this.repo,
-      title: obj.title,
-      body: obj.body,
-      labels: obj.labels,
-    });
-  }
   debug() {
     return JSON.stringify({
       owner: this.owner,

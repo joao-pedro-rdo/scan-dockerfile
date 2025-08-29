@@ -35,7 +35,7 @@ async function run() {
     console.log("Teste issue and PR");
     console.log("test of new issue");
     console.log("something");
-    adapter.newIssue({
+    reporter.newIssue({
       title: "New Issue Title",
       body: "Description of the new issue",
       labels: ["dockerfile", "scan-dockerfile"],
