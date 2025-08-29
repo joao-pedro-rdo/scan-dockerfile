@@ -1,5 +1,5 @@
 import { IGitHubActionsAdapter, INewIssue, INewPR } from "../adapters/adpter";
-
+const github = require("@actions/github");
 interface reporter {}
 
 /**
@@ -20,20 +20,6 @@ export class ClassReporter implements reporter {
   summary() {
     // TODO: Implement summary reporting
     // Core summary
-  }
-  /**
-   * Create New Issue
-   * @param obj: INewIssue
-   */
-  async newIssue(obj: INewIssue) {
-    console.log("🤢 Ockotkit: ", this.IGitHubActionsAdapter.octokit);
-    await this.IGitHubActionsAdapter.octokit.issues.create({
-      owner: this.IGitHubActionsAdapter.owner,
-      repo: this.IGitHubActionsAdapter.repo,
-      title: obj.title,
-      body: obj.body,
-      labels: obj.labels,
-    });
   }
 
   /**

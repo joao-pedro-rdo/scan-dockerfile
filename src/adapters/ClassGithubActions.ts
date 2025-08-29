@@ -1,5 +1,5 @@
 import * as github from "@actions/github";
-import { IGitHubActionsAdapter } from "./adpter";
+import { IGitHubActionsAdapter, INewIssue } from "./adpter";
 
 export class GitHubActionsAdapter implements IGitHubActionsAdapter {
   // TODO: Verify if need to private
@@ -36,6 +36,21 @@ export class GitHubActionsAdapter implements IGitHubActionsAdapter {
       console.error("Error verifying permissions:", error);
       throw error;
     }
+  }
+
+  /**
+   * Create New Issue
+   * @param obj: INewIssue
+   */
+  async newIssue(obj: INewIssue) {
+    console.log("🤢 Ockotkit: ", this.octokit);
+    await this.octokit.issues.create({
+      owner: this.owner,
+      repo: this.repo,
+      title: obj.title,
+      body: obj.body,
+      labels: obj.labels,
+    });
   }
   debug() {
     return JSON.stringify({
