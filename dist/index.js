@@ -37236,6 +37236,19 @@ class GitHubActionsAdapter {
     getContext() {
         return this.context;
     }
+    async verifyPermissions() {
+        try {
+            const { data } = await this.octokit.rest.repos.get({
+                owner: this.owner,
+                repo: this.repo,
+            });
+            return data;
+        }
+        catch (error) {
+            console.error("Error verifying permissions:", error);
+            throw error;
+        }
+    }
     debug() {
         return JSON.stringify({
             owner: this.owner,
@@ -37309,6 +37322,11 @@ async function run() {
         utils.listDirectory(adapter.workspace);
         utils.showDirectoryListing(adapter.workspace);
         console.log(adapter.debug());
+        console.log("----------------🐋🐋🐋🐋🐋🐋--------------");
+        console.log("Verifying permissions...");
+        console.log("Permissions verified:", await adapter.verifyPermissions());
+        console.log("----------------🐋🐋🐋🐋🐋🐋--------------");
+        console.log("Teste issue and PR");
         console.log("test of new issue");
         console.log("something");
         reporter.newIssue({
