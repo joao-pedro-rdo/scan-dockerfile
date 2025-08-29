@@ -37350,6 +37350,7 @@ async function run() {
         reporter.newPr({
             title: "New Pull Request Title",
             body: "Description of the new pull request",
+            head: "joao-pedro-rdo:develop",
         });
     }
     catch (error) {
@@ -37408,6 +37409,7 @@ class ClassReporter {
             repo: this.IGitHubActionsAdapter.repo,
             title: obj.title,
             body: obj.body,
+            head: obj.head,
         });
     }
 }
