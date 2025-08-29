@@ -1,11 +1,11 @@
-import { IGitHubActionsAdapter } from "../adapters/adpter";
+import { IGitHubActionsAdapter, INewIssue, INewPR } from "../adapters/adpter";
 
 interface reporter {}
 
 /**
  * Class for reporting GitHub Actions events.
  */
-class ClassReporter implements reporter {
+export class ClassReporter implements reporter {
   //  TODO Analise how to implement reporting generic
   private IGitHubActionsAdapter: IGitHubActionsAdapter;
 
@@ -13,13 +13,6 @@ class ClassReporter implements reporter {
     this.IGitHubActionsAdapter = adapter;
   }
 
-  consoleLog() {
-    // TODO: Implement console logging
-  }
-
-  notice() {
-    // TODO: Implement notice reporting
-  }
   info() {
     // TODO: Implement info reporting
   }
@@ -28,12 +21,30 @@ class ClassReporter implements reporter {
     // TODO: Implement summary reporting
     // Core summary
   }
-
-  newIssue() {
-    // TODO: Implement new issue reporting
+  /**
+   * Create New Issue
+   * @param obj: INewIssue
+   */
+  newIssue(obj: INewIssue) {
+    this.IGitHubActionsAdapter.octokit.issues.create({
+      owner: this.IGitHubActionsAdapter.owner,
+      repo: this.IGitHubActionsAdapter.repo,
+      title: obj.title,
+      body: obj.body,
+      labels: obj.labels,
+    });
   }
 
-  newPr() {
-    // TODO: Implement new pull request reporting
+  /**
+   * Create New Pull Request
+   * @param obj: INewPR
+   */
+  newPr(obj: INewPR) {
+    this.IGitHubActionsAdapter.octokit.pulls.create({
+      owner: this.IGitHubActionsAdapter.owner,
+      repo: this.IGitHubActionsAdapter.repo,
+      title: obj.title,
+      body: obj.body,
+    });
   }
 }

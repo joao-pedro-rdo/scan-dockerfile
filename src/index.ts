@@ -1,6 +1,7 @@
 import * as core from "@actions/core";
 
 import { GitHubActionsAdapter } from "./adapters/ClassGithubActions";
+import { ClassReporter } from "./reporters/ClassReporters";
 import * as utils from "./utils";
 // Initialize the GitHub Actions adapter with the provided token and workspace
 async function run() {
@@ -9,6 +10,7 @@ async function run() {
       core.getInput("GITHUB_TOKEN"),
       process.env.GITHUB_WORKSPACE || process.cwd()
     );
+    const reporter = new ClassReporter(adapter);
 
     // * Func to search for .dockerignore files
     const dockerignoreFiles = await utils.finder({
@@ -24,6 +26,16 @@ async function run() {
     utils.showDirectoryListing(adapter.workspace);
 
     console.log(adapter.debug());
+
+    reporter.newIssue({
+      title: "New Issue Title",
+      body: "Description of the new issue",
+      labels: ["dockerfile", "scan-dockerfile"],
+    });
+    reporter.newPr({
+      title: "New Pull Request Title",
+      body: "Description of the new pull request",
+    });
   } catch (error) {
     console.log("deu ruim");
   }
