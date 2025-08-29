@@ -26,6 +26,7 @@ export class ClassReporter implements reporter {
    * @param obj: INewIssue
    */
   async newIssue(obj: INewIssue) {
+    console.log("🤢 Ockotkit: ", this.IGitHubActionsAdapter.octokit);
     await this.IGitHubActionsAdapter.octokit.issues.create({
       owner: this.IGitHubActionsAdapter.owner,
       repo: this.IGitHubActionsAdapter.repo,
