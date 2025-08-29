@@ -37249,6 +37249,20 @@ class GitHubActionsAdapter {
             throw error;
         }
     }
+    /**
+     * Create New Issue
+     * @param obj: INewIssue
+     */
+    async newIssue(obj) {
+        console.log("🤢 Ockotkit: ", this.octokit);
+        await this.octokit.issues.create({
+            owner: this.owner,
+            repo: this.repo,
+            title: obj.title,
+            body: obj.body,
+            labels: obj.labels,
+        });
+    }
     debug() {
         return JSON.stringify({
             owner: this.owner,
@@ -37329,7 +37343,7 @@ async function run() {
         console.log("Teste issue and PR");
         console.log("test of new issue");
         console.log("something");
-        reporter.newIssue({
+        adapter.newIssue({
             title: "New Issue Title",
             body: "Description of the new issue",
             labels: ["dockerfile", "scan-dockerfile"],
@@ -37350,12 +37364,13 @@ run();
 /***/ }),
 
 /***/ 6054:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClassReporter = void 0;
+const github = __nccwpck_require__(3228);
 /**
  * Class for reporting GitHub Actions events.
  */
@@ -37369,20 +37384,6 @@ class ClassReporter {
     summary() {
         // TODO: Implement summary reporting
         // Core summary
-    }
-    /**
-     * Create New Issue
-     * @param obj: INewIssue
-     */
-    async newIssue(obj) {
-        console.log("🤢 Ockotkit: ", this.IGitHubActionsAdapter.octokit);
-        await this.IGitHubActionsAdapter.octokit.issues.create({
-            owner: this.IGitHubActionsAdapter.owner,
-            repo: this.IGitHubActionsAdapter.repo,
-            title: obj.title,
-            body: obj.body,
-            labels: obj.labels,
-        });
     }
     /**
      * Create New Pull Request
