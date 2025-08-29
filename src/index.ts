@@ -27,6 +27,12 @@ async function run() {
 
     console.log(adapter.debug());
 
+    console.log("----------------🐋🐋🐋🐋🐋🐋--------------");
+    console.log("Verifying permissions...");
+    console.log("Permissions verified:", await adapter.verifyPermissions());
+
+    console.log("----------------🐋🐋🐋🐋🐋🐋--------------");
+    console.log("Teste issue and PR");
     console.log("test of new issue");
     console.log("something");
     reporter.newIssue({

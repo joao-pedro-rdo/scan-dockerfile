@@ -25,6 +25,18 @@ export class GitHubActionsAdapter implements IGitHubActionsAdapter {
   getContext() {
     return this.context;
   }
+  async verifyPermissions() {
+    try {
+      const { data } = await this.octokit.rest.repos.get({
+        owner: this.owner,
+        repo: this.repo,
+      });
+      return data;
+    } catch (error) {
+      console.error("Error verifying permissions:", error);
+      throw error;
+    }
+  }
   debug() {
     return JSON.stringify({
       owner: this.owner,
