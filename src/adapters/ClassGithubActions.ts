@@ -44,7 +44,7 @@ export class GitHubActionsAdapter implements IGitHubActionsAdapter {
    */
   async newIssue(obj: INewIssue) {
     console.log("🤢 Ockotkit: ", this.octokit);
-    await this.octokit.issues.create({
+    await this.octokit.rest.issues.create({
       owner: this.owner,
       repo: this.repo,
       title: obj.title,
