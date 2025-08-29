@@ -1,4 +1,4 @@
-import { IGitHubActionsAdapter, INewIssue } from "./adpter";
+import { IGitHubActionsAdapter } from "./adpter";
 export declare class GitHubActionsAdapter implements IGitHubActionsAdapter {
     token: string;
     workspace: string;
@@ -10,11 +10,5 @@ export declare class GitHubActionsAdapter implements IGitHubActionsAdapter {
     getOctokit(): any;
     getContext(): any;
     verifyPermissions(): Promise<any>;
-    /**
-     * Create New Issue
-     * @param obj: INewIssue
-     * @see https://octokit.github.io/rest.js/v22/#issues
-     */
-    newIssue(obj: INewIssue): Promise<void>;
     debug(): string;
 }

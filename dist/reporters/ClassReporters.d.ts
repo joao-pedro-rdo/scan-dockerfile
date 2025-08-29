@@ -1,4 +1,4 @@
-import { IGitHubActionsAdapter, INewPR } from "../adapters/adpter";
+import { IGitHubActionsAdapter, INewIssue, INewPR } from "../adapters/adpter";
 interface reporter {
 }
 /**
@@ -9,6 +9,12 @@ export declare class ClassReporter implements reporter {
     constructor(adapter: IGitHubActionsAdapter);
     info(): void;
     summary(): void;
+    /**
+     * Create New Issue
+     * @param obj: INewIssue
+     * @see {@link https://octokit.github.io/rest.js/ | Octokit.js Documentation}
+     */
+    newIssue(obj: INewIssue): Promise<void>;
     /**
      * Create New Pull Request
      * @param obj: INewPR

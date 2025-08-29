@@ -37249,21 +37249,6 @@ class GitHubActionsAdapter {
             throw error;
         }
     }
-    /**
-     * Create New Issue
-     * @param obj: INewIssue
-     * @see https://octokit.github.io/rest.js/v22/#issues
-     */
-    async newIssue(obj) {
-        console.log("🤢 Ockotkit: ", this.octokit);
-        await this.octokit.rest.issues.create({
-            owner: this.owner,
-            repo: this.repo,
-            title: obj.title,
-            body: obj.body,
-            labels: obj.labels,
-        });
-    }
     debug() {
         return JSON.stringify({
             owner: this.owner,
@@ -37344,7 +37329,7 @@ async function run() {
         console.log("Teste issue and PR");
         console.log("test of new issue");
         console.log("something");
-        adapter.newIssue({
+        reporter.newIssue({
             title: "New Issue Title",
             body: "Description of the new issue",
             labels: ["dockerfile", "scan-dockerfile"],
@@ -37385,6 +37370,21 @@ class ClassReporter {
     summary() {
         // TODO: Implement summary reporting
         // Core summary
+    }
+    /**
+     * Create New Issue
+     * @param obj: INewIssue
+     * @see {@link https://octokit.github.io/rest.js/ | Octokit.js Documentation}
+     */
+    async newIssue(obj) {
+        // console.log("🤢 Ockotkit: ", this.IGitHubActionsAdapter.octokit);
+        await this.IGitHubActionsAdapter.octokit.rest.issues.create({
+            owner: this.IGitHubActionsAdapter.owner,
+            repo: this.IGitHubActionsAdapter.repo,
+            title: obj.title,
+            body: obj.body,
+            labels: obj.labels,
+        });
     }
     /**
      * Create New Pull Request
