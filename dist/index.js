@@ -37374,8 +37374,8 @@ class ClassReporter {
      * Create New Issue
      * @param obj: INewIssue
      */
-    newIssue(obj) {
-        this.IGitHubActionsAdapter.octokit.issues.create({
+    async newIssue(obj) {
+        await this.IGitHubActionsAdapter.octokit.issues.create({
             owner: this.IGitHubActionsAdapter.owner,
             repo: this.IGitHubActionsAdapter.repo,
             title: obj.title,
@@ -37387,8 +37387,8 @@ class ClassReporter {
      * Create New Pull Request
      * @param obj: INewPR
      */
-    newPr(obj) {
-        this.IGitHubActionsAdapter.octokit.pulls.create({
+    async newPr(obj) {
+        await this.IGitHubActionsAdapter.octokit.pulls.create({
             owner: this.IGitHubActionsAdapter.owner,
             repo: this.IGitHubActionsAdapter.repo,
             title: obj.title,

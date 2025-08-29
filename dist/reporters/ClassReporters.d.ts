@@ -13,11 +13,11 @@ export declare class ClassReporter implements reporter {
      * Create New Issue
      * @param obj: INewIssue
      */
-    newIssue(obj: INewIssue): void;
+    newIssue(obj: INewIssue): Promise<void>;
     /**
      * Create New Pull Request
      * @param obj: INewPR
      */
-    newPr(obj: INewPR): void;
+    newPr(obj: INewPR): Promise<void>;
 }
 export {};
