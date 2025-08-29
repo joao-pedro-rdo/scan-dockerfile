@@ -42,7 +42,7 @@ export class ClassReporter implements reporter {
    * @param obj: INewPR
    */
   async newPr(obj: INewPR) {
-    await this.IGitHubActionsAdapter.octokit.pulls.create({
+    await this.IGitHubActionsAdapter.octokit.rest.pulls.create({
       owner: this.IGitHubActionsAdapter.owner,
       repo: this.IGitHubActionsAdapter.repo,
       title: obj.title,
