@@ -37375,6 +37375,7 @@ class ClassReporter {
      * @param obj: INewIssue
      */
     async newIssue(obj) {
+        console.log("🤢 Ockotkit: ", this.IGitHubActionsAdapter.octokit);
         await this.IGitHubActionsAdapter.octokit.issues.create({
             owner: this.IGitHubActionsAdapter.owner,
             repo: this.IGitHubActionsAdapter.repo,
