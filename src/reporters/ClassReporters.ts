@@ -25,8 +25,8 @@ export class ClassReporter implements reporter {
    * Create New Issue
    * @param obj: INewIssue
    */
-  newIssue(obj: INewIssue) {
-    this.IGitHubActionsAdapter.octokit.issues.create({
+  async newIssue(obj: INewIssue) {
+    await this.IGitHubActionsAdapter.octokit.issues.create({
       owner: this.IGitHubActionsAdapter.owner,
       repo: this.IGitHubActionsAdapter.repo,
       title: obj.title,
@@ -39,8 +39,8 @@ export class ClassReporter implements reporter {
    * Create New Pull Request
    * @param obj: INewPR
    */
-  newPr(obj: INewPR) {
-    this.IGitHubActionsAdapter.octokit.pulls.create({
+  async newPr(obj: INewPR) {
+    await this.IGitHubActionsAdapter.octokit.pulls.create({
       owner: this.IGitHubActionsAdapter.owner,
       repo: this.IGitHubActionsAdapter.repo,
       title: obj.title,
