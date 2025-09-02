@@ -9,7 +9,7 @@ on:
       - feature/new-architecture
     paths-ignore:
       - "**.md"
-      - "dist/**" # Evitar loop infinito
+      - "dist/**" #avoid infinite loop
       - ".github/workflows/**"
       - ".gitignore"
       - ".vscode/**"

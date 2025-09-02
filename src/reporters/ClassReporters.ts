@@ -41,6 +41,7 @@ export class ClassReporter implements reporter {
    * Create New Pull Request
    * @param obj: INewPR
    */
+  //TODO implement new PR is not working
   async newPr(obj: INewPR) {
     await this.IGitHubActionsAdapter.octokit.rest.pulls.create({
       owner: this.IGitHubActionsAdapter.owner,
