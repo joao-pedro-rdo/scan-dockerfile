@@ -1,4 +1,4 @@
-# 🐳 Dockerfile Scanner Action
+# 🐳 Automated Detection and Remediation of Dockerfile Issues in CI/CD Pipelines
 
 [![Build index.js for GitHub Action](https://github.com/joao-pedro-rdo/scan-dockerfile/actions/workflows/build.yml/badge.svg)](https://github.com/joao-pedro-rdo/scan-dockerfile/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
