@@ -1,5 +1,12 @@
-import { IGitHubActionsAdapter, INewIssue, INewPR } from "../adapters/adpter";
+import {
+  addLinkIssue,
+  IGitHubActionsAdapter,
+  INewIssue,
+  INewPR,
+  ISummary,
+} from "../adapters/adpter";
 const github = require("@actions/github");
+const core = require("@actions/core");
 interface reporter {}
 
 /**
@@ -16,10 +23,18 @@ export class ClassReporter implements reporter {
   info() {
     // TODO: Implement info reporting
   }
+  /**
+   * Report summary information, this method make summary with default format for my scan-dockefile.
+   * @param obj: ISummary
+   * @see {@link https://github.com/actions/toolkit/tree/main/packages/core | Core Toolkit Documentation}
+   */
+  summary(obj: ISummary) {
+    core.summary.addHeading(`${obj.title}`, "2");
+    core.summary.addParagraph(`${obj.summary}`);
+  }
 
-  summary() {
-    // TODO: Implement summary reporting
-    // Core summary
+  addLinkIssue(obj: addLinkIssue) {
+    core.summary.addLink(`${obj.text}`, `${obj.link}`);
   }
   /**
    * Create New Issue

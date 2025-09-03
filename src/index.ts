@@ -27,25 +27,26 @@ async function run() {
 
     console.log(adapter.debug());
 
-    console.log("----------------🐋🐋🐋🐋🐋🐋--------------");
-    console.log("Verifying permissions...");
-    console.log("Permissions verified:", await adapter.checkPermissions());
+    // if (dockerignoreFiles.length > 0) {
+    //   reporter.newIssue({
+    //     title: "Dockerignore files found",
+    //     body: `The following .dockerignore files were found:\n${dockerignoreFiles.join("\n")}`,
+    //     labels: ["dockerfile", "scan-dockerfile"],
+    //   });
+    // }
 
-    console.log("----------------🐋🐋🐋🐋🐋🐋--------------");
-    console.log("Teste issue and PR");
-    console.log("test of new issue");
-    console.log("something");
+    // OU
+
+    // ClassIntermediaria que contem toda logica para fazer essa parda de verificar
+    // se tem o dockerignore e assim solicitar a new issue com os dados corretos
+    // e abrir as visualização
+
     reporter.newIssue({
       title: "New Issue Title",
       body: "Description of the new issue",
       labels: ["dockerfile", "scan-dockerfile"],
     });
     console.log("teste of new PR");
-    reporter.newPr({
-      title: "New Pull Request Title",
-      body: "Description of the new pull request",
-      head: "joao-pedro-rdo:develop",
-    });
   } catch (error) {
     console.log("deu ruim");
   }
