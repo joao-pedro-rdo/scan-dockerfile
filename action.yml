@@ -1,22 +1,45 @@
 name: "Scan Docker Image"
-description: "Scan a Docker image actions for best practices."
+description: |
+  Scan Dockerfiles in your repository for security best practices and optimization opportunities.
+
+  Required Permissions:
+  - contents: read (to access repository files)
+  - issues: write (to create issues with scan results)
+  - pull-requests: write (to comment on PRs)
+
 author: "Joao Pedro Ramos de Oliveira"
+
 inputs:
   GITHUB_TOKEN:
-    description: "GitHub token for authentication"
+    description: |
+      GitHub token for authentication. Must have permissions:
+      - contents:read, issues:write, pull-requests:write
     required: true
-  # ISSUE_ID:
-  #   description: "Issue ID to link the scan results"
-  #   required: true
-  # COMMENT:
-  #   description: "Comment to post the scan results"
-  #   required: true
+  # dockerfile-path:
+  #   description: "Path to scan for Dockerfiles (default: repository root)"
+  #   required: false
+  #   default: "."
+  # create-issue:
+  #   description: "Create an issue with scan results (true/false)"
+  #   required: false
+  #   default: "true"
+  # issue-title:
+  #   description: "Custom title for the created issue"
+  #   required: false
+  #   default: "🐳 Dockerfile Security Scan Results"
+
 outputs:
   COMMENT_ID:
     description: "ID of the comment where the scan results were posted"
+  ISSUE_ID:
+    description: "ID of the issue created with scan results"
+  SCAN_STATUS:
+    description: "Overall scan status (success/warning/error)"
+
 runs:
   using: "node20"
   main: "dist/index.js"
+
 branding:
-  icon: "info"
+  icon: "shield"
   color: "blue"

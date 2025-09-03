@@ -3,6 +3,12 @@ const path = require("path");
 const core = require("@actions/core");
 const fs = require("fs").promises;
 
+// ✅ Nova função para listar diretório (como ls)
+const fg = require("fast-glob");
+const path = require("path");
+const core = require("@actions/core");
+const fs = require("fs").promises;
+
 const listDirectory = async (dir) => {
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true });

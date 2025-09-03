@@ -1,133 +1,6 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 916:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const fg = __nccwpck_require__(5648);
-const path = __nccwpck_require__(6928);
-const core = __nccwpck_require__(7484);
-const fs = (__nccwpck_require__(9896).promises);
-
-const listDirectory = async (dir) => {
-  try {
-    const entries = await fs.readdir(dir, { withFileTypes: true });
-
-    const result = {
-      path: dir,
-      files: [],
-      directories: [],
-      total: entries.length,
-    };
-
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name);
-
-      if (entry.isDirectory()) {
-        result.directories.push({
-          name: entry.name,
-          path: fullPath,
-          type: "directory",
-        });
-      } else if (entry.isFile()) {
-        const stats = await fs.stat(fullPath);
-        result.files.push({
-          name: entry.name,
-          path: fullPath,
-          type: "file",
-          size: stats.size,
-          modified: stats.mtime,
-        });
-      }
-    }
-
-    return result;
-  } catch (error) {
-    console.error(`Error listing directory ${dir}:`, error);
-    core.error(`Error listing directory: ${error.message}`);
-    return null;
-  }
-};
-
-// ✅ Função para exibir o "ls" formatado
-const showDirectoryListing = async (dir) => {
-  const listing = await listDirectory(dir);
-
-  if (!listing) {
-    core.warning(`Could not list directory: ${dir}`);
-    return;
-  }
-
-  console.log(`\n📁 Directory: ${listing.path}`);
-  console.log(`📊 Total items: ${listing.total}\n`);
-
-  // Mostrar diretórios
-  if (listing.directories.length > 0) {
-    console.log("📂 Directories:");
-    listing.directories.forEach((dir) => {
-      console.log(`   📁 ${dir.name}`);
-    });
-    console.log();
-  }
-
-  // Mostrar arquivos
-  if (listing.files.length > 0) {
-    console.log("📄 Files:");
-    listing.files.forEach((file) => {
-      const size = (file.size / 1024).toFixed(2);
-      console.log(`   📄 ${file.name} (${size} KB)`);
-    });
-    console.log();
-  }
-
-  // Log para GitHub Actions
-  core.info(
-    `Directory ${dir} contains ${listing.files.length} files and ${listing.directories.length} directories`
-  );
-};
-// TODO look if how set the debug mode and set onlu list director on debug mode
-// TODO: Verify if .dockerfile need improve
-const finderDockerignore = async (dir) => {
-  try {
-    // ✅ Mostrar conteúdo do diretório primeiro
-    console.log(`\n🔍 Scanning directory: ${dir}`);
-    await showDirectoryListing(dir);
-
-    const scan = await fg("**/.dockerignore", {
-      cwd: dir,
-      ignore: ["node_modules/**", "dist/**", "build/**"], //TODO: Add more ignores if needed
-      onlyFiles: true, // Only return files
-    });
-
-    console.log("🔍 Fast-glob scan results:", scan);
-    core.debug(`Found .dockerignore files: ${scan}`);
-
-    if (scan.length === 0) {
-      console.log("❌ No .dockerignore files found");
-      return null;
-    }
-
-    const fullPaths = scan.map((file) => path.join(dir, file));
-    console.log("✅ Full paths:", fullPaths);
-
-    return fullPaths;
-  } catch (error) {
-    console.error("Error finding .dockerignore files:", error);
-    core.error(`Error finding .dockerignore files: ${error.message}`);
-    return null;
-  }
-};
-
-// ✅ Export todas as funções
-module.exports = {
-  finderDockerignore,
-  listDirectory,
-  showDirectoryListing,
-};
-
-
-/***/ }),
-
 /***/ 4914:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -37307,6 +37180,386 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 6888:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.GitHubActionsAdapter = void 0;
+const github = __importStar(__nccwpck_require__(3228));
+class GitHubActionsAdapter {
+    constructor(token, workspace) {
+        this.token = token;
+        this.workspace = workspace;
+        this.octokit = github.getOctokit(token);
+        this.context = github.context; //? where is coming from
+        this.owner = this.context.repo.owner;
+        this.repo = this.context.repo.repo;
+    }
+    getOctokit() {
+        return this.octokit;
+    }
+    getContext() {
+        return this.context;
+    }
+    async verifyPermissions() {
+        try {
+            const { data } = await this.octokit.rest.repos.get({
+                owner: this.owner,
+                repo: this.repo,
+            });
+            return data;
+        }
+        catch (error) {
+            console.error("Error verifying permissions:", error);
+            throw error;
+        }
+    }
+    async checkPermissions() {
+        try {
+            return await this.octokit.rest.actions.getGithubActionsDefaultWorkflowPermissionsRepository({
+                owner: this.owner,
+                repo: this.repo,
+            });
+        }
+        catch (error) {
+            console.error(`Erro ao verificar as permissões:`);
+            return [];
+        }
+    }
+    debug() {
+        return JSON.stringify({
+            owner: this.owner,
+            repo: this.repo,
+            token: this.token,
+            workspace: this.workspace,
+        });
+    }
+}
+exports.GitHubActionsAdapter = GitHubActionsAdapter;
+
+
+/***/ }),
+
+/***/ 9407:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core = __importStar(__nccwpck_require__(7484));
+const ClassGithubActions_1 = __nccwpck_require__(6888);
+const ClassReporters_1 = __nccwpck_require__(6054);
+const utils = __importStar(__nccwpck_require__(1798));
+// Initialize the GitHub Actions adapter with the provided token and workspace
+async function run() {
+    try {
+        const adapter = new ClassGithubActions_1.GitHubActionsAdapter(core.getInput("GITHUB_TOKEN"), process.env.GITHUB_WORKSPACE || process.cwd());
+        const reporter = new ClassReporters_1.ClassReporter(adapter);
+        // * Func to search for .dockerignore files
+        const dockerignoreFiles = await utils.finder({
+            dir: adapter.workspace,
+            file: ".dockerignore",
+            ignore: ["node_modules/**"],
+            onlyFiles: true,
+        });
+        console.log("Found .dockerignore files:", dockerignoreFiles);
+        utils.listDirectory(adapter.workspace);
+        utils.showDirectoryListing(adapter.workspace);
+        console.log(adapter.debug());
+        console.log("----------------🐋🐋🐋🐋🐋🐋--------------");
+        console.log("Verifying permissions...");
+        console.log("Permissions verified:", await adapter.checkPermissions());
+        console.log("----------------🐋🐋🐋🐋🐋🐋--------------");
+        console.log("Teste issue and PR");
+        console.log("test of new issue");
+        console.log("something");
+        reporter.newIssue({
+            title: "New Issue Title",
+            body: "Description of the new issue",
+            labels: ["dockerfile", "scan-dockerfile"],
+        });
+        console.log("teste of new PR");
+        reporter.newPr({
+            title: "New Pull Request Title",
+            body: "Description of the new pull request",
+            head: "joao-pedro-rdo:develop",
+        });
+    }
+    catch (error) {
+        console.log("deu ruim");
+    }
+}
+run();
+
+
+/***/ }),
+
+/***/ 6054:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ClassReporter = void 0;
+const github = __nccwpck_require__(3228);
+/**
+ * Class for reporting GitHub Actions events.
+ */
+class ClassReporter {
+    constructor(adapter) {
+        this.IGitHubActionsAdapter = adapter;
+    }
+    info() {
+        // TODO: Implement info reporting
+    }
+    summary() {
+        // TODO: Implement summary reporting
+        // Core summary
+    }
+    /**
+     * Create New Issue
+     * @param obj: INewIssue
+     * @see {@link https://octokit.github.io/rest.js/ | Octokit.js Documentation}
+     */
+    async newIssue(obj) {
+        // console.log("🤢 Ockotkit: ", this.IGitHubActionsAdapter.octokit);
+        await this.IGitHubActionsAdapter.octokit.rest.issues.create({
+            owner: this.IGitHubActionsAdapter.owner,
+            repo: this.IGitHubActionsAdapter.repo,
+            title: obj.title,
+            body: obj.body,
+            labels: obj.labels,
+        });
+    }
+    /**
+     * Create New Pull Request
+     * @param obj: INewPR
+     */
+    //TODO implement new PR is not working
+    async newPr(obj) {
+        await this.IGitHubActionsAdapter.octokit.rest.pulls.create({
+            owner: this.IGitHubActionsAdapter.owner,
+            repo: this.IGitHubActionsAdapter.repo,
+            title: obj.title,
+            body: obj.body,
+            head: obj.head,
+        });
+    }
+}
+exports.ClassReporter = ClassReporter;
+
+
+/***/ }),
+
+/***/ 1798:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.showDirectoryListing = exports.listDirectory = exports.finder = void 0;
+const path_1 = __importDefault(__nccwpck_require__(6928));
+const fast_glob_1 = __importDefault(__nccwpck_require__(5648));
+const core = __importStar(__nccwpck_require__(7484));
+const fs_1 = __nccwpck_require__(9896);
+// TODO: Verify if .dockerfile need improve
+const finder = async ({ dir, file, ignore, onlyFiles, }) => {
+    try {
+        console.log(`\n🔍 Scanning directory: ${dir}`);
+        // await showDirectoryListing(dir); //* The function should have only purpose
+        const scan = await (0, fast_glob_1.default)(`**/${file}`, {
+            cwd: dir,
+            ignore: ignore,
+            onlyFiles: onlyFiles, // Only return files
+        });
+        console.log("🔍 Scan results:", scan);
+        core.debug(`Found .dockerignore files: ${scan}`); // TODO : See how should implement and use debug core on github
+        if (scan.length === 0) {
+            console.log("❌ No .dockerignore files found");
+            return null;
+        }
+        const fullPaths = scan.map((file) => path_1.default.join(dir, file));
+        console.log("✅ Full paths:", fullPaths);
+        return fullPaths;
+    }
+    catch (error) {
+        console.error("Error finding .dockerignore files:", error);
+        core.error(`Error finding .dockerignore files: ${error}`);
+        return null;
+    }
+};
+exports.finder = finder;
+const listDirectory = async (dir) => {
+    try {
+        const entries = await fs_1.promises.readdir(dir, { withFileTypes: true });
+        const result = {
+            path: dir,
+            files: [],
+            directories: [],
+            total: entries.length,
+        };
+        for (const entry of entries) {
+            const fullpath = path_1.default.join(dir, entry.name);
+            if (entry.isDirectory()) {
+                result.directories.push({
+                    name: entry.name,
+                    path: fullpath,
+                    type: "directory",
+                });
+            }
+            else if (entry.isFile()) {
+                const stats = await fs_1.promises.stat(fullpath);
+                result.files.push({
+                    name: entry.name,
+                    path: fullpath,
+                    type: "file",
+                    size: stats.size,
+                });
+            }
+        }
+        return result;
+    }
+    catch (error) {
+        console.error(`Error listing directory ${dir}:`, error);
+        core.error(`Error listing directory ${dir}: ${error}`);
+        throw error;
+    }
+};
+exports.listDirectory = listDirectory;
+const showDirectoryListing = async (dir) => {
+    const listing = await listDirectory(dir);
+    if (!listing) {
+        core.warning(`Could not list directory: ${dir}`);
+        return;
+    }
+    console.log(`\n📁 Directory: ${listing.path}`);
+    console.log(`📊 Total items: ${listing.total}\n`);
+    if (listing.directories.length > 0) {
+        console.log("📂 Directories:");
+        listing.directories.forEach((dir) => {
+            console.log(`📁 ${dir.name}`);
+        });
+        console.log();
+    }
+    if (listing.files.length > 0) {
+        console.log("📄 Files:");
+        listing.files.forEach((file) => {
+            const size = ((file.size ?? 0) / 1024).toFixed(2);
+            console.log(`   📄 ${file.name} (${size} KB)`);
+        });
+        console.log();
+    }
+    core.info(`Directory ${dir} contains ${listing.files.length} files and ${listing.directories.length} directories`);
+};
+exports.showDirectoryListing = showDirectoryListing;
+
+
+/***/ }),
+
 /***/ 2613:
 /***/ ((module) => {
 
@@ -39218,76 +39471,12 @@ module.exports = parseParams
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-const github = __nccwpck_require__(3228);
-const core = __nccwpck_require__(7484);
-// const fg = require('fast-glob');
-const {
-    finderDockerignore
-} = __nccwpck_require__(916);
-
-async function run() {
-    try {
-        // Get the inputs from the action
-        const token = core.getInput('GITHUB_TOKEN');
-
-        const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
-        core.info(`Scanning workspace: ${workspace}`);
-        //add comente de teste
-        const lookdockerignore = await finderDockerignore(workspace);
-        console.log('executei o findd');
-        console.log('lookdockerignore:', lookdockerignore);
-
-        let result = '';
-        if (lookdockerignore) {
-            core.info(`Found .dockerignore files: ${lookdockerignore.join(', ')}`);
-            result = 'found';
-        } else {
-            core.info('No .dockerignore files found.');
-            result = 'No .dockerignore files found.';
-        }
-
-
-
-        // Initialize Octokit with the provided token
-        const octokit = github.getOctokit(token);
-
-        const context = github.context;
-        const { owner, repo } = context.repo;
-
-        // Add a comment to the specified issue or PR
-        const newIssue = await octokit.rest.issues.create({
-            owner: owner,
-            repo: repo,
-            title: `🐳 Dockerfile-${result}`,
-            body: 'Comment test from GitHub Action',
-        });
-
-        // Obtain the ID of the created comment
-        console.log('Comment created successfully:', newIssue.data.title);
-        // const commentID = newIssue.data.id;
-
-        core.notice(`Comment created successfully: ${newIssue.data.title}`);
-
-        core.summary
-            .addHeading('🐳 Dockerfile Scan Results')
-            .addCodeBlock(`Comment created successfully: ${newIssue.data.title}`, 'markdown')
-            .addSeparator()
-            .addRaw(`${result}- dockerfile`)
-
-            // .addLink('Check the suggestion', 'https://github.com/actions/toolkit');
-            .addLink('View the Dockerfile', newIssue.data.html_url);
-
-        await core.summary.write();
-        core.notice('The summary has been written successfully.');
-
-    } catch (error) {
-        core.setFailed(`Action failed with error: ${error.message}`);
-    }
-}
-
-run();
-
-module.exports = __webpack_exports__;
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __nccwpck_require__(9407);
+/******/ 	module.exports = __webpack_exports__;
+/******/ 	
 /******/ })()
 ;
