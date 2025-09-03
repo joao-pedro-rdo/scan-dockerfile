@@ -4,6 +4,11 @@ const core = require("@actions/core");
 const fs = require("fs").promises;
 
 // ✅ Nova função para listar diretório (como ls)
+const fg = require("fast-glob");
+const path = require("path");
+const core = require("@actions/core");
+const fs = require("fs").promises;
+
 const listDirectory = async (dir) => {
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -80,7 +85,7 @@ const showDirectoryListing = async (dir) => {
     `Directory ${dir} contains ${listing.files.length} files and ${listing.directories.length} directories`
   );
 };
-
+// TODO look if how set the debug mode and set onlu list director on debug mode
 // TODO: Verify if .dockerfile need improve
 const finderDockerignore = async (dir) => {
   try {
