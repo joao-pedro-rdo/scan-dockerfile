@@ -37334,24 +37334,23 @@ async function run() {
         utils.listDirectory(adapter.workspace);
         utils.showDirectoryListing(adapter.workspace);
         console.log(adapter.debug());
-        console.log("----------------🐋🐋🐋🐋🐋🐋--------------");
-        console.log("Verifying permissions...");
-        console.log("Permissions verified:", await adapter.checkPermissions());
-        console.log("----------------🐋🐋🐋🐋🐋🐋--------------");
-        console.log("Teste issue and PR");
-        console.log("test of new issue");
-        console.log("something");
+        // if (dockerignoreFiles.length > 0) {
+        //   reporter.newIssue({
+        //     title: "Dockerignore files found",
+        //     body: `The following .dockerignore files were found:\n${dockerignoreFiles.join("\n")}`,
+        //     labels: ["dockerfile", "scan-dockerfile"],
+        //   });
+        // }
+        // OU
+        // ClassIntermediaria que contem toda logica para fazer essa parda de verificar
+        // se tem o dockerignore e assim solicitar a new issue com os dados corretos
+        // e abrir as visualização
         reporter.newIssue({
             title: "New Issue Title",
             body: "Description of the new issue",
             labels: ["dockerfile", "scan-dockerfile"],
         });
         console.log("teste of new PR");
-        reporter.newPr({
-            title: "New Pull Request Title",
-            body: "Description of the new pull request",
-            head: "joao-pedro-rdo:develop",
-        });
     }
     catch (error) {
         console.log("deu ruim");
@@ -37370,6 +37369,7 @@ run();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClassReporter = void 0;
 const github = __nccwpck_require__(3228);
+const core = __nccwpck_require__(7484);
 /**
  * Class for reporting GitHub Actions events.
  */
@@ -37380,9 +37380,17 @@ class ClassReporter {
     info() {
         // TODO: Implement info reporting
     }
-    summary() {
-        // TODO: Implement summary reporting
-        // Core summary
+    /**
+     * Report summary information, this method make summary with default format for my scan-dockefile.
+     * @param obj: ISummary
+     * @see {@link https://github.com/actions/toolkit/tree/main/packages/core | Core Toolkit Documentation}
+     */
+    summary(obj) {
+        core.summary.addHeading(`${obj.title}`, "2");
+        core.summary.addParagraph(`${obj.summary}`);
+    }
+    addLinkIssue(obj) {
+        core.summary.addLink(`${obj.text}`, `${obj.link}`);
     }
     /**
      * Create New Issue
