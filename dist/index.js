@@ -37394,12 +37394,14 @@ class LR_001_dockerignore {
                 onlyFiles: true,
             });
             if (dockerignoreFiles.length > 0) {
-                await this.reporter.newIssue({
-                    title: "Dockerignore files found",
-                    body: "Your project don't have .dockerignore files, this can lead to larger image sizes and potential security risks. It's recommended to add a .dockerignore file to exclude unnecessary files and directories from your Docker images. This pratices breachs the LR_001_dockerignore rule.",
-                    labels: ["LR_001_dockerignore", "dockerfile", "scan-dockerfile"],
-                });
+                this.reporter.infoSuccess(`Great you have a .dockerignore file found at: ${dockerignoreFiles.join(", ")}`);
+                return;
             }
+            await this.reporter.newIssue({
+                title: "No Dockerignore files found",
+                body: "Your project don't have .dockerignore files, this can lead to larger image sizes and potential security risks. It's recommended to add a .dockerignore file to exclude unnecessary files and directories from your Docker images. This pratices breachs the LR_001_dockerignore rule.",
+                labels: ["LR_001_dockerignore", "dockerfile", "scan-dockerfile"],
+            });
         }
         catch (error) {
             const errorMsg = error instanceof Error ? error.message : String(error);
@@ -37431,6 +37433,15 @@ class githubaActionsReporters {
     }
     addDebug(msg) {
         throw new Error("Method not implemented.");
+    }
+    infoSuccess(text) {
+        core.info(`\u001b[32m${text}\u001b[0m`);
+    }
+    infoWarning(text) {
+        core.warning(`\u001b[33m${text}\u001b[0m`);
+    }
+    infoError(text) {
+        core.error(`\u001b[31m${text}\u001b[0m`);
     }
     info() {
         // TODO: Implement info reporting

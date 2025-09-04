@@ -10,6 +10,9 @@ export interface IReporter {
 export interface IgithubaActionsReporters extends IReporter {
     IGitHubActionsAdapter: IGitHubActionsAdapter;
     newIssue(obj: INewIssue): Promise<void>;
+    infoSuccess(text: string): void;
+    infoWarning(text: string): void;
+    infoError(text: string): void;
 }
 export interface INewIssue {
     title: string;

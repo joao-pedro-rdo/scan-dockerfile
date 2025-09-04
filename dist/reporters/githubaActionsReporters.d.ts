@@ -8,6 +8,9 @@ export declare class githubaActionsReporters implements IgithubaActionsReporters
     IGitHubActionsAdapter: IGitHubActionsAdapter;
     constructor(adapter: IGitHubActionsAdapter);
     addDebug?(msg: string): void;
+    infoSuccess(text: string): void;
+    infoWarning(text: string): void;
+    infoError(text: string): void;
     info(): void;
     /**
      * Report summary information, this method make summary with default format for my scan-dockefile.
