@@ -28,6 +28,10 @@ export class LR_001_dockerignore {
         );
         return;
       }
+
+      //! Verify if the issue already exists to avoid duplicates
+      // TODO Implement a method to check existing issues
+
       await this.reporter.newIssue({
         title: "No Dockerignore files found",
         body: "Your project don't have .dockerignore files, this can lead to larger image sizes and potential security risks. It's recommended to add a .dockerignore file to exclude unnecessary files and directories from your Docker images. This pratices breachs the LR_001_dockerignore rule.",

@@ -4,7 +4,7 @@ import { info } from "console";
 
 export interface IReporter {
   addDebug?(msg: string): void;
-  info?(): void;
+  info?(msg: string): void;
   summary?(obj: ISummary): void;
   addLinkIssue?(obj: addLinkIssue): void;
   newIssue?(obj: INewIssue): Promise<void>;
