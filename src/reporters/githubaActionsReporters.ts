@@ -1,23 +1,29 @@
 import {
   addLinkIssue,
-  IGitHubActionsAdapter,
   INewIssue,
   INewPR,
   ISummary,
-} from "../adapters/adpter";
+} from "../adapters/reporterInterfce";
+import {
+  IReporter,
+  IgithubaActionsReporters,
+} from "../adapters/reporterInterfce";
+import { IGitHubActionsAdapter } from "../adapters/githubActionsInterface";
 const github = require("@actions/github");
 const core = require("@actions/core");
-interface reporter {}
 
 /**
  * Class for reporting GitHub Actions events.
  */
-export class ClassReporter implements reporter {
+export class githubaActionsReporters implements IgithubaActionsReporters {
   //  TODO Analise how to implement reporting generic
-  private IGitHubActionsAdapter: IGitHubActionsAdapter;
+  IGitHubActionsAdapter: IGitHubActionsAdapter;
 
   constructor(adapter: IGitHubActionsAdapter) {
     this.IGitHubActionsAdapter = adapter;
+  }
+  addDebug?(msg: string): void {
+    throw new Error("Method not implemented.");
   }
 
   info() {

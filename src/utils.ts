@@ -22,7 +22,7 @@ const finder = async ({
   file: string;
   ignore: string[];
   onlyFiles?: boolean;
-}) => {
+}): Promise<string[]> => {
   try {
     console.log(`\n🔍 Scanning directory: ${dir}`);
     // await showDirectoryListing(dir); //* The function should have only purpose
@@ -38,7 +38,7 @@ const finder = async ({
 
     if (scan.length === 0) {
       console.log("❌ No .dockerignore files found");
-      return null;
+      return [];
     }
 
     const fullPaths = scan.map((file) => path.join(dir, file));
@@ -46,9 +46,9 @@ const finder = async ({
 
     return fullPaths;
   } catch (error) {
-    console.error("Error finding .dockerignore files:", error);
-    core.error(`Error finding .dockerignore files: ${error}`);
-    return null;
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Error finding ${file} files:`, errorMsg);
+    throw new Error(`Failed to find ${file} files: ${errorMsg}`);
   }
 };
 
