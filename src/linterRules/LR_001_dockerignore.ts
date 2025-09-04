@@ -33,6 +33,8 @@ export class LR_001_dockerignore {
         body: "Your project don't have .dockerignore files, this can lead to larger image sizes and potential security risks. It's recommended to add a .dockerignore file to exclude unnecessary files and directories from your Docker images. This pratices breachs the LR_001_dockerignore rule.",
         labels: ["LR_001_dockerignore", "dockerfile", "scan-dockerfile"],
       });
+      this.reporter.infoWarning("No .dockerignore files found");
+      this;
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error(`❌ Error executing LR_001_dockerignore:`, errorMsg);

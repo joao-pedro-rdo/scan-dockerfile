@@ -26,19 +26,33 @@ export class githubaActionsReporters implements IgithubaActionsReporters {
   addDebug?(msg: string): void {
     throw new Error("Method not implemented.");
   }
-
+  /**
+   * Log a success message (green).
+   * @param text The message to log.
+   */
   infoSuccess(text: string) {
     core.info(`\u001b[32m${text}\u001b[0m`);
   }
+  /**
+   * Log a warning message (yellow).
+   * @param text The message to log.
+   */
   infoWarning(text: string) {
     core.warning(`\u001b[33m${text}\u001b[0m`);
   }
+  /**
+   * Log an error message (red).
+   * @param text The message to log.
+   */
   infoError(text: string) {
     core.error(`\u001b[31m${text}\u001b[0m`);
   }
-
-  info() {
-    // TODO: Implement info reporting
+  /**
+   * Log an informational message (default color).
+   * @param text The message to log.
+   */
+  info(text: string) {
+    core.info(`${text}`);
   }
   /**
    * Report summary information, this method make summary with default format for my scan-dockefile.

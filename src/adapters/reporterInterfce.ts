@@ -1,5 +1,6 @@
 import { promises } from "dns";
 import { IGitHubActionsAdapter } from "./githubActionsInterface";
+import { info } from "console";
 
 export interface IReporter {
   addDebug?(msg: string): void;
@@ -17,6 +18,7 @@ export interface IgithubaActionsReporters extends IReporter {
   infoSuccess(text: string): void;
   infoWarning(text: string): void;
   infoError(text: string): void;
+  info(text: string): void;
 }
 
 export interface INewIssue {
