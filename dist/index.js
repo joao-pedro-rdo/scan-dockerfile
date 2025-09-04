@@ -37397,11 +37397,15 @@ class LR_001_dockerignore {
                 this.reporter.infoSuccess(`Great you have a .dockerignore file found at: ${dockerignoreFiles.join(", ")}`);
                 return;
             }
+            //! Verify if the issue already exists to avoid duplicates
+            // TODO Implement a method to check existing issues
             await this.reporter.newIssue({
                 title: "No Dockerignore files found",
                 body: "Your project don't have .dockerignore files, this can lead to larger image sizes and potential security risks. It's recommended to add a .dockerignore file to exclude unnecessary files and directories from your Docker images. This pratices breachs the LR_001_dockerignore rule.",
                 labels: ["LR_001_dockerignore", "dockerfile", "scan-dockerfile"],
             });
+            this.reporter.infoWarning("No .dockerignore files found");
+            this;
         }
         catch (error) {
             const errorMsg = error instanceof Error ? error.message : String(error);
@@ -37434,17 +37438,33 @@ class githubaActionsReporters {
     addDebug(msg) {
         throw new Error("Method not implemented.");
     }
+    /**
+     * Log a success message (green).
+     * @param text The message to log.
+     */
     infoSuccess(text) {
         core.info(`\u001b[32m${text}\u001b[0m`);
     }
+    /**
+     * Log a warning message (yellow).
+     * @param text The message to log.
+     */
     infoWarning(text) {
         core.warning(`\u001b[33m${text}\u001b[0m`);
     }
+    /**
+     * Log an error message (red).
+     * @param text The message to log.
+     */
     infoError(text) {
         core.error(`\u001b[31m${text}\u001b[0m`);
     }
-    info() {
-        // TODO: Implement info reporting
+    /**
+     * Log an informational message (default color).
+     * @param text The message to log.
+     */
+    info(text) {
+        core.info(`${text}`);
     }
     /**
      * Report summary information, this method make summary with default format for my scan-dockefile.

@@ -1,7 +1,7 @@
 import { IGitHubActionsAdapter } from "./githubActionsInterface";
 export interface IReporter {
     addDebug?(msg: string): void;
-    info?(): void;
+    info?(msg: string): void;
     summary?(obj: ISummary): void;
     addLinkIssue?(obj: addLinkIssue): void;
     newIssue?(obj: INewIssue): Promise<void>;
@@ -13,6 +13,7 @@ export interface IgithubaActionsReporters extends IReporter {
     infoSuccess(text: string): void;
     infoWarning(text: string): void;
     infoError(text: string): void;
+    info(text: string): void;
 }
 export interface INewIssue {
     title: string;

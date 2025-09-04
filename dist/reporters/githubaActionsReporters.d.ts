@@ -8,10 +8,26 @@ export declare class githubaActionsReporters implements IgithubaActionsReporters
     IGitHubActionsAdapter: IGitHubActionsAdapter;
     constructor(adapter: IGitHubActionsAdapter);
     addDebug?(msg: string): void;
+    /**
+     * Log a success message (green).
+     * @param text The message to log.
+     */
     infoSuccess(text: string): void;
+    /**
+     * Log a warning message (yellow).
+     * @param text The message to log.
+     */
     infoWarning(text: string): void;
+    /**
+     * Log an error message (red).
+     * @param text The message to log.
+     */
     infoError(text: string): void;
-    info(): void;
+    /**
+     * Log an informational message (default color).
+     * @param text The message to log.
+     */
+    info(text: string): void;
     /**
      * Report summary information, this method make summary with default format for my scan-dockefile.
      * @param obj: ISummary
