@@ -9,6 +9,7 @@ import {
   IgithubaActionsReporters,
 } from "../adapters/reporterInterfce";
 import { IGitHubActionsAdapter } from "../adapters/githubActionsInterface";
+import { info } from "console";
 const github = require("@actions/github");
 const core = require("@actions/core");
 
@@ -24,6 +25,16 @@ export class githubaActionsReporters implements IgithubaActionsReporters {
   }
   addDebug?(msg: string): void {
     throw new Error("Method not implemented.");
+  }
+
+  infoSuccess(text: string) {
+    core.info(`\u001b[32m${text}\u001b[0m`);
+  }
+  infoWarning(text: string) {
+    core.warning(`\u001b[33m${text}\u001b[0m`);
+  }
+  infoError(text: string) {
+    core.error(`\u001b[31m${text}\u001b[0m`);
   }
 
   info() {
