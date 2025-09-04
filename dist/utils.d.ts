@@ -9,7 +9,7 @@ declare const finder: ({ dir, file, ignore, onlyFiles, }: {
     file: string;
     ignore: string[];
     onlyFiles?: boolean;
-}) => Promise<string[] | null>;
+}) => Promise<string[]>;
 declare const listDirectory: (dir: string) => Promise<{
     path: string;
     files: IEntry[];

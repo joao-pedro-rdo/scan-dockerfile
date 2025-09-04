@@ -37180,7 +37180,7 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 6888:
+/***/ 6850:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -37315,45 +37315,22 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7484));
-const ClassGithubActions_1 = __nccwpck_require__(6888);
-const ClassReporters_1 = __nccwpck_require__(6054);
-const utils = __importStar(__nccwpck_require__(1798));
+const githubActions_1 = __nccwpck_require__(6850);
+const githubaActionsReporters_1 = __nccwpck_require__(7231);
+const LR_001_dockerignore_1 = __nccwpck_require__(6380);
 // Initialize the GitHub Actions adapter with the provided token and workspace
 async function run() {
     try {
-        const adapter = new ClassGithubActions_1.GitHubActionsAdapter(core.getInput("GITHUB_TOKEN"), process.env.GITHUB_WORKSPACE || process.cwd());
-        const reporter = new ClassReporters_1.ClassReporter(adapter);
-        // * Func to search for .dockerignore files
-        const dockerignoreFiles = await utils.finder({
-            dir: adapter.workspace,
-            file: ".dockerignore",
-            ignore: ["node_modules/**"],
-            onlyFiles: true,
-        });
-        console.log("Found .dockerignore files:", dockerignoreFiles);
-        utils.listDirectory(adapter.workspace);
-        utils.showDirectoryListing(adapter.workspace);
-        console.log(adapter.debug());
-        // if (dockerignoreFiles.length > 0) {
-        //   reporter.newIssue({
-        //     title: "Dockerignore files found",
-        //     body: `The following .dockerignore files were found:\n${dockerignoreFiles.join("\n")}`,
-        //     labels: ["dockerfile", "scan-dockerfile"],
-        //   });
-        // }
-        // OU
-        // ClassIntermediaria que contem toda logica para fazer essa parda de verificar
-        // se tem o dockerignore e assim solicitar a new issue com os dados corretos
-        // e abrir as visualização
-        reporter.newIssue({
-            title: "New Issue Title",
-            body: "Description of the new issue",
-            labels: ["dockerfile", "scan-dockerfile"],
-        });
-        console.log("teste of new PR");
+        const adapter = new githubActions_1.GitHubActionsAdapter(core.getInput("GITHUB_TOKEN"), process.env.GITHUB_WORKSPACE || process.cwd());
+        const reporter = new githubaActionsReporters_1.githubaActionsReporters(adapter);
+        console.log("teste of new issue");
+        const lr_001 = new LR_001_dockerignore_1.LR_001_dockerignore(adapter, reporter);
+        await lr_001.execute();
     }
     catch (error) {
-        console.log("deu ruim");
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        console.error(`❌ Error running the action:`, errorMsg);
+        core.setFailed(`Action failed with error: ${errorMsg}`);
     }
 }
 run();
@@ -37361,21 +37338,99 @@ run();
 
 /***/ }),
 
-/***/ 6054:
+/***/ 6380:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LR_001_dockerignore = void 0;
+const utils = __importStar(__nccwpck_require__(1798));
+class LR_001_dockerignore {
+    constructor(adapter, reporter // Need to use general ClassReporter
+    ) {
+        this.adapter = adapter;
+        this.reporter = reporter;
+    }
+    async execute() {
+        try {
+            const dockerignoreFiles = await utils.finder({
+                dir: this.adapter.workspace,
+                file: ".dockerignore",
+                ignore: ["node_modules/**"],
+                onlyFiles: true,
+            });
+            if (dockerignoreFiles.length > 0) {
+                await this.reporter.newIssue({
+                    title: "Dockerignore files found",
+                    body: "Your project don't have .dockerignore files, this can lead to larger image sizes and potential security risks. It's recommended to add a .dockerignore file to exclude unnecessary files and directories from your Docker images. This pratices breachs the LR_001_dockerignore rule.",
+                    labels: ["LR_001_dockerignore", "dockerfile", "scan-dockerfile"],
+                });
+            }
+        }
+        catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error(`❌ Error executing LR_001_dockerignore:`, errorMsg);
+            throw new Error(`Failed to execute LR_001_dockerignore: ${errorMsg}`);
+        }
+    }
+}
+exports.LR_001_dockerignore = LR_001_dockerignore;
+
+
+/***/ }),
+
+/***/ 7231:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ClassReporter = void 0;
+exports.githubaActionsReporters = void 0;
 const github = __nccwpck_require__(3228);
 const core = __nccwpck_require__(7484);
 /**
  * Class for reporting GitHub Actions events.
  */
-class ClassReporter {
+class githubaActionsReporters {
     constructor(adapter) {
         this.IGitHubActionsAdapter = adapter;
+    }
+    addDebug(msg) {
+        throw new Error("Method not implemented.");
     }
     info() {
         // TODO: Implement info reporting
@@ -37422,7 +37477,7 @@ class ClassReporter {
         });
     }
 }
-exports.ClassReporter = ClassReporter;
+exports.githubaActionsReporters = githubaActionsReporters;
 
 
 /***/ }),
@@ -37488,16 +37543,16 @@ const finder = async ({ dir, file, ignore, onlyFiles, }) => {
         core.debug(`Found .dockerignore files: ${scan}`); // TODO : See how should implement and use debug core on github
         if (scan.length === 0) {
             console.log("❌ No .dockerignore files found");
-            return null;
+            return [];
         }
         const fullPaths = scan.map((file) => path_1.default.join(dir, file));
         console.log("✅ Full paths:", fullPaths);
         return fullPaths;
     }
     catch (error) {
-        console.error("Error finding .dockerignore files:", error);
-        core.error(`Error finding .dockerignore files: ${error}`);
-        return null;
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        console.error(`❌ Error finding ${file} files:`, errorMsg);
+        throw new Error(`Failed to find ${file} files: ${errorMsg}`);
     }
 };
 exports.finder = finder;
