@@ -1,13 +1,12 @@
-import { GitHubActionsAdapter } from "../adapters/githubActions";
-import { ClassReporter } from "../reporters/githubaActionsReporters";
+// import { GitHubActionsAdapter } from "../adapters/githubActions";
 
-export class LR_002_setWorkdir {
-  constructor(
-    private adapter: GitHubActionsAdapter,
-    private reporter: ClassReporter // Need to use general ClassReporter
-  ) {}
+// export class LR_002_setWorkdir {
+//   constructor(
+//     private adapter: GitHubActionsAdapter,
+//     private reporter: ClassReporter // Need to use general ClassReporter
+//   ) {}
 
-  async execute() {
-    // Implementation of the execute method
-  }
-}
+//   async execute() {
+//     // Implementation of the execute method
+//   }
+// }
