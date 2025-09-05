@@ -44236,7 +44236,6 @@ class LR_001_dockerignore {
                 labels: ["LR_001_dockerignore", "dockerfile", "scan-dockerfile"],
             });
             this.reporter.infoWarning("No .dockerignore files found");
-            this;
         }
         catch (error) {
             const errorMsg = error instanceof Error ? error.message : String(error);
@@ -44311,22 +44310,29 @@ class LR_002_setWorkdir {
                 this.reporter.infoError("No Dockerfile found in LR_002_setWorkdir");
                 return;
             }
+            //TODO Adapter in this function for AST parsing
             const dockerfileContent = await fs_1.promises.readFile(dockerfilePath[0], "utf8"); //TODO: Consider multiple dockerfiles
             const dockerfile = dockerfile_ast_1.DockerfileParser.parse(dockerfileContent);
             for (const instruction of dockerfile.getInstructions()) {
-                // console.log("Keyword:", instruction.getKeyword());
-                // console.log("Instruction:", instruction.getInstruction());
                 const keyword = instruction.getKeyword();
                 const args = instruction.getArguments();
-                const range = instruction.getRange();
-                const instr = instruction.getInstruction();
-                console.log(`🔹 ${keyword} (${instr})`);
+                const range = instruction.getRange(); //? I Dont understand keyword and args
+                console.log(`🔹 ${keyword}`);
                 console.log(`   Argumentos: ${args.join(" ")}`);
                 console.log(`   Posição: linha ${range.start.line + 1}, coluna ${range.start.character + 1}, range: [${range.start.line + 1},${range.start.character + 1}] até [${range.end.line + 1},${range.end.character + 1}]`);
                 if (instruction.getKeyword().toUpperCase() === "WORKDIR") {
                     this.reporter.infoSuccess(`Great you have a WORKDIR instruction in your Dockerfile at: ${dockerfilePath[0]}`);
+                    return;
                 }
             }
+            // If i dont make return in the for loop, means that no WORKDIR was found
+            await this.reporter.newIssue({
+                title: "No WORKDIR instruction found in Dockerfile",
+                body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a WORKDIR instruction. It's recommended to set a WORKDIR to ensure that your application runs in the correct directory context. This practice breaches the LR_002_setWorkdir rule.`,
+                labels: ["LR_002_setWorkdir", "dockerfile", "scan-dockerfile"],
+            });
+            this.reporter.infoWarning(`No WORKDIR instruction found in your Dockerfile at: ${dockerfilePath[0]}`);
+            return;
         }
         catch (error) {
             const errorMsg = error instanceof Error ? error.message : String(error);
@@ -44336,12 +44342,6 @@ class LR_002_setWorkdir {
     }
 }
 exports.LR_002_setWorkdir = LR_002_setWorkdir;
-function getLineAndColumn(content, index) {
-    const lines = content.slice(0, index).split("\n");
-    const line = lines.length;
-    const column = lines[lines.length - 1].length + 1;
-    return { line, column };
-}
 
 
 /***/ }),
