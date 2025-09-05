@@ -44320,10 +44320,9 @@ class LR_002_setWorkdir {
                 const args = instruction.getArguments();
                 const range = instruction.getRange();
                 const instr = instruction.getInstruction();
-                const { line, column } = getLineAndColumn(dockerfileContent, Number(range.start));
                 console.log(`🔹 ${keyword} (${instr})`);
                 console.log(`   Argumentos: ${args.join(" ")}`);
-                console.log(`   Posição: linha ${line}, coluna ${column}, range: [${range.start}, ${range.end}]`);
+                console.log(`   Posição: linha ${range.start.line + 1}, coluna ${range.start.character + 1}, range: [${range.start.line + 1},${range.start.character + 1}] até [${range.end.line + 1},${range.end.character + 1}]`);
                 if (instruction.getKeyword().toUpperCase() === "WORKDIR") {
                     this.reporter.infoSuccess(`Great you have a WORKDIR instruction in your Dockerfile at: ${dockerfilePath[0]}`);
                 }
