@@ -12,7 +12,7 @@ export interface IReporter {
 }
 
 export interface IgithubaActionsReporters extends IReporter {
-  // I need this interface because i cant use method newIssue? from Ireporter bcause is a possible undefined
+  // I need this interface because i cant use method newIssue? from Ireporter bcau  se is a possible undefined
   IGitHubActionsAdapter: IGitHubActionsAdapter;
   newIssue(obj: INewIssue): Promise<void>;
   infoSuccess(text: string): void;
