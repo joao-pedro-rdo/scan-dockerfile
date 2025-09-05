@@ -24,18 +24,15 @@ export class LR_002_setWorkdir {
         return;
       }
 
+      //TODO Adapter in this function for AST parsing
       const dockerfileContent = await fs.readFile(dockerfilePath[0], "utf8"); //TODO: Consider multiple dockerfiles
       const dockerfile = DockerfileParser.parse(dockerfileContent);
       for (const instruction of dockerfile.getInstructions()) {
-        // console.log("Keyword:", instruction.getKeyword());
-        // console.log("Instruction:", instruction.getInstruction());
-
         const keyword = instruction.getKeyword();
         const args = instruction.getArguments();
-        const range = instruction.getRange();
-        const instr = instruction.getInstruction();
+        const range = instruction.getRange(); //? I Dont understand keyword and args
 
-        console.log(`🔹 ${keyword} (${instr})`);
+        console.log(`🔹 ${keyword}`);
         console.log(`   Argumentos: ${args.join(" ")}`);
         console.log(
           `   Posição: linha ${range.start.line + 1}, coluna ${
@@ -49,22 +46,23 @@ export class LR_002_setWorkdir {
           this.reporter.infoSuccess(
             `Great you have a WORKDIR instruction in your Dockerfile at: ${dockerfilePath[0]}`
           );
+          return;
         }
       }
+      // If i dont make return in the for loop, means that no WORKDIR was found
+      await this.reporter.newIssue({
+        title: "No WORKDIR instruction found in Dockerfile",
+        body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a WORKDIR instruction. It's recommended to set a WORKDIR to ensure that your application runs in the correct directory context. This practice breaches the LR_002_setWorkdir rule.`,
+        labels: ["LR_002_setWorkdir", "dockerfile", "scan-dockerfile"],
+      });
+      this.reporter.infoWarning(
+        `No WORKDIR instruction found in your Dockerfile at: ${dockerfilePath[0]}`
+      );
+      return;
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error(`❌ Error executing LR_002_setWorkdir:`, errorMsg);
       throw new Error(`Failed to execute LR_002_setWorkdir: ${errorMsg}`);
     }
   }
-}
-
-function getLineAndColumn(
-  content: string,
-  index: number
-): { line: number; column: number } {
-  const lines = content.slice(0, index).split("\n");
-  const line = lines.length;
-  const column = lines[lines.length - 1].length + 1;
-  return { line, column };
 }

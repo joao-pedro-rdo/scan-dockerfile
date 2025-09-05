@@ -38,7 +38,6 @@ export class LR_001_dockerignore {
         labels: ["LR_001_dockerignore", "dockerfile", "scan-dockerfile"],
       });
       this.reporter.infoWarning("No .dockerignore files found");
-      this;
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error(`❌ Error executing LR_001_dockerignore:`, errorMsg);
