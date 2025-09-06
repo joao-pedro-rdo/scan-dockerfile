@@ -44149,6 +44149,7 @@ const LR_002_setWorkdir_1 = __nccwpck_require__(5549);
 // Initialize the GitHub Actions adapter with the provided token and workspace
 async function run() {
     try {
+        //TODO Verify if exists dockerfile in the workspace because if not exists, the action dont make sense
         const adapter = new githubActions_1.GitHubActionsAdapter(core.getInput("GITHUB_TOKEN"), process.env.GITHUB_WORKSPACE || process.cwd());
         const reporter = new githubaActionsReporters_1.githubaActionsReporters(adapter);
         console.log("teste of new issue");
@@ -44289,9 +44290,9 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LR_002_setWorkdir = void 0;
-const dockerfile_ast_1 = __nccwpck_require__(8390);
 const fs_1 = __nccwpck_require__(9896);
 const utils = __importStar(__nccwpck_require__(1798));
+const dockerfileAST_1 = __nccwpck_require__(4216);
 class LR_002_setWorkdir {
     constructor(adapter, reporter // Need to use general ClassReporter
     ) {
@@ -44311,19 +44312,19 @@ class LR_002_setWorkdir {
                 return;
             }
             //TODO Adapter in this function for AST parsing
-            const dockerfileContent = await fs_1.promises.readFile(dockerfilePath[0], "utf8"); //TODO: Consider multiple dockerfiles
-            const dockerfile = dockerfile_ast_1.DockerfileParser.parse(dockerfileContent);
-            for (const instruction of dockerfile.getInstructions()) {
-                const keyword = instruction.getKeyword();
-                const args = instruction.getArguments();
-                const range = instruction.getRange(); //? I Dont understand keyword and args
-                console.log(`🔹 ${keyword}`);
-                console.log(`   Argumentos: ${args.join(" ")}`);
-                console.log(`   Posição: linha ${range.start.line + 1}, coluna ${range.start.character + 1}, range: [${range.start.line + 1},${range.start.character + 1}] até [${range.end.line + 1},${range.end.character + 1}]`);
-                if (instruction.getKeyword().toUpperCase() === "WORKDIR") {
-                    this.reporter.infoSuccess(`Great you have a WORKDIR instruction in your Dockerfile at: ${dockerfilePath[0]}`);
-                    return;
-                }
+            //TODO: Consider multiple dockerfiles
+            const dockerfileContent = await fs_1.promises.readFile(dockerfilePath[0], "utf8");
+            const dockerfile = new dockerfileAST_1.AdapterDockerfileAST(dockerfileContent);
+            // ask the AST to search for WORKDIR
+            const searchResult = await dockerfile.searchKeyword({
+                keyword: "WORKDIR",
+                args: [],
+            });
+            // Check if the search result contains a WORKDIR instruction
+            const { keyword, line } = searchResult;
+            if (keyword.length > 0) {
+                this.reporter.infoSuccess(`Great you have a WORKDIR instruction in your Dockerfile at: ${dockerfilePath[0]}`);
+                return;
             }
             // If i dont make return in the for loop, means that no WORKDIR was found
             await this.reporter.newIssue({
@@ -44342,6 +44343,58 @@ class LR_002_setWorkdir {
     }
 }
 exports.LR_002_setWorkdir = LR_002_setWorkdir;
+
+
+/***/ }),
+
+/***/ 4216:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AdapterDockerfileAST = void 0;
+const dockerfile_ast_1 = __nccwpck_require__(8390);
+// TODO: This is Adapter
+class AdapterDockerfileAST {
+    constructor(content) {
+        this.content = content;
+        this.content = dockerfile_ast_1.DockerfileParser.parse(content);
+    }
+    async searchKeyword(obj) {
+        try {
+            for (const instruction of this.content.getInstructions()) {
+                const keyword = instruction.getKeyword();
+                const args = instruction.getArguments();
+                const range = instruction.getRange(); //? I Dont understand keyword and args
+                //Show for debugging
+                // TODO Add to core.debug
+                console.log(`🔹 ${keyword}`);
+                console.log(`   Argumentos: ${args.join(" ")}`);
+                console.log(`   Posição: linha ${range.start.line + 1}, coluna ${range.start.character + 1}, range: [${range.start.line + 1},${range.start.character + 1}] até [${range.end.line + 1},${range.end.character + 1}]`);
+                if (instruction.getKeyword().toUpperCase() === obj.keyword.toUpperCase()) {
+                    return {
+                        keyword: [keyword],
+                        args: args.map((arg) => arg.getValue()),
+                        line: [range.start.line + 1],
+                    };
+                }
+            }
+            // If i dont make return in the for loop, means that no keyword was found
+            return {
+                keyword: [],
+                line: [],
+                args: [],
+            };
+        }
+        catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error(`❌ Error executing searchKeyword on dockerfileAST:`, errorMsg);
+            throw new Error(`Failed to execute searchKeywordon dockerfileAST : ${errorMsg}`);
+        }
+    }
+}
+exports.AdapterDockerfileAST = AdapterDockerfileAST;
 
 
 /***/ }),
