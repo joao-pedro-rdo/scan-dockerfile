@@ -12,14 +12,18 @@ async function run() {
       core.getInput("GITHUB_TOKEN"),
       process.env.GITHUB_WORKSPACE || process.cwd()
     );
-    const reporter = new githubaActionsReporters(adapter);
-    console.log("teste of new issue");
-    const lr_001 = new LR_001_dockerignore(adapter, reporter);
-    await lr_001.execute();
 
-    console.log("teste of LR_002");
-    const lr_002 = new LR_002_setWorkdir(adapter, reporter);
-    await lr_002.execute();
+    const reporter = new githubaActionsReporters(adapter);
+    const listIssue = await reporter.listIssues();
+    console.log("List of issues:", listIssue);
+
+    // console.log("teste of new issue");
+    // const lr_001 = new LR_001_dockerignore(adapter, reporter);
+    // await lr_001.execute();
+
+    // console.log("teste of LR_002");
+    // const lr_002 = new LR_002_setWorkdir(adapter, reporter);
+    // await lr_002.execute();
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     console.error(`❌ Error running the action:`, errorMsg);

@@ -97,4 +97,15 @@ export class githubaActionsReporters implements IgithubaActionsReporters {
       head: obj.head,
     });
   }
+
+  async listIssues() {
+    const issues =
+      await this.IGitHubActionsAdapter.octokit.rest.issues.listForRepo({
+        owner: this.IGitHubActionsAdapter.owner,
+        repo: this.IGitHubActionsAdapter.repo,
+        state: "open",
+        per_page: 100,
+      });
+    return issues.data;
+  }
 }
