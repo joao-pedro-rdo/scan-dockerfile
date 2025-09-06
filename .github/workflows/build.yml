@@ -6,7 +6,9 @@ on:
     branches:
       - main
       - develop
-      - feature/new-architecture
+      - feature/*
+      - fix/*
+      - hotfix/*
     paths-ignore:
       - "**.md"
       - "dist/**" #avoid infinite loop
