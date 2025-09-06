@@ -1,6 +1,7 @@
 name: "Build index.js for GitHub Action"
 #TODO: Add a webhook to my action to trigger action action-main(exceute scan-dockerfile)
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -14,7 +15,6 @@ on:
       - ".github/workflows/**"
       - ".gitignore"
       - ".vscode/**"
-  workflow_dispatch:
 
 jobs:
   build:
