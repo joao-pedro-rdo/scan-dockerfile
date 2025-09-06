@@ -44211,12 +44211,23 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LR_001_dockerignore = void 0;
 const utils = __importStar(__nccwpck_require__(1798));
+/**
+ * Linter rule LR_001_dockerignore checks if a .dockerignore file exists in the repository.
+ * @param {IAdapter} adapter - The GitHub Actions adapter for accessing the workspace.
+ * @param {IgithubaActionsReporters} reporter - The reporter for logging and issue creation.
+ */
 class LR_001_dockerignore {
     constructor(adapter, reporter // Need to use general ClassReporter
     ) {
         this.adapter = adapter;
         this.reporter = reporter;
     }
+    /**
+     * This method checks for the presence of a .dockerignore file in the repository.
+     * If not found, it creates a GitHub issue recommending adding one.
+     * This method uses a file finder utility to search for the .dockerignore file automatically.
+     * @returns {Promise<void>} - A promise that resolves when the check is complete.
+     */
     async execute() {
         try {
             const dockerignoreFiles = await utils.finder({
@@ -44293,12 +44304,23 @@ exports.LR_002_setWorkdir = void 0;
 const fs_1 = __nccwpck_require__(9896);
 const utils = __importStar(__nccwpck_require__(1798));
 const dockerfileAST_1 = __nccwpck_require__(4216);
+/**
+ * Linter rule LR_002_setWorkdir checks if a Dockerfile contains a WORKDIR instruction.
+ * @param {GitHubActionsAdapter} adapter - The GitHub Actions adapter for accessing the workspace.
+ * @param {githubaActionsReporters} reporter - The reporter for logging and issue creation.
+ */
 class LR_002_setWorkdir {
     constructor(adapter, reporter // Need to use general ClassReporter
     ) {
         this.adapter = adapter;
         this.reporter = reporter;
     }
+    /** Check if the Dockerfile contains a WORKDIR instruction.
+     * If not, create a GitHub issue recommending adding a WORKDIR instruction.
+     * This method uses the AdapterDockerfileAST to parse and analyze the Dockerfile.
+     * And search your Dockerfile automatically
+     * @returns {Promise<void>} - A promise that resolves when the check is complete.
+     */
     async execute() {
         try {
             const dockerfilePath = await utils.finder({
@@ -44356,6 +44378,11 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AdapterDockerfileAST = void 0;
 const dockerfile_ast_1 = __nccwpck_require__(8390);
 // TODO: This is Adapter
+/**
+ * AdapterDockerfileAST is an adapter class that wraps the DockerfileParser from the dockerfile-ast library.
+ * @link https://github.com/rcjsuen/dockerfile-ast
+ * It provides methods to parse and analyze Dockerfile content.
+ */
 class AdapterDockerfileAST {
     constructor(content) {
         this.content = content;
