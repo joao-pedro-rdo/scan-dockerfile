@@ -46,4 +46,5 @@ export declare class githubaActionsReporters implements IgithubaActionsReporters
      * @param obj: INewPR
      */
     newPr(obj: INewPR): Promise<void>;
+    listIssues(): Promise<any>;
 }
