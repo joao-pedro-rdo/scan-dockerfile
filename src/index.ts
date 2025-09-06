@@ -17,6 +17,8 @@ async function run() {
     const listIssue = await reporter.listIssues();
     console.log("List of issues:", listIssue);
 
+    console.log("Starting the scan-dockerfile action...");
+
     // console.log("teste of new issue");
     // const lr_001 = new LR_001_dockerignore(adapter, reporter);
     // await lr_001.execute();
