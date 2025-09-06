@@ -13,6 +13,11 @@ export interface IResponseAstDockerfile {
 }
 
 // TODO: This is Adapter
+/**
+ * AdapterDockerfileAST is an adapter class that wraps the DockerfileParser from the dockerfile-ast library.
+ * @link https://github.com/rcjsuen/dockerfile-ast
+ * It provides methods to parse and analyze Dockerfile content.
+ */
 export class AdapterDockerfileAST {
   public constructor(public content: any) {
     this.content = DockerfileParser.parse(content);

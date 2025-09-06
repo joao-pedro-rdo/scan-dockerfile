@@ -8,12 +8,23 @@ import {
   IRequestAstDockerfile,
   IResponseAstDockerfile,
 } from "../refactor/dockerfileAST";
+/**
+ * Linter rule LR_002_setWorkdir checks if a Dockerfile contains a WORKDIR instruction.
+ * @param {GitHubActionsAdapter} adapter - The GitHub Actions adapter for accessing the workspace.
+ * @param {githubaActionsReporters} reporter - The reporter for logging and issue creation.
+ */
 export class LR_002_setWorkdir {
   constructor(
     private adapter: GitHubActionsAdapter,
     private reporter: githubaActionsReporters // Need to use general ClassReporter
   ) {}
 
+  /** Check if the Dockerfile contains a WORKDIR instruction.
+   * If not, create a GitHub issue recommending adding a WORKDIR instruction.
+   * This method uses the AdapterDockerfileAST to parse and analyze the Dockerfile.
+   * And search your Dockerfile automatically
+   * @returns {Promise<void>} - A promise that resolves when the check is complete.
+   */
   async execute() {
     try {
       const dockerfilePath = await utils.finder({

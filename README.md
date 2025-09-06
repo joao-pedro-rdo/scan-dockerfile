@@ -37,7 +37,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-### 🚧 Advanced Configuration 🚧
+<!-- ### 🚧 Advanced Configuration 🚧
 
 ```yaml
 - uses: joao-pedro-rdo/scan-dockerfile@v1
@@ -48,18 +48,18 @@ jobs:
     severity-level: "medium"
     create-issue: true
     fail-on-error: false
-```
+``` -->
 
 ## 📋 Inputs
 
-| Input             | Description                                | Required | Default  |
-| ----------------- | ------------------------------------------ | -------- | -------- |
-| `github-token`    | GitHub token for API access                | ✅       | -        |
-| `dockerfile-path` | Path to scan for Dockerfiles               | ❌       | `.`      |
-| `ignore-files`    | Comma-separated list of files to ignore    | ❌       | -        |
-| `severity-level`  | Minimum severity level (low, medium, high) | ❌       | `medium` |
-| `create-issue`    | Create GitHub issue with results           | ❌       | `true`   |
-| `fail-on-error`   | Fail the action on high severity issues    | ❌       | `false`  |
+| Input            | Description                                | Required                     | Default  |
+| ---------------- | ------------------------------------------ | ---------------------------- | -------- | --- |
+| `github-token`   | GitHub token for API access                | ✅                           | -        |
+| <!--             | `dockerfile-path`                          | Path to scan for Dockerfiles | ❌       | `.` |
+| `ignore-files`   | Comma-separated list of files to ignore    | ❌                           | -        |
+| `severity-level` | Minimum severity level (low, medium, high) | ❌                           | `medium` |
+| `create-issue`   | Create GitHub issue with results           | ❌                           | `true`   |
+| `fail-on-error`  | Fail the action on high severity issues    | ❌                           | `false`  |
 
 ## 📤 Outputs
 
@@ -73,9 +73,9 @@ jobs:
 ## 🔍 What We Check
 
 - ✅ Use .dockerignore
+- ✅ Set WORKDIR to simplify the copy of nested files
 
 - ❌ Declare ports usage
-- ❌ Set WORKDIR to simplify the copy of nested files
 - ❌ Copy dependencies before sources
 - ❌ Copy only the necessary files from the build context
 - ❌ Avoid pip upgrade
@@ -157,11 +157,12 @@ TODO Make a better structure
 ```
 ├── src/
 │   ├── index.ts          # Main entry point
-│   ├── scanner/          # Dockerfile scanning logic
-│   ├── rules/            # Best practice rules
+│   ├── linterRules/      # Linter rules
+│   ├── refactor/         # Refactoring logic
+│   ├── reporters/        # Reporting logic
+│   └── adapters/         # GitHub API interactions
 │   └── utils/            # Utility functions
 ├── dist/                 # Compiled JavaScript
-├── tests/                # Test files
 ├── action.yml            # Action metadata
 └── README.md
 ```
