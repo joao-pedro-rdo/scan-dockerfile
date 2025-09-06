@@ -7,6 +7,7 @@ import { LR_002_setWorkdir } from "./linterRules/LR_002_setWorkdir";
 // Initialize the GitHub Actions adapter with the provided token and workspace
 async function run() {
   try {
+    //TODO Verify if exists dockerfile in the workspace because if not exists, the action dont make sense
     const adapter = new GitHubActionsAdapter(
       core.getInput("GITHUB_TOKEN"),
       process.env.GITHUB_WORKSPACE || process.cwd()

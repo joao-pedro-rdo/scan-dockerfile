@@ -1,9 +1,13 @@
 import { GitHubActionsAdapter } from "../adapters/githubActions";
-import { DockerfileParser } from "dockerfile-ast";
 import { promises as fs } from "fs";
 import { githubaActionsReporters } from "../reporters/githubaActionsReporters";
 import * as utils from "../utils";
 import { Position } from "vscode-languageserver-types";
+import {
+  AdapterDockerfileAST,
+  IRequestAstDockerfile,
+  IResponseAstDockerfile,
+} from "../refactor/dockerfileAST";
 export class LR_002_setWorkdir {
   constructor(
     private adapter: GitHubActionsAdapter,
@@ -25,29 +29,23 @@ export class LR_002_setWorkdir {
       }
 
       //TODO Adapter in this function for AST parsing
-      const dockerfileContent = await fs.readFile(dockerfilePath[0], "utf8"); //TODO: Consider multiple dockerfiles
-      const dockerfile = DockerfileParser.parse(dockerfileContent);
-      for (const instruction of dockerfile.getInstructions()) {
-        const keyword = instruction.getKeyword();
-        const args = instruction.getArguments();
-        const range = instruction.getRange(); //? I Dont understand keyword and args
+      //TODO: Consider multiple dockerfiles
+      const dockerfileContent = await fs.readFile(dockerfilePath[0], "utf8");
+      const dockerfile = new AdapterDockerfileAST(dockerfileContent);
 
-        console.log(`🔹 ${keyword}`);
-        console.log(`   Argumentos: ${args.join(" ")}`);
-        console.log(
-          `   Posição: linha ${range.start.line + 1}, coluna ${
-            range.start.character + 1
-          }, range: [${range.start.line + 1},${
-            range.start.character + 1
-          }] até [${range.end.line + 1},${range.end.character + 1}]`
+      // ask the AST to search for WORKDIR
+      const searchResult = await dockerfile.searchKeyword({
+        keyword: "WORKDIR",
+        args: [],
+      });
+
+      // Check if the search result contains a WORKDIR instruction
+      const { keyword, line } = searchResult;
+      if (keyword.length > 0) {
+        this.reporter.infoSuccess(
+          `Great you have a WORKDIR instruction in your Dockerfile at: ${dockerfilePath[0]}`
         );
-
-        if (instruction.getKeyword().toUpperCase() === "WORKDIR") {
-          this.reporter.infoSuccess(
-            `Great you have a WORKDIR instruction in your Dockerfile at: ${dockerfilePath[0]}`
-          );
-          return;
-        }
+        return;
       }
       // If i dont make return in the for loop, means that no WORKDIR was found
       await this.reporter.newIssue({
