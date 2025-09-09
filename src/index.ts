@@ -12,6 +12,8 @@ async function run() {
       core.getInput("GITHUB_TOKEN"),
       process.env.GITHUB_WORKSPACE || process.cwd()
     );
+    // TODO: Verify if dockerfile exists in the workspace
+    //! If cant search dockerfile in the workspace, the action broken
 
     const reporter = new githubaActionsReporters(adapter);
     const listIssue = await adapter.listIssues();
