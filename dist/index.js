@@ -44636,12 +44636,8 @@ class githubaActionsReporters {
     //   this.tableRows.push([rule, status, details, core.addLinkIssue(link)]);
     // }
     addTableRow(obj) {
-        this.tableRows.push([
-            obj.rule,
-            obj.status,
-            obj.details,
-            core.addLink(obj.link),
-        ]);
+        const url = core.addLinkIssue(obj.link);
+        this.tableRows.push([obj.rule, obj.status, obj.details, url]);
     }
     renderTable() {
         core.summary.addTable(this.tableRows);
