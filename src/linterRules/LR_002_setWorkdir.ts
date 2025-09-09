@@ -8,15 +8,17 @@ import {
   IRequestAstDockerfile,
   IResponseAstDockerfile,
 } from "../refactor/dockerfileAST";
+import { ILinterRule } from "./LR_interface";
 /**
  * Linter rule LR_002_setWorkdir checks if a Dockerfile contains a WORKDIR instruction.
  * @param {GitHubActionsAdapter} adapter - The GitHub Actions adapter for accessing the workspace.
  * @param {githubaActionsReporters} reporter - The reporter for logging and issue creation.
  */
-export class LR_002_setWorkdir {
+export class LR_002_setWorkdir implements ILinterRule {
   constructor(
     private adapter: GitHubActionsAdapter,
-    private reporter: githubaActionsReporters // Need to use general ClassReporter
+    private reporter: githubaActionsReporters, // Need to use general ClassReporter
+    public issueTitle: string = "No WORKDIR instruction found in Dockerfile"
   ) {}
 
   /** Check if the Dockerfile contains a WORKDIR instruction.
@@ -60,7 +62,7 @@ export class LR_002_setWorkdir {
       }
       // If i dont make return in the for loop, means that no WORKDIR was found
       await this.reporter.newIssue({
-        title: "No WORKDIR instruction found in Dockerfile",
+        title: this.issueTitle,
         body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a WORKDIR instruction. It's recommended to set a WORKDIR to ensure that your application runs in the correct directory context. This practice breaches the LR_002_setWorkdir rule.`,
         labels: ["LR_002_setWorkdir", "dockerfile", "scan-dockerfile"],
       });

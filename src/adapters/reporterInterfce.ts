@@ -1,5 +1,5 @@
 import { promises } from "dns";
-import { IGitHubActionsAdapter } from "./githubActionsInterface";
+import { IGitHubActionsAdapter, IGitHubIssue } from "./githubActionsInterface";
 import { info } from "console";
 
 export interface IReporter {
@@ -14,11 +14,12 @@ export interface IReporter {
 export interface IgithubaActionsReporters extends IReporter {
   // I need this interface because i cant use method newIssue? from Ireporter bcau  se is a possible undefined
   IGitHubActionsAdapter: IGitHubActionsAdapter;
-  newIssue(obj: INewIssue): Promise<void>;
   infoSuccess(text: string): void;
   infoWarning(text: string): void;
   infoError(text: string): void;
   info(text: string): void;
+  newIssue(obj: INewIssue): Promise<void>;
+  newIssueIfNotExists(obj: INewIssue): Promise<IGitHubIssue | null>;
 }
 
 export interface INewIssue {

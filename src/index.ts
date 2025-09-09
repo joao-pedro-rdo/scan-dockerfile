@@ -14,7 +14,7 @@ async function run() {
     );
 
     const reporter = new githubaActionsReporters(adapter);
-    const listIssue = await reporter.listIssues();
+    const listIssue = await adapter.listIssues();
     console.log("List of issues:", listIssue);
 
     console.log("Starting the scan-dockerfile action...");

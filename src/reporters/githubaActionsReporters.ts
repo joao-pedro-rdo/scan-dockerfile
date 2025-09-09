@@ -8,7 +8,10 @@ import {
   IReporter,
   IgithubaActionsReporters,
 } from "../adapters/reporterInterfce";
-import { IGitHubActionsAdapter } from "../adapters/githubActionsInterface";
+import {
+  IGitHubActionsAdapter,
+  IGitHubIssue,
+} from "../adapters/githubActionsInterface";
 import { info } from "console";
 const github = require("@actions/github");
 const core = require("@actions/core");
@@ -98,14 +101,24 @@ export class githubaActionsReporters implements IgithubaActionsReporters {
     });
   }
 
-  async listIssues() {
-    const issues =
-      await this.IGitHubActionsAdapter.octokit.rest.issues.listForRepo({
-        owner: this.IGitHubActionsAdapter.owner,
-        repo: this.IGitHubActionsAdapter.repo,
-        state: "open",
-        per_page: 100,
-      });
-    return issues.data;
+  /**
+   * Create a new issue if one with the same title does not already exist.
+   * @param obj: INewIssue
+   * @returns obj: IGithubIssue, or null if an error occurs.
+   */
+  async newIssueIfNotExists(obj: INewIssue) {
+    const existing: IGitHubIssue | null =
+      await this.IGitHubActionsAdapter.findOpenIssueByTitle(obj.title);
+    if (!existing) {
+      // Issue does not exist, create it
+      await this.newIssue(obj);
+      // Return the newly created issue
+      const existing: IGitHubIssue | null =
+        await this.IGitHubActionsAdapter.findOpenIssueByTitle(obj.title);
+      return existing;
+    } else {
+      // Issue already exists, return
+      return existing;
+    }
   }
 }
