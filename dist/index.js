@@ -44181,6 +44181,8 @@ async function run() {
     try {
         //TODO Verify if exists dockerfile in the workspace because if not exists, the action dont make sense
         const adapter = new githubActions_1.GitHubActionsAdapter(core.getInput("GITHUB_TOKEN"), process.env.GITHUB_WORKSPACE || process.cwd());
+        // TODO: Verify if dockerfile exists in the workspace
+        //! If cant search dockerfile in the workspace, the action broken
         const reporter = new githubaActionsReporters_1.githubaActionsReporters(adapter);
         const listIssue = await adapter.listIssues();
         // console.log("List of issues:", listIssue);
