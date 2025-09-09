@@ -44195,6 +44195,7 @@ async function run() {
         console.log("teste of LR_002");
         const lr_002 = new LR_002_setWorkdir_1.LR_002_setWorkdir(adapter, reporter);
         await lr_002.execute();
+        core.summary.write();
     }
     catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
