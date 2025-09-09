@@ -18,19 +18,6 @@ async function run() {
     // console.log("List of issues:", listIssue);
 
     reporter.startTable();
-    reporter.addTableRow(
-      "LR_001_dockerignore",
-      "✔️",
-      "No .dockerignore files found",
-      ""
-    );
-    reporter.addTableRow(
-      "LR_002_setWorkdir",
-      "❌",
-      "No WORKDIR instruction found in Dockerfile",
-      ""
-    );
-    reporter.renderTable();
 
     console.log("Starting the scan-dockerfile action...");
 
@@ -42,6 +29,7 @@ async function run() {
     const lr_002 = new LR_002_setWorkdir(adapter, reporter);
     await lr_002.execute();
 
+    reporter.renderTable();
     core.summary.write();
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);

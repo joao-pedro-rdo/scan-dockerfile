@@ -12,8 +12,15 @@ export interface IReporter {
 }
 
 export interface IgithubaActionsReporters extends IReporter {
+  addTableRow(arg0: {
+    rule: string;
+    status: string;
+    details: string;
+    link: string;
+  }): unknown;
   // I need this interface because i cant use method newIssue? from Ireporter bcau  se is a possible undefined
   IGitHubActionsAdapter: IGitHubActionsAdapter;
+
   infoSuccess(text: string): void;
   infoWarning(text: string): void;
   infoError(text: string): void;
@@ -41,5 +48,12 @@ export interface ISummary {
 
 export interface addLinkIssue {
   text: string;
+  link: string;
+}
+
+export interface ITableRow {
+  rule: string;
+  status: string;
+  details: string;
   link: string;
 }

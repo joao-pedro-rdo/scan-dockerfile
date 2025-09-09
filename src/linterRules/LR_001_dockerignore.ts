@@ -18,7 +18,8 @@ export class LR_001_dockerignore implements ILinterRule {
   constructor(
     private adapter: IGitHubActionsAdapter,
     private reporter: IgithubaActionsReporters, // Need to use general ClassReporter
-    public issueTitle: string = "No .dockerignore files found"
+    public issueTitle: string = "No .dockerignore files found",
+    public rule: string = "LR_001_dockerignore"
   ) {}
 
   /**
@@ -42,6 +43,12 @@ export class LR_001_dockerignore implements ILinterRule {
             ", "
           )}`
         );
+        this.reporter.addTableRow({
+          rule: this.rule,
+          status: "✔️",
+          details: this.issueTitle,
+          link: "",
+        });
         return;
       }
 
@@ -57,6 +64,14 @@ export class LR_001_dockerignore implements ILinterRule {
         this.reporter.infoWarning(
           `Issue created: ${issue.html_url} - No .dockerignore files found`
         );
+
+        this.reporter.addTableRow({
+          rule: this.rule,
+          status: "❌",
+          details: this.issueTitle,
+          link: issue.html_url,
+        });
+        return;
       }
 
       // await this.reporter.newIssue({

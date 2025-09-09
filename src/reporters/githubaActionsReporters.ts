@@ -3,6 +3,7 @@ import {
   INewIssue,
   INewPR,
   ISummary,
+  ITableRow,
 } from "../adapters/reporterInterfce";
 import {
   IReporter,
@@ -138,8 +139,17 @@ export class githubaActionsReporters implements IgithubaActionsReporters {
     ];
   }
 
-  addTableRow(rule: string, status: string, details: string, link: string) {
-    this.tableRows.push([rule, status, details, link]);
+  // addTableRow(rule: string, status: string, details: string, link: string) {
+  //   this.tableRows.push([rule, status, details, core.addLinkIssue(link)]);
+  // }
+
+  addTableRow(obj: ITableRow) {
+    this.tableRows.push([
+      obj.rule,
+      obj.status,
+      obj.details,
+      core.addLinkIssue(obj.link),
+    ]);
   }
 
   renderTable() {
