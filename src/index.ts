@@ -24,7 +24,6 @@ async function run() {
     console.log("teste of new issue");
     const lr_001 = new LR_001_dockerignore(adapter, reporter);
     await lr_001.execute();
-    reporter.renderTable();
 
     console.log("teste of LR_002");
     const lr_002 = new LR_002_setWorkdir(adapter, reporter);
