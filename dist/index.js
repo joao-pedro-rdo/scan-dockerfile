@@ -44185,9 +44185,6 @@ async function run() {
         const listIssue = await adapter.listIssues();
         // console.log("List of issues:", listIssue);
         reporter.startTable();
-        reporter.addTableRow("LR_001_dockerignore", "✔️", "No .dockerignore files found", "");
-        reporter.addTableRow("LR_002_setWorkdir", "❌", "No WORKDIR instruction found in Dockerfile", "");
-        reporter.renderTable();
         console.log("Starting the scan-dockerfile action...");
         console.log("teste of new issue");
         const lr_001 = new LR_001_dockerignore_1.LR_001_dockerignore(adapter, reporter);
@@ -44195,6 +44192,7 @@ async function run() {
         console.log("teste of LR_002");
         const lr_002 = new LR_002_setWorkdir_1.LR_002_setWorkdir(adapter, reporter);
         await lr_002.execute();
+        reporter.renderTable();
         core.summary.write();
     }
     catch (error) {
@@ -44256,10 +44254,11 @@ const utils = __importStar(__nccwpck_require__(1798));
  */
 class LR_001_dockerignore {
     constructor(adapter, reporter, // Need to use general ClassReporter
-    issueTitle = "No .dockerignore files found") {
+    issueTitle = "No .dockerignore files found", rule = "LR_001_dockerignore") {
         this.adapter = adapter;
         this.reporter = reporter;
         this.issueTitle = issueTitle;
+        this.rule = rule;
     }
     /**
      * This method checks for the presence of a .dockerignore file in the repository.
@@ -44277,6 +44276,12 @@ class LR_001_dockerignore {
             });
             if (dockerignoreFiles.length > 0) {
                 this.reporter.infoSuccess(`Great you have a .dockerignore file found at: ${dockerignoreFiles.join(", ")}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "✔️",
+                    details: this.issueTitle,
+                    link: "",
+                });
                 return;
             }
             //* Test of method newIssueIfNotExists
@@ -44288,6 +44293,13 @@ class LR_001_dockerignore {
             //* Issue never be null here, because if dont exists, the method create one
             if (issue != null) {
                 this.reporter.infoWarning(`Issue created: ${issue.html_url} - No .dockerignore files found`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "❌",
+                    details: this.issueTitle,
+                    link: issue.html_url,
+                });
+                return;
             }
             // await this.reporter.newIssue({
             //   title: this.issueTitle,
@@ -44358,10 +44370,11 @@ const dockerfileAST_1 = __nccwpck_require__(4216);
  */
 class LR_002_setWorkdir {
     constructor(adapter, reporter, // Need to use general ClassReporter
-    issueTitle = "No WORKDIR instruction found in Dockerfile") {
+    issueTitle = "No WORKDIR instruction found in Dockerfile", rule = "LR_002_setWorkdir") {
         this.adapter = adapter;
         this.reporter = reporter;
         this.issueTitle = issueTitle;
+        this.rule = rule;
     }
     /** Check if the Dockerfile contains a WORKDIR instruction.
      * If not, create a GitHub issue recommending adding a WORKDIR instruction.
@@ -44394,15 +44407,37 @@ class LR_002_setWorkdir {
             const { keyword, line } = searchResult;
             if (keyword.length > 0) {
                 this.reporter.infoSuccess(`Great you have a WORKDIR instruction in your Dockerfile at: ${dockerfilePath[0]}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "✔️",
+                    details: this.issueTitle,
+                    link: "",
+                });
                 return;
             }
             // If i dont make return in the for loop, means that no WORKDIR was found
-            await this.reporter.newIssue({
+            // await this.reporter.newIssue({
+            //   title: this.issueTitle,
+            //   body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a WORKDIR instruction. It's recommended to set a WORKDIR to ensure that your application runs in the correct directory context. This practice breaches the LR_002_setWorkdir rule.`,
+            //   labels: ["LR_002_setWorkdir", "dockerfile", "scan-dockerfile"],
+            // });
+            const issue = await this.reporter.newIssueIfNotExists({
                 title: this.issueTitle,
                 body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a WORKDIR instruction. It's recommended to set a WORKDIR to ensure that your application runs in the correct directory context. This practice breaches the LR_002_setWorkdir rule.`,
                 labels: ["LR_002_setWorkdir", "dockerfile", "scan-dockerfile"],
             });
-            this.reporter.infoWarning(`No WORKDIR instruction found in your Dockerfile at: ${dockerfilePath[0]}`);
+            if (issue != null) {
+                this.reporter.infoWarning(`Issue created: ${issue.html_url}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "❌",
+                    details: this.issueTitle,
+                    link: issue.html_url,
+                });
+            }
+            // this.reporter.infoWarning(
+            //   `No WORKDIR instruction found in your Dockerfile at: ${dockerfilePath[0]}`
+            // );
             return;
         }
         catch (error) {
@@ -44596,8 +44631,16 @@ class githubaActionsReporters {
             ],
         ];
     }
-    addTableRow(rule, status, details, link) {
-        this.tableRows.push([rule, status, details, link]);
+    // addTableRow(rule: string, status: string, details: string, link: string) {
+    //   this.tableRows.push([rule, status, details, core.addLinkIssue(link)]);
+    // }
+    addTableRow(obj) {
+        this.tableRows.push([
+            obj.rule,
+            obj.status,
+            obj.details,
+            core.addLinkIssue(obj.link),
+        ]);
     }
     renderTable() {
         core.summary.addTable(this.tableRows);

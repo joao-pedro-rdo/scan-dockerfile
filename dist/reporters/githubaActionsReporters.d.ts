@@ -1,4 +1,4 @@
-import { addLinkIssue, INewIssue, INewPR, ISummary } from "../adapters/reporterInterfce";
+import { addLinkIssue, INewIssue, INewPR, ISummary, ITableRow } from "../adapters/reporterInterfce";
 import { IgithubaActionsReporters } from "../adapters/reporterInterfce";
 import { IGitHubActionsAdapter, IGitHubIssue } from "../adapters/githubActionsInterface";
 /**
@@ -55,6 +55,6 @@ export declare class githubaActionsReporters implements IgithubaActionsReporters
     newIssueIfNotExists(obj: INewIssue): Promise<IGitHubIssue | null>;
     createSummary(): Promise<void>;
     startTable(): void;
-    addTableRow(rule: string, status: string, details: string, link: string): void;
+    addTableRow(obj: ITableRow): void;
     renderTable(): void;
 }

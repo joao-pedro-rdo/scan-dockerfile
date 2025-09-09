@@ -8,6 +8,12 @@ export interface IReporter {
     newPr?(obj: INewPR): Promise<void>;
 }
 export interface IgithubaActionsReporters extends IReporter {
+    addTableRow(arg0: {
+        rule: string;
+        status: string;
+        details: string;
+        link: string;
+    }): unknown;
     IGitHubActionsAdapter: IGitHubActionsAdapter;
     infoSuccess(text: string): void;
     infoWarning(text: string): void;
@@ -32,5 +38,11 @@ export interface ISummary {
 }
 export interface addLinkIssue {
     text: string;
+    link: string;
+}
+export interface ITableRow {
+    rule: string;
+    status: string;
+    details: string;
     link: string;
 }

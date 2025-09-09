@@ -10,8 +10,9 @@ export declare class LR_001_dockerignore implements ILinterRule {
     private adapter;
     private reporter;
     issueTitle: string;
+    rule: string;
     constructor(adapter: IGitHubActionsAdapter, reporter: IgithubaActionsReporters, // Need to use general ClassReporter
-    issueTitle?: string);
+    issueTitle?: string, rule?: string);
     /**
      * This method checks for the presence of a .dockerignore file in the repository.
      * If not found, it creates a GitHub issue recommending adding one.
