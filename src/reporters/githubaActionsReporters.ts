@@ -144,12 +144,8 @@ export class githubaActionsReporters implements IgithubaActionsReporters {
   // }
 
   addTableRow(obj: ITableRow) {
-    this.tableRows.push([
-      obj.rule,
-      obj.status,
-      obj.details,
-      core.addLink(obj.link),
-    ]);
+    const url = core.addLinkIssue(obj.link);
+    this.tableRows.push([obj.rule, obj.status, obj.details, url]);
   }
 
   renderTable() {
