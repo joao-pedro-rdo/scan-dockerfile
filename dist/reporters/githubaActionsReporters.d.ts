@@ -6,6 +6,7 @@ import { IGitHubActionsAdapter, IGitHubIssue } from "../adapters/githubActionsIn
  */
 export declare class githubaActionsReporters implements IgithubaActionsReporters {
     IGitHubActionsAdapter: IGitHubActionsAdapter;
+    private tableRows;
     constructor(adapter: IGitHubActionsAdapter);
     addDebug?(msg: string): void;
     /**
@@ -52,4 +53,8 @@ export declare class githubaActionsReporters implements IgithubaActionsReporters
      * @returns obj: IGithubIssue, or null if an error occurs.
      */
     newIssueIfNotExists(obj: INewIssue): Promise<IGitHubIssue | null>;
+    createSummary(): Promise<void>;
+    startTable(): void;
+    addTableRow(rule: string, status: string, details: string, link: string): void;
+    renderTable(): void;
 }
