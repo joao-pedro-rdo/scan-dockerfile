@@ -30011,6 +30011,36 @@ class GitHubActionsAdapter {
             workspace: this.workspace,
         });
     }
+    async listIssues() {
+        const issues = await this.octokit.rest.issues.listForRepo({
+            owner: this.owner,
+            repo: this.repo,
+            state: "open",
+            per_page: 100,
+        });
+        return issues.data;
+    }
+    async findOpenIssueByTitle(title) {
+        try {
+            const issues = await this.listIssues();
+            const found = issues.find((issue) => issue.title === title);
+            if (!found)
+                return null;
+            return {
+                id: found.id,
+                number: found.number,
+                title: found.title,
+                html_url: found.html_url,
+                body: found.body,
+                state: found.state,
+                labels: found.labels,
+            };
+        }
+        catch (error) {
+            console.error("Error finding open issue by title:", error);
+            throw error;
+        }
+    }
 }
 exports.GitHubActionsAdapter = GitHubActionsAdapter;
 
@@ -30065,7 +30095,7 @@ async function run() {
         //TODO Verify if exists dockerfile in the workspace because if not exists, the action dont make sense
         const adapter = new githubActions_1.GitHubActionsAdapter(core.getInput("GITHUB_TOKEN"), process.env.GITHUB_WORKSPACE || process.cwd());
         const reporter = new githubaActionsReporters_1.githubaActionsReporters(adapter);
-        const listIssue = await reporter.listIssues();
+        const listIssue = await adapter.listIssues();
         console.log("List of issues:", listIssue);
         console.log("Starting the scan-dockerfile action...");
         // console.log("teste of new issue");
@@ -30174,14 +30204,24 @@ class githubaActionsReporters {
             head: obj.head,
         });
     }
-    async listIssues() {
-        const issues = await this.IGitHubActionsAdapter.octokit.rest.issues.listForRepo({
-            owner: this.IGitHubActionsAdapter.owner,
-            repo: this.IGitHubActionsAdapter.repo,
-            state: "open",
-            per_page: 100,
-        });
-        return issues.data;
+    /**
+     * Create a new issue if one with the same title does not already exist.
+     * @param obj: INewIssue
+     * @returns obj: IGithubIssue, or null if an error occurs.
+     */
+    async newIssueIfNotExists(obj) {
+        const existing = await this.IGitHubActionsAdapter.findOpenIssueByTitle(obj.title);
+        if (!existing) {
+            // Issue does not exist, create it
+            await this.newIssue(obj);
+            // Return the newly created issue
+            const existing = await this.IGitHubActionsAdapter.findOpenIssueByTitle(obj.title);
+            return existing;
+        }
+        else {
+            // Issue already exists, return
+            return existing;
+        }
     }
 }
 exports.githubaActionsReporters = githubaActionsReporters;

@@ -1,14 +1,17 @@
-import { IAdapter } from "../adapters/githubActionsInterface";
+import { IGitHubActionsAdapter } from "../adapters/githubActionsInterface";
 import { IgithubaActionsReporters } from "../adapters/reporterInterfce";
+import { ILinterRule } from "./LR_interface";
 /**
  * Linter rule LR_001_dockerignore checks if a .dockerignore file exists in the repository.
  * @param {IAdapter} adapter - The GitHub Actions adapter for accessing the workspace.
  * @param {IgithubaActionsReporters} reporter - The reporter for logging and issue creation.
  */
-export declare class LR_001_dockerignore {
+export declare class LR_001_dockerignore implements ILinterRule {
     private adapter;
     private reporter;
-    constructor(adapter: IAdapter, reporter: IgithubaActionsReporters);
+    issueTitle: string;
+    constructor(adapter: IGitHubActionsAdapter, reporter: IgithubaActionsReporters, // Need to use general ClassReporter
+    issueTitle?: string);
     /**
      * This method checks for the presence of a .dockerignore file in the repository.
      * If not found, it creates a GitHub issue recommending adding one.
