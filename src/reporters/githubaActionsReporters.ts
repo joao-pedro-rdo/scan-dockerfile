@@ -148,7 +148,7 @@ export class githubaActionsReporters implements IgithubaActionsReporters {
       obj.rule,
       obj.status,
       obj.details,
-      core.addLinkIssue(obj.link),
+      core.addLink(obj.link),
     ]);
   }
 
