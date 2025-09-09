@@ -22,6 +22,7 @@ const core = require("@actions/core");
 export class githubaActionsReporters implements IgithubaActionsReporters {
   //  TODO Analise how to implement reporting generic
   IGitHubActionsAdapter: IGitHubActionsAdapter;
+  private tableRows: any[][] = [];
 
   constructor(adapter: IGitHubActionsAdapter) {
     this.IGitHubActionsAdapter = adapter;
@@ -120,5 +121,28 @@ export class githubaActionsReporters implements IgithubaActionsReporters {
       // Issue already exists, return
       return existing;
     }
+  }
+
+  async createSummary() {
+    core.summary.addHeading("Dockerfile Linter Summary", "2");
+    core.summary.addSeparator();
+  }
+  startTable() {
+    this.tableRows = [
+      [
+        { data: "Rule", header: true },
+        { data: "Status", header: true },
+        { data: "Details", header: true },
+        { data: "Link to Issue", header: true },
+      ],
+    ];
+  }
+
+  addTableRow(rule: string, status: string, details: string, link: string) {
+    this.tableRows.push([rule, status, details, link]);
+  }
+
+  renderTable() {
+    core.summary.addTable(this.tableRows);
   }
 }

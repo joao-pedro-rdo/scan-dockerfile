@@ -74,7 +74,9 @@ export class GitHubActionsAdapter implements IGitHubActionsAdapter {
   async findOpenIssueByTitle(title: string): Promise<IGitHubIssue | null> {
     try {
       const issues = await this.listIssues();
-      const found = issues.find((issue: IGitHubIssue) => issue.title === title);
+      const found = issues.find(
+        (issue: IGitHubIssue) => issue.title === title && issue.state === "open"
+      );
       if (!found) return null;
       return {
         id: found.id,

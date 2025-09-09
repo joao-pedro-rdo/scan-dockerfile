@@ -15,17 +15,32 @@ async function run() {
 
     const reporter = new githubaActionsReporters(adapter);
     const listIssue = await adapter.listIssues();
-    console.log("List of issues:", listIssue);
+    // console.log("List of issues:", listIssue);
+
+    reporter.startTable();
+    reporter.addTableRow(
+      "LR_001_dockerignore",
+      "✔️",
+      "No .dockerignore files found",
+      ""
+    );
+    reporter.addTableRow(
+      "LR_002_setWorkdir",
+      "❌",
+      "No WORKDIR instruction found in Dockerfile",
+      ""
+    );
+    reporter.renderTable();
 
     console.log("Starting the scan-dockerfile action...");
 
-    // console.log("teste of new issue");
-    // const lr_001 = new LR_001_dockerignore(adapter, reporter);
-    // await lr_001.execute();
+    console.log("teste of new issue");
+    const lr_001 = new LR_001_dockerignore(adapter, reporter);
+    await lr_001.execute();
 
-    // console.log("teste of LR_002");
-    // const lr_002 = new LR_002_setWorkdir(adapter, reporter);
-    // await lr_002.execute();
+    console.log("teste of LR_002");
+    const lr_002 = new LR_002_setWorkdir(adapter, reporter);
+    await lr_002.execute();
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     console.error(`❌ Error running the action:`, errorMsg);
