@@ -44393,8 +44393,7 @@ class LR_002_setWorkdir {
                 onlyFiles: true,
             });
             if (dockerfilePath.length === 0) {
-                this.reporter.infoError("No Dockerfile found in LR_002_setWorkdir");
-                return;
+                throw new Error("No Dockerfile found in LR_002_setWorkdir");
             }
             //TODO Adapter in this function for AST parsing
             //TODO: Consider multiple dockerfiles
