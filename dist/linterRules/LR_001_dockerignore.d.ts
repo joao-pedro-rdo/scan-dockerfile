@@ -1,7 +1,6 @@
 import { IGitHubActionsAdapter } from "../adapters/githubActionsInterface";
 import { IgithubaActionsReporters } from "../adapters/reporterInterfce";
 import { ILinterRule } from "./LR_interface";
-
 /**
  * Linter rule LR_001_dockerignore checks if a .dockerignore file exists in the repository.
  * @param {IAdapter} adapter - The GitHub Actions adapter for accessing the workspace.
