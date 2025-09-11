@@ -31,6 +31,11 @@ async function run() {
     const lr_002 = new LR_002_setWorkdir(adapter, reporter);
     await lr_002.execute();
 
+    console.log("teste of LR_004");
+    const { LR_004_user } = await import("./linterRules/LR_004_user");
+    const lr_004 = new LR_004_user(adapter, reporter);
+    await lr_004.execute();
+
     reporter.renderTable();
     core.summary.write();
   } catch (error) {
