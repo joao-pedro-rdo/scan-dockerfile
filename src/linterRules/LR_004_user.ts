@@ -61,6 +61,8 @@ export class LR_004_user implements ILinterRule {
         body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a USER instruction. It's recommended to set a USER to ensure that your application runs in the correct directory context. This practice breaches the LR_004_USER rule.`,
         labels: ["LR_004_USER", "dockerfile", "scan-dockerfile"],
       });
+      // TODO Correct bug
+      //! I think in the fist time with the method is execute, this method dont create a row in the asummary
 
       if (issue != null) {
         this.reporter.infoWarning(`Issue created: ${issue.html_url}`);

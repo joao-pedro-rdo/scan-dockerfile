@@ -39,7 +39,7 @@ async function run() {
     await lr_003.execute();
 
     console.log("teste of LR_004");
-    const { LR_004_user } = await import("./linterRules/LR_004_user");
+    const { LR_004_user } = await import("./linterRules/LR_004_user"); // Should use file extension .ts
     const lr_004 = new LR_004_user(adapter, reporter);
     await lr_004.execute();
 
