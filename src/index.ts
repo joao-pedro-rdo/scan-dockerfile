@@ -12,7 +12,17 @@ async function run() {
       core.getInput("GITHUB_TOKEN"),
       process.env.GITHUB_WORKSPACE || process.cwd()
     );
+    // TODO: Verify if dockerfile exists in the workspace
+    //! If cant search dockerfile in the workspace, the action broken
+
     const reporter = new githubaActionsReporters(adapter);
+    const listIssue = await adapter.listIssues();
+    // console.log("List of issues:", listIssue);
+
+    reporter.startTable();
+
+    console.log("Starting the scan-dockerfile action...");
+
     console.log("teste of new issue");
     const lr_001 = new LR_001_dockerignore(adapter, reporter);
     await lr_001.execute();
@@ -20,6 +30,9 @@ async function run() {
     console.log("teste of LR_002");
     const lr_002 = new LR_002_setWorkdir(adapter, reporter);
     await lr_002.execute();
+
+    reporter.renderTable();
+    core.summary.write();
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     console.error(`❌ Error running the action:`, errorMsg);

@@ -1,4 +1,4 @@
-import { IGitHubActionsAdapter } from "./githubActionsInterface";
+import { IGitHubActionsAdapter, IGitHubIssue } from "./githubActionsInterface";
 export interface IReporter {
     addDebug?(msg: string): void;
     info?(msg: string): void;
@@ -8,12 +8,19 @@ export interface IReporter {
     newPr?(obj: INewPR): Promise<void>;
 }
 export interface IgithubaActionsReporters extends IReporter {
+    addTableRow(arg0: {
+        rule: string;
+        status: string;
+        details: string;
+        link: string;
+    }): unknown;
     IGitHubActionsAdapter: IGitHubActionsAdapter;
-    newIssue(obj: INewIssue): Promise<void>;
     infoSuccess(text: string): void;
     infoWarning(text: string): void;
     infoError(text: string): void;
     info(text: string): void;
+    newIssue(obj: INewIssue): Promise<void>;
+    newIssueIfNotExists(obj: INewIssue): Promise<IGitHubIssue | null>;
 }
 export interface INewIssue {
     title: string;
@@ -31,5 +38,11 @@ export interface ISummary {
 }
 export interface addLinkIssue {
     text: string;
+    link: string;
+}
+export interface ITableRow {
+    rule: string;
+    status: string;
+    details: string;
     link: string;
 }

@@ -1,5 +1,5 @@
 import * as github from "@actions/github";
-import { IGitHubActionsAdapter } from "./githubActionsInterface";
+import { IGitHubActionsAdapter, IGitHubIssue } from "./githubActionsInterface";
 
 export class GitHubActionsAdapter implements IGitHubActionsAdapter {
   // TODO: Verify if need to private
@@ -59,5 +59,37 @@ export class GitHubActionsAdapter implements IGitHubActionsAdapter {
       token: this.token,
       workspace: this.workspace,
     });
+  }
+
+  async listIssues() {
+    const issues = await this.octokit.rest.issues.listForRepo({
+      owner: this.owner,
+      repo: this.repo,
+      state: "open",
+      per_page: 100,
+    });
+    return issues.data;
+  }
+
+  async findOpenIssueByTitle(title: string): Promise<IGitHubIssue | null> {
+    try {
+      const issues = await this.listIssues();
+      const found = issues.find(
+        (issue: IGitHubIssue) => issue.title === title && issue.state === "open"
+      );
+      if (!found) return null;
+      return {
+        id: found.id,
+        number: found.number,
+        title: found.title,
+        html_url: found.html_url,
+        body: found.body,
+        state: found.state,
+        labels: found.labels,
+      };
+    } catch (error) {
+      console.error("Error finding open issue by title:", error);
+      throw error;
+    }
   }
 }

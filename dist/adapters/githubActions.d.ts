@@ -1,4 +1,4 @@
-import { IGitHubActionsAdapter } from "./githubActionsInterface";
+import { IGitHubActionsAdapter, IGitHubIssue } from "./githubActionsInterface";
 export declare class GitHubActionsAdapter implements IGitHubActionsAdapter {
     token: string;
     workspace: string;
@@ -12,4 +12,6 @@ export declare class GitHubActionsAdapter implements IGitHubActionsAdapter {
     verifyPermissions(): Promise<any>;
     checkPermissions(): Promise<any>;
     debug(): string;
+    listIssues(): Promise<any>;
+    findOpenIssueByTitle(title: string): Promise<IGitHubIssue | null>;
 }

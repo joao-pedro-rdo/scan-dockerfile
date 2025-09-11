@@ -3,12 +3,16 @@ import {
   INewIssue,
   INewPR,
   ISummary,
+  ITableRow,
 } from "../adapters/reporterInterfce";
 import {
   IReporter,
   IgithubaActionsReporters,
 } from "../adapters/reporterInterfce";
-import { IGitHubActionsAdapter } from "../adapters/githubActionsInterface";
+import {
+  IGitHubActionsAdapter,
+  IGitHubIssue,
+} from "../adapters/githubActionsInterface";
 import { info } from "console";
 const github = require("@actions/github");
 const core = require("@actions/core");
@@ -19,6 +23,7 @@ const core = require("@actions/core");
 export class githubaActionsReporters implements IgithubaActionsReporters {
   //  TODO Analise how to implement reporting generic
   IGitHubActionsAdapter: IGitHubActionsAdapter;
+  private tableRows: any[][] = [];
 
   constructor(adapter: IGitHubActionsAdapter) {
     this.IGitHubActionsAdapter = adapter;
@@ -96,5 +101,53 @@ export class githubaActionsReporters implements IgithubaActionsReporters {
       body: obj.body,
       head: obj.head,
     });
+  }
+
+  /**
+   * Create a new issue if one with the same title does not already exist.
+   * @param obj: INewIssue
+   * @returns obj: IGithubIssue, or null if an error occurs.
+   */
+  async newIssueIfNotExists(obj: INewIssue) {
+    const existing: IGitHubIssue | null =
+      await this.IGitHubActionsAdapter.findOpenIssueByTitle(obj.title);
+    if (!existing) {
+      // Issue does not exist, create it
+      await this.newIssue(obj);
+      // Return the newly created issue
+      const existing: IGitHubIssue | null =
+        await this.IGitHubActionsAdapter.findOpenIssueByTitle(obj.title);
+      return existing;
+    } else {
+      // Issue already exists, return
+      return existing;
+    }
+  }
+
+  async createSummary() {
+    core.summary.addHeading("Dockerfile Linter Summary", "2");
+    core.summary.addSeparator();
+  }
+  startTable() {
+    this.tableRows = [
+      [
+        { data: "Rule", header: true },
+        { data: "Status", header: true },
+        { data: "Details", header: true },
+        { data: "Link to Issue", header: true },
+      ],
+    ];
+  }
+
+  // addTableRow(rule: string, status: string, details: string, link: string) {
+  //   this.tableRows.push([rule, status, details, core.addLinkIssue(link)]);
+  // }
+
+  addTableRow(obj: ITableRow) {
+    this.tableRows.push([obj.rule, obj.status, obj.details, obj.link]);
+  }
+
+  renderTable() {
+    core.summary.addTable(this.tableRows);
   }
 }

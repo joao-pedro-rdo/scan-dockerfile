@@ -44096,6 +44096,36 @@ class GitHubActionsAdapter {
             workspace: this.workspace,
         });
     }
+    async listIssues() {
+        const issues = await this.octokit.rest.issues.listForRepo({
+            owner: this.owner,
+            repo: this.repo,
+            state: "open",
+            per_page: 100,
+        });
+        return issues.data;
+    }
+    async findOpenIssueByTitle(title) {
+        try {
+            const issues = await this.listIssues();
+            const found = issues.find((issue) => issue.title === title && issue.state === "open");
+            if (!found)
+                return null;
+            return {
+                id: found.id,
+                number: found.number,
+                title: found.title,
+                html_url: found.html_url,
+                body: found.body,
+                state: found.state,
+                labels: found.labels,
+            };
+        }
+        catch (error) {
+            console.error("Error finding open issue by title:", error);
+            throw error;
+        }
+    }
 }
 exports.GitHubActionsAdapter = GitHubActionsAdapter;
 
@@ -44151,13 +44181,21 @@ async function run() {
     try {
         //TODO Verify if exists dockerfile in the workspace because if not exists, the action dont make sense
         const adapter = new githubActions_1.GitHubActionsAdapter(core.getInput("GITHUB_TOKEN"), process.env.GITHUB_WORKSPACE || process.cwd());
+        // TODO: Verify if dockerfile exists in the workspace
+        //! If cant search dockerfile in the workspace, the action broken
         const reporter = new githubaActionsReporters_1.githubaActionsReporters(adapter);
+        const listIssue = await adapter.listIssues();
+        // console.log("List of issues:", listIssue);
+        reporter.startTable();
+        console.log("Starting the scan-dockerfile action...");
         console.log("teste of new issue");
         const lr_001 = new LR_001_dockerignore_1.LR_001_dockerignore(adapter, reporter);
         await lr_001.execute();
         console.log("teste of LR_002");
         const lr_002 = new LR_002_setWorkdir_1.LR_002_setWorkdir(adapter, reporter);
         await lr_002.execute();
+        reporter.renderTable();
+        core.summary.write();
     }
     catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
@@ -44217,10 +44255,12 @@ const utils = __importStar(__nccwpck_require__(1798));
  * @param {IgithubaActionsReporters} reporter - The reporter for logging and issue creation.
  */
 class LR_001_dockerignore {
-    constructor(adapter, reporter // Need to use general ClassReporter
-    ) {
+    constructor(adapter, reporter, // Need to use general ClassReporter
+    issueTitle = "No .dockerignore files found", rule = "LR_001_dockerignore") {
         this.adapter = adapter;
         this.reporter = reporter;
+        this.issueTitle = issueTitle;
+        this.rule = rule;
     }
     /**
      * This method checks for the presence of a .dockerignore file in the repository.
@@ -44238,15 +44278,36 @@ class LR_001_dockerignore {
             });
             if (dockerignoreFiles.length > 0) {
                 this.reporter.infoSuccess(`Great you have a .dockerignore file found at: ${dockerignoreFiles.join(", ")}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "✔️",
+                    details: this.issueTitle,
+                    link: "",
+                });
                 return;
             }
-            //! Verify if the issue already exists to avoid duplicates
-            // TODO Implement a method to check existing issues
-            await this.reporter.newIssue({
-                title: "No Dockerignore files found",
+            //* Test of method newIssueIfNotExists
+            const issue = await this.reporter.newIssueIfNotExists({
+                title: this.issueTitle,
                 body: "Your project don't have .dockerignore files, this can lead to larger image sizes and potential security risks. It's recommended to add a .dockerignore file to exclude unnecessary files and directories from your Docker images. This pratices breachs the LR_001_dockerignore rule.",
                 labels: ["LR_001_dockerignore", "dockerfile", "scan-dockerfile"],
             });
+            //* Issue never be null here, because if dont exists, the method create one
+            if (issue != null) {
+                this.reporter.infoWarning(`Issue created: ${issue.html_url} - No .dockerignore files found`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "❌",
+                    details: this.issueTitle,
+                    link: issue.html_url,
+                });
+                return;
+            }
+            // await this.reporter.newIssue({
+            //   title: this.issueTitle,
+            //   body: "Your project don't have .dockerignore files, this can lead to larger image sizes and potential security risks. It's recommended to add a .dockerignore file to exclude unnecessary files and directories from your Docker images. This pratices breachs the LR_001_dockerignore rule.",
+            //   labels: ["LR_001_dockerignore", "dockerfile", "scan-dockerfile"],
+            // });
             this.reporter.infoWarning("No .dockerignore files found");
         }
         catch (error) {
@@ -44310,10 +44371,12 @@ const dockerfileAST_1 = __nccwpck_require__(4216);
  * @param {githubaActionsReporters} reporter - The reporter for logging and issue creation.
  */
 class LR_002_setWorkdir {
-    constructor(adapter, reporter // Need to use general ClassReporter
-    ) {
+    constructor(adapter, reporter, // Need to use general ClassReporter
+    issueTitle = "No WORKDIR instruction found in Dockerfile", rule = "LR_002_setWorkdir") {
         this.adapter = adapter;
         this.reporter = reporter;
+        this.issueTitle = issueTitle;
+        this.rule = rule;
     }
     /** Check if the Dockerfile contains a WORKDIR instruction.
      * If not, create a GitHub issue recommending adding a WORKDIR instruction.
@@ -44346,15 +44409,37 @@ class LR_002_setWorkdir {
             const { keyword, line } = searchResult;
             if (keyword.length > 0) {
                 this.reporter.infoSuccess(`Great you have a WORKDIR instruction in your Dockerfile at: ${dockerfilePath[0]}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "✔️",
+                    details: this.issueTitle,
+                    link: "",
+                });
                 return;
             }
             // If i dont make return in the for loop, means that no WORKDIR was found
-            await this.reporter.newIssue({
-                title: "No WORKDIR instruction found in Dockerfile",
+            // await this.reporter.newIssue({
+            //   title: this.issueTitle,
+            //   body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a WORKDIR instruction. It's recommended to set a WORKDIR to ensure that your application runs in the correct directory context. This practice breaches the LR_002_setWorkdir rule.`,
+            //   labels: ["LR_002_setWorkdir", "dockerfile", "scan-dockerfile"],
+            // });
+            const issue = await this.reporter.newIssueIfNotExists({
+                title: this.issueTitle,
                 body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a WORKDIR instruction. It's recommended to set a WORKDIR to ensure that your application runs in the correct directory context. This practice breaches the LR_002_setWorkdir rule.`,
                 labels: ["LR_002_setWorkdir", "dockerfile", "scan-dockerfile"],
             });
-            this.reporter.infoWarning(`No WORKDIR instruction found in your Dockerfile at: ${dockerfilePath[0]}`);
+            if (issue != null) {
+                this.reporter.infoWarning(`Issue created: ${issue.html_url}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "❌",
+                    details: this.issueTitle,
+                    link: issue.html_url,
+                });
+            }
+            // this.reporter.infoWarning(
+            //   `No WORKDIR instruction found in your Dockerfile at: ${dockerfilePath[0]}`
+            // );
             return;
         }
         catch (error) {
@@ -44440,6 +44525,7 @@ const core = __nccwpck_require__(7484);
  */
 class githubaActionsReporters {
     constructor(adapter) {
+        this.tableRows = [];
         this.IGitHubActionsAdapter = adapter;
     }
     addDebug(msg) {
@@ -44513,6 +44599,48 @@ class githubaActionsReporters {
             body: obj.body,
             head: obj.head,
         });
+    }
+    /**
+     * Create a new issue if one with the same title does not already exist.
+     * @param obj: INewIssue
+     * @returns obj: IGithubIssue, or null if an error occurs.
+     */
+    async newIssueIfNotExists(obj) {
+        const existing = await this.IGitHubActionsAdapter.findOpenIssueByTitle(obj.title);
+        if (!existing) {
+            // Issue does not exist, create it
+            await this.newIssue(obj);
+            // Return the newly created issue
+            const existing = await this.IGitHubActionsAdapter.findOpenIssueByTitle(obj.title);
+            return existing;
+        }
+        else {
+            // Issue already exists, return
+            return existing;
+        }
+    }
+    async createSummary() {
+        core.summary.addHeading("Dockerfile Linter Summary", "2");
+        core.summary.addSeparator();
+    }
+    startTable() {
+        this.tableRows = [
+            [
+                { data: "Rule", header: true },
+                { data: "Status", header: true },
+                { data: "Details", header: true },
+                { data: "Link to Issue", header: true },
+            ],
+        ];
+    }
+    // addTableRow(rule: string, status: string, details: string, link: string) {
+    //   this.tableRows.push([rule, status, details, core.addLinkIssue(link)]);
+    // }
+    addTableRow(obj) {
+        this.tableRows.push([obj.rule, obj.status, obj.details, obj.link]);
+    }
+    renderTable() {
+        core.summary.addTable(this.tableRows);
     }
 }
 exports.githubaActionsReporters = githubaActionsReporters;

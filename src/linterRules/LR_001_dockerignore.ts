@@ -1,19 +1,25 @@
-import { IAdapter } from "../adapters/githubActionsInterface";
+import {
+  IAdapter,
+  IGitHubActionsAdapter,
+} from "../adapters/githubActionsInterface";
 import {
   IgithubaActionsReporters,
   IReporter,
 } from "../adapters/reporterInterfce";
 import * as utils from "../utils";
+import { ILinterRule } from "./LR_interface";
 
 /**
  * Linter rule LR_001_dockerignore checks if a .dockerignore file exists in the repository.
  * @param {IAdapter} adapter - The GitHub Actions adapter for accessing the workspace.
  * @param {IgithubaActionsReporters} reporter - The reporter for logging and issue creation.
  */
-export class LR_001_dockerignore {
+export class LR_001_dockerignore implements ILinterRule {
   constructor(
-    private adapter: IAdapter,
-    private reporter: IgithubaActionsReporters // Need to use general ClassReporter
+    private adapter: IGitHubActionsAdapter,
+    private reporter: IgithubaActionsReporters, // Need to use general ClassReporter
+    public issueTitle: string = "No .dockerignore files found",
+    public rule: string = "LR_001_dockerignore"
   ) {}
 
   /**
@@ -37,17 +43,42 @@ export class LR_001_dockerignore {
             ", "
           )}`
         );
+        this.reporter.addTableRow({
+          rule: this.rule,
+          status: "✔️",
+          details: this.issueTitle,
+          link: "",
+        });
         return;
       }
 
-      //! Verify if the issue already exists to avoid duplicates
-      // TODO Implement a method to check existing issues
-
-      await this.reporter.newIssue({
-        title: "No Dockerignore files found",
+      //* Test of method newIssueIfNotExists
+      const issue = await this.reporter.newIssueIfNotExists({
+        title: this.issueTitle,
         body: "Your project don't have .dockerignore files, this can lead to larger image sizes and potential security risks. It's recommended to add a .dockerignore file to exclude unnecessary files and directories from your Docker images. This pratices breachs the LR_001_dockerignore rule.",
         labels: ["LR_001_dockerignore", "dockerfile", "scan-dockerfile"],
       });
+
+      //* Issue never be null here, because if dont exists, the method create one
+      if (issue != null) {
+        this.reporter.infoWarning(
+          `Issue created: ${issue.html_url} - No .dockerignore files found`
+        );
+
+        this.reporter.addTableRow({
+          rule: this.rule,
+          status: "❌",
+          details: this.issueTitle,
+          link: issue.html_url,
+        });
+        return;
+      }
+
+      // await this.reporter.newIssue({
+      //   title: this.issueTitle,
+      //   body: "Your project don't have .dockerignore files, this can lead to larger image sizes and potential security risks. It's recommended to add a .dockerignore file to exclude unnecessary files and directories from your Docker images. This pratices breachs the LR_001_dockerignore rule.",
+      //   labels: ["LR_001_dockerignore", "dockerfile", "scan-dockerfile"],
+      // });
       this.reporter.infoWarning("No .dockerignore files found");
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);

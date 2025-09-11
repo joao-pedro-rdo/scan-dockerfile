@@ -8,15 +8,20 @@ import {
   IRequestAstDockerfile,
   IResponseAstDockerfile,
 } from "../refactor/dockerfileAST";
+import { ILinterRule } from "./LR_interface";
+import { ITableRow } from "../adapters/reporterInterfce";
+import { IGitHubActionsAdapter } from "../adapters/githubActionsInterface";
 /**
  * Linter rule LR_002_setWorkdir checks if a Dockerfile contains a WORKDIR instruction.
  * @param {GitHubActionsAdapter} adapter - The GitHub Actions adapter for accessing the workspace.
  * @param {githubaActionsReporters} reporter - The reporter for logging and issue creation.
  */
-export class LR_002_setWorkdir {
+export class LR_002_setWorkdir implements ILinterRule {
   constructor(
-    private adapter: GitHubActionsAdapter,
-    private reporter: githubaActionsReporters // Need to use general ClassReporter
+    private adapter: IGitHubActionsAdapter,
+    private reporter: githubaActionsReporters, // Need to use general ClassReporter
+    public issueTitle: string = "No WORKDIR instruction found in Dockerfile",
+    public rule: string = "LR_002_setWorkdir"
   ) {}
 
   /** Check if the Dockerfile contains a WORKDIR instruction.
@@ -56,17 +61,41 @@ export class LR_002_setWorkdir {
         this.reporter.infoSuccess(
           `Great you have a WORKDIR instruction in your Dockerfile at: ${dockerfilePath[0]}`
         );
+        this.reporter.addTableRow({
+          rule: this.rule,
+          status: "✔️",
+          details: this.issueTitle,
+          link: "",
+        });
         return;
       }
       // If i dont make return in the for loop, means that no WORKDIR was found
-      await this.reporter.newIssue({
-        title: "No WORKDIR instruction found in Dockerfile",
+      // await this.reporter.newIssue({
+      //   title: this.issueTitle,
+      //   body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a WORKDIR instruction. It's recommended to set a WORKDIR to ensure that your application runs in the correct directory context. This practice breaches the LR_002_setWorkdir rule.`,
+      //   labels: ["LR_002_setWorkdir", "dockerfile", "scan-dockerfile"],
+      // });
+
+      const issue = await this.reporter.newIssueIfNotExists({
+        title: this.issueTitle,
         body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a WORKDIR instruction. It's recommended to set a WORKDIR to ensure that your application runs in the correct directory context. This practice breaches the LR_002_setWorkdir rule.`,
         labels: ["LR_002_setWorkdir", "dockerfile", "scan-dockerfile"],
       });
-      this.reporter.infoWarning(
-        `No WORKDIR instruction found in your Dockerfile at: ${dockerfilePath[0]}`
-      );
+
+      if (issue != null) {
+        this.reporter.infoWarning(`Issue created: ${issue.html_url}`);
+
+        this.reporter.addTableRow({
+          rule: this.rule,
+          status: "❌",
+          details: this.issueTitle,
+          link: issue.html_url,
+        });
+      }
+
+      // this.reporter.infoWarning(
+      //   `No WORKDIR instruction found in your Dockerfile at: ${dockerfilePath[0]}`
+      // );
       return;
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);

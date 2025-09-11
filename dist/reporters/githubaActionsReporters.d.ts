@@ -1,11 +1,12 @@
-import { addLinkIssue, INewIssue, INewPR, ISummary } from "../adapters/reporterInterfce";
+import { addLinkIssue, INewIssue, INewPR, ISummary, ITableRow } from "../adapters/reporterInterfce";
 import { IgithubaActionsReporters } from "../adapters/reporterInterfce";
-import { IGitHubActionsAdapter } from "../adapters/githubActionsInterface";
+import { IGitHubActionsAdapter, IGitHubIssue } from "../adapters/githubActionsInterface";
 /**
  * Class for reporting GitHub Actions events.
  */
 export declare class githubaActionsReporters implements IgithubaActionsReporters {
     IGitHubActionsAdapter: IGitHubActionsAdapter;
+    private tableRows;
     constructor(adapter: IGitHubActionsAdapter);
     addDebug?(msg: string): void;
     /**
@@ -46,4 +47,14 @@ export declare class githubaActionsReporters implements IgithubaActionsReporters
      * @param obj: INewPR
      */
     newPr(obj: INewPR): Promise<void>;
+    /**
+     * Create a new issue if one with the same title does not already exist.
+     * @param obj: INewIssue
+     * @returns obj: IGithubIssue, or null if an error occurs.
+     */
+    newIssueIfNotExists(obj: INewIssue): Promise<IGitHubIssue | null>;
+    createSummary(): Promise<void>;
+    startTable(): void;
+    addTableRow(obj: ITableRow): void;
+    renderTable(): void;
 }
