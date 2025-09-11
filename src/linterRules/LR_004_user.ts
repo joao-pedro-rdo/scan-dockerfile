@@ -1,18 +1,17 @@
 import { IGitHubActionsAdapter } from "../adapters/githubActionsInterface";
+import { AdapterDockerfileAST } from "../refactor/dockerfileAST";
 import { githubaActionsReporters } from "../reporters/githubaActionsReporters";
 import { ILinterRule } from "./LR_interface";
-import { AdapterDockerfileAST } from "../refactor/dockerfileAST";
 import { promises as fs } from "fs";
 import * as utils from "../utils";
 
-export class LR_003_declarePortUsage implements ILinterRule {
+export class LR_004_user implements ILinterRule {
   constructor(
     private adapter: IGitHubActionsAdapter,
     private reporter: githubaActionsReporters, // Need to use general ClassReporter
-    public issueTitle: string = "EXPOSE instruction found in Dockerfile",
-    public rule: string = "LR_003_declarePortUsage"
+    public issueTitle: string = "User instruction found in Dockerfile",
+    public rule: string = "LR_004_user"
   ) {}
-
   async execute() {
     try {
       const dockerfilePath = await utils.finder({
@@ -23,23 +22,30 @@ export class LR_003_declarePortUsage implements ILinterRule {
       });
 
       if (dockerfilePath.length === 0) {
-        throw new Error("No Dockerfile found in LR_003_declarePortUsage");
+        throw new Error("No Dockerfile found in LR_004_declarePortUsage");
       }
       //TODO: Consider multiple dockerfiles
       const dockerfileContent = await fs.readFile(dockerfilePath[0], "utf8");
       const dockerfile = new AdapterDockerfileAST(dockerfileContent);
 
-      // ask the AST to search for EXPOSE
-      const searchResult = await dockerfile.searchKeyword({
-        keyword: "EXPOSE",
+      // ask the AST to search for RUN
+      const searchResult_01 = await dockerfile.searchKeyword({
+        keyword: "RUN",
+        args: ["useradd"],
+      });
+
+      const searchResult_02 = await dockerfile.searchKeyword({
+        keyword: "USER",
         args: [],
       });
 
       // Check if the search result contains a WORKDIR instruction
-      const { keyword, line } = searchResult;
-      if (keyword.length > 0) {
+      if (
+        searchResult_01.keyword.length > 0 &&
+        searchResult_02.keyword.length > 0
+      ) {
         this.reporter.infoSuccess(
-          `Great you have a EXPOSE instruction in your Dockerfile and Declared port usage at: ${dockerfilePath[0]}:${line}`
+          `Great you have a USER instruction in your Dockerfile and Declared user at: ${dockerfilePath[0]}`
         );
         this.reporter.addTableRow({
           rule: this.rule,
@@ -52,8 +58,8 @@ export class LR_003_declarePortUsage implements ILinterRule {
 
       const issue = await this.reporter.newIssueIfNotExists({
         title: this.issueTitle,
-        body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a EXPOSE instruction. It's recommended to set a EXPOSE to ensure that your application runs in the correct directory context. This practice breaches the LR_003_declarePortUsage rule.`,
-        labels: ["LR_003_declarePortUsage", "dockerfile", "scan-dockerfile"],
+        body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a USER instruction. It's recommended to set a USER to ensure that your application runs in the correct directory context. This practice breaches the LR_004_USER rule.`,
+        labels: ["LR_004_USER", "dockerfile", "scan-dockerfile"],
       });
 
       if (issue != null) {
@@ -70,8 +76,8 @@ export class LR_003_declarePortUsage implements ILinterRule {
       return;
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error(`❌ Error executing LR_003_declarePortUsage:`, errorMsg);
-      throw new Error(`Failed to execute LR_003_declarePortUsage: ${errorMsg}`);
+      console.error(`❌ Error executing LR_004_user:`, errorMsg);
+      throw new Error(`Failed to execute LR_004_user: ${errorMsg}`);
     }
   }
 }
