@@ -44199,7 +44199,7 @@ async function run() {
         const lr_003 = new LR_003_declarePortUsage(adapter, reporter);
         await lr_003.execute();
         console.log("teste of LR_004");
-        const { LR_004_user } = await Promise.resolve().then(() => __importStar(__nccwpck_require__(3311)));
+        const { LR_004_user } = await Promise.resolve().then(() => __importStar(__nccwpck_require__(3311))); // Should use file extension .ts
         const lr_004 = new LR_004_user(adapter, reporter);
         await lr_004.execute();
         reporter.renderTable();
@@ -44662,6 +44662,8 @@ class LR_004_user {
                 body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a USER instruction. It's recommended to set a USER to ensure that your application runs in the correct directory context. This practice breaches the LR_004_USER rule.`,
                 labels: ["LR_004_USER", "dockerfile", "scan-dockerfile"],
             });
+            // TODO Correct bug
+            //! I think in the fist time with the method is execute, this method dont create a row in the asummary
             if (issue != null) {
                 this.reporter.infoWarning(`Issue created: ${issue.html_url}`);
                 this.reporter.addTableRow({
