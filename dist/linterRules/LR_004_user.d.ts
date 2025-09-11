@@ -1,0 +1,12 @@
+import { IGitHubActionsAdapter } from "../adapters/githubActionsInterface";
+import { githubaActionsReporters } from "../reporters/githubaActionsReporters";
+import { ILinterRule } from "./LR_interface";
+export declare class LR_004_user implements ILinterRule {
+    private adapter;
+    private reporter;
+    issueTitle: string;
+    rule: string;
+    constructor(adapter: IGitHubActionsAdapter, reporter: githubaActionsReporters, // Need to use general ClassReporter
+    issueTitle?: string, rule?: string);
+    execute(): Promise<void>;
+}
