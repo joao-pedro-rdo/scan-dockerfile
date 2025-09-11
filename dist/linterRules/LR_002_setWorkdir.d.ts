@@ -1,6 +1,7 @@
 import { githubaActionsReporters } from "../reporters/githubaActionsReporters";
 import { ILinterRule } from "./LR_interface";
 import { IGitHubActionsAdapter } from "../adapters/githubActionsInterface";
+
 /**
  * Linter rule LR_002_setWorkdir checks if a Dockerfile contains a WORKDIR instruction.
  * @param {GitHubActionsAdapter} adapter - The GitHub Actions adapter for accessing the workspace.
