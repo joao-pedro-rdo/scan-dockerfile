@@ -2,7 +2,6 @@ import { GitHubActionsAdapter } from "../adapters/githubActions";
 import { promises as fs } from "fs";
 import { githubaActionsReporters } from "../reporters/githubaActionsReporters";
 import * as utils from "../utils";
-import { Position } from "vscode-languageserver-types";
 import {
   AdapterDockerfileAST,
   IRequestAstDockerfile,
@@ -40,8 +39,7 @@ export class LR_002_setWorkdir implements ILinterRule {
       });
 
       if (dockerfilePath.length === 0) {
-        this.reporter.infoError("No Dockerfile found in LR_002_setWorkdir");
-        return;
+        throw new Error("No Dockerfile found in LR_002_setWorkdir");
       }
 
       //TODO Adapter in this function for AST parsing
