@@ -31,6 +31,13 @@ async function run() {
     const lr_002 = new LR_002_setWorkdir(adapter, reporter);
     await lr_002.execute();
 
+    console.log("teste of LR_003");
+    const { LR_003_declarePortUsage } = await import(
+      "./linterRules/LR_003_declarePortUsage"
+    );
+    const lr_003 = new LR_003_declarePortUsage(adapter, reporter);
+    await lr_003.execute();
+
     console.log("teste of LR_004");
     const { LR_004_user } = await import("./linterRules/LR_004_user");
     const lr_004 = new LR_004_user(adapter, reporter);
