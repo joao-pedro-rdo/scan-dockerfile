@@ -1,6 +1,6 @@
 import { IGitHubActionsAdapter } from "../adapters/githubActionsInterface";
 import { githubaActionsReporters } from "../reporters/githubaActionsReporters";
-import { ILinterRule } from "./LR_interface";
+import { ILinterRule } from "../contracts/LR_interface";
 import { AdapterDockerfileAST } from "../refactor/dockerfileAST";
 import { promises as fs } from "fs";
 import * as utils from "../utils";

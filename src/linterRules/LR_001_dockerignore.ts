@@ -7,7 +7,7 @@ import {
   IReporter,
 } from "../adapters/reporterInterfce";
 import * as utils from "../utils";
-import { ILinterRule } from "./LR_interface";
+import { ILinterRule } from "../contracts/LR_interface";
 
 /**
  * Linter rule LR_001_dockerignore checks if a .dockerignore file exists in the repository.

@@ -7,7 +7,7 @@ import {
   IRequestAstDockerfile,
   IResponseAstDockerfile,
 } from "../refactor/dockerfileAST";
-import { ILinterRule } from "./LR_interface";
+import { ILinterRule } from "../contracts/LR_interface";
 import { ITableRow } from "../adapters/reporterInterfce";
 import { IGitHubActionsAdapter } from "../adapters/githubActionsInterface";
 /**
