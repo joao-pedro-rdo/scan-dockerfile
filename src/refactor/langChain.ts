@@ -46,8 +46,7 @@ export class LangchainService {
     - Be specific and practicals
     - Briefly explain the reason for the change
     - If no improvements are needed, say "No improvements necessary"
-    - Format the response as JSON: {"suggestion": "refactored code", "explanation": "explanation", "confidence": 0.8}`;
-
+    - Format the response as JSON with these fields: suggestion (string), explanation (string), confidence (number between 0 and 1)`;
     // if (ruleType === "security") {
     //   systemMessage += `\n\nFOCO EM SEGURANÇA: Priorize aspectos de segurança como usuários não-root, imagens base seguras, etc.`;
     // } else if (ruleType === "performance") {
