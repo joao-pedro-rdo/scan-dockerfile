@@ -53,6 +53,10 @@ async function run() {
     console.log("Test LangChain refactor");
     const { LangchainService } = await import("./refactor/langChain");
     const API_TOKEN = core.getInput("API_TOKEN");
+    if (!API_TOKEN) {
+      console.log("API_TOKEN not provided");
+      throw new Error("API_TOKEN is required for AI functionality");
+    }
     const langchainService = new LangchainService(
       "gpt-3.5-turbo",
       0.2,
