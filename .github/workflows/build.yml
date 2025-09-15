@@ -69,13 +69,17 @@ jobs:
       BRANCH: ${{ github.ref_name }}
 
     steps:
-      - name: ✅ Test Action - Simple Dispatch
+      - name: ✅ Test Action
         env:
           TARGET_REPO: ${{ env.TEST_REPO_1 }}
-          EVENT_TYPE: "teste-da-api-on-demand-test"
+          EVENT_TYPE: '$(echo "$COMMIT_MESSAGE" | head -c 30 | tr ''[:upper:]'' ''[:lower:]'' | sed ''s/[^a-z0-9]/-/g'')-$(date +''%Y%m%d-%H%M%S'')'
+          # EVENT_TYPE: "teste-da-api-on-demand-test"
         run: |
           echo "🚀 Triggering test on repository: $TARGET_REPO"
           echo "📝 Event type: $EVENT_TYPE"
+          echo "📝 Commit: $COMMIT_MESSAGE"
+          echo "📝 SHA: $COMMIT_SHA"
+          echo "📝 Branch: $BRANCH"
 
           curl -L \
             -X POST \
@@ -87,27 +91,19 @@ jobs:
 
           echo "✅ Test dispatch sent successfully"
 
-      - name: ✅ Test Action - Advanced Dispatch with Payload
+           - name: ✅ Test Action
+
+      - name: ✅ Test Action 2
         env:
           TARGET_REPO: ${{ env.TEST_REPO_2 }}
+          EVENT_TYPE: '$(echo "$COMMIT_MESSAGE" | head -c 30 | tr ''[:upper:]'' ''[:lower:]'' | sed ''s/[^a-z0-9]/-/g'')-$(date +''%Y%m%d-%H%M%S'')'
+          # EVENT_TYPE: "teste-da-api-on-demand-test"
         run: |
-          echo "🚀 Triggering advanced test on repository: $TARGET_REPO"
+          echo "🚀 Triggering test on repository: $TARGET_REPO"
+          echo "📝 Event type: $EVENT_TYPE"
           echo "📝 Commit: $COMMIT_MESSAGE"
           echo "📝 SHA: $COMMIT_SHA"
           echo "📝 Branch: $BRANCH"
-
-          EVENT_TYPE="teste-da-api-on-demand-$(date +'%Y%m%d-%H%M%S')"
-          echo "📝 Event type: $EVENT_TYPE"
-
-          PAYLOAD=$(jq -n \
-            --arg event_type "$EVENT_TYPE" \
-            --arg commit "$COMMIT_MESSAGE" \
-            --arg sha "$COMMIT_SHA" \
-            --arg branch "$BRANCH" \
-            '{event_type: $event_type, client_payload: {commit: $commit, sha: $sha, branch: $branch}}'
-          )
-
-          echo "📋 Payload: $PAYLOAD"
 
           curl -L \
             -X POST \
@@ -115,6 +111,8 @@ jobs:
             -H "Authorization: Bearer $TEST_TOKEN" \
             -H "X-GitHub-Api-Version: $GITHUB_API_VERSION" \
             https://api.github.com/repos/$TARGET_REPO/dispatches \
-            -d "$PAYLOAD"
+            -d "{\"event_type\":\"$EVENT_TYPE\"}"
 
-          echo "✅ Advanced test dispatch sent successfully"
+          echo "✅ Test dispatch sent successfully"
+
+           - name: ✅ Test Action
