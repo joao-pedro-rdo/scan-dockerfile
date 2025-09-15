@@ -1,11 +1,11 @@
 import {
   IAdapter,
   IGitHubActionsAdapter,
-} from "../adapters/githubActionsInterface";
+} from "../contracts/githubActionsInterface";
 import {
   IgithubaActionsReporters,
   IReporter,
-} from "../adapters/reporterInterfce";
+} from "../contracts/reporterInterfce";
 import * as utils from "../utils";
 import { ILinterRule } from "../contracts/LR_interface";
 

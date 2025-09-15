@@ -4,15 +4,15 @@ import {
   INewPR,
   ISummary,
   ITableRow,
-} from "../adapters/reporterInterfce";
+} from "../contracts/reporterInterfce";
 import {
   IReporter,
   IgithubaActionsReporters,
-} from "../adapters/reporterInterfce";
+} from "../contracts/reporterInterfce";
 import {
   IGitHubActionsAdapter,
   IGitHubIssue,
-} from "../adapters/githubActionsInterface";
+} from "../contracts/githubActionsInterface";
 import { info } from "console";
 const github = require("@actions/github");
 const core = require("@actions/core");
