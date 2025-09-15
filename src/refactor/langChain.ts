@@ -29,7 +29,7 @@ export class LangchainService {
       modelName: model || "gpt-3.5-turbo",
       temperature: temperature || 0.1,
       maxTokens: maxTokens || 500,
-      openAIApiKey: apiKey,
+      apiKey: apiKey,
     });
     // Setting of output parser
     this.outputParser = new StringOutputParser();
