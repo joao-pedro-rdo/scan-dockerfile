@@ -52,12 +52,12 @@ async function run() {
 
     console.log("Test LangChain refactor");
     const { LangchainService } = await import("./refactor/langChain");
-    const API_KEY = core.getInput("API_KEY");
+    const API_TOKEN = core.getInput("API_TOKEN");
     const langchainService = new LangchainService(
       "gpt-3.5-turbo",
       0.2,
       500,
-      API_KEY
+      API_TOKEN
     );
     const testLLM = langchainService.suggestRefactor({
       dockerfileSnippet: "RUN chmod 777 /app/script.sh",
