@@ -58,9 +58,9 @@ async function run() {
       throw new Error("API_TOKEN is required for AI functionality");
     }
     const langchainService = new LangchainService(
-      "gpt-3.5-turbo",
+      "gemini-1.5-flash",
       0.2,
-      3000,
+      1000,
       API_TOKEN
     );
     const testLLM = langchainService.suggestRefactor({
