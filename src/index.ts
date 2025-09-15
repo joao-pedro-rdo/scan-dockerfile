@@ -50,6 +50,27 @@ async function run() {
     const lr_005 = new LR_005_avoidPipUpgrade(adapter, reporter);
     await lr_005.execute();
 
+    console.log("Test LangChain refactor");
+    const { LangchainService } = await import("./refactor/langChain");
+    const API_KEY = core.getInput("API_KEY");
+    const langchainService = new LangchainService(
+      "gpt-3.5-turbo",
+      0.2,
+      500,
+      API_KEY
+    );
+    const testLLM = langchainService.suggestRefactor({
+      dockerfileSnippet: "RUN chmod 777 /app/script.sh",
+      context: "This is a mistake, use 777 permissions on linux, correct it",
+    });
+
+    console.log("CONFIDENCE:", (await testLLM).confidence);
+    console.log("Suggestion:", (await testLLM).suggestion);
+    console.log("Explanation:", (await testLLM).explanation);
+
+    console.log("REFACTOR SUGGESTION FORMATTED:");
+    console.log(langchainService.formatSuggestion((await testLLM).suggestion));
+
     reporter.renderTable();
     core.summary.write();
   } catch (error) {

@@ -15,6 +15,11 @@ inputs:
       GitHub token for authentication. Must have permissions:
       - contents:read, issues:write, pull-requests:write
     required: true
+
+  #TODO: change to API_KEY make optional
+  API_KEY:
+    description: "API key for the language model (e.g., OpenAI API key)"
+    required: true
   # dockerfile-path:
   #   description: "Path to scan for Dockerfiles (default: repository root)"
   #   required: false
