@@ -1,5 +1,5 @@
 {
-  "name": "scan-dockerfile-action",
+  "name": "scan-dockerfile",
   "version": "1.0.0",
   "description": "Scan a Docker image actions for best practices",
   "main": "dist/index.js",
@@ -15,7 +15,7 @@
     "url": "git+https://github.com/joao-pedro-rdo/scan-dockefile.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/joao-pedro-rdo/scan-dockefile/issues"
   },
