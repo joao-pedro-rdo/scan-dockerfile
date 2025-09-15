@@ -17,7 +17,7 @@ inputs:
     required: true
 
   #TODO: change to API_KEY make optional
-  API_KEY:
+  API_TOKEN:
     description: "API key for the language model (e.g., OpenAI API key)"
     required: true
   # dockerfile-path:
