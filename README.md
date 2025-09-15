@@ -1,8 +1,8 @@
 # 🐳 Automated Detection and Remediation of Dockerfile Issues in CI/CD Pipelines
 
 [![Build index.js for GitHub Action](https://github.com/joao-pedro-rdo/scan-dockerfile/actions/workflows/build.yml/badge.svg)](https://github.com/joao-pedro-rdo/scan-dockerfile/actions/workflows/build.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 A GitHub Action that scans Dockerfiles in your repository and suggests best practices for container security, optimization, and maintainability.
 
@@ -10,7 +10,7 @@ A GitHub Action that scans Dockerfiles in your repository and suggests best prac
 
 ## ✨ Features
 
-<!-- ✅ = Implementado | 🚧 = Em desenvolvimento | ❌ = Planejado -->
+<!-- ✅ = Implementado | 🚧 = Em desenvolvimento | ❌ = Planeado -->
 
 - 🔍 **Comprehensive Dockerfile Analysis** - Scans all Dockerfiles in your repository
 - 🛡️ **Security Best Practices** - Identifies potential security vulnerabilities
@@ -257,10 +257,6 @@ Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🔗 Related Actions
 
