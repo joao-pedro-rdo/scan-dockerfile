@@ -44184,7 +44184,7 @@ async function run() {
         // TODO: Verify if dockerfile exists in the workspace
         //! If cant search dockerfile in the workspace, the action broken
         const reporter = new githubaActionsReporters_1.githubaActionsReporters(adapter);
-        const listIssue = await adapter.listIssues();
+        // const listIssue = await adapter.listIssues();
         // console.log("List of issues:", listIssue);
         reporter.startTable();
         console.log("Starting the scan-dockerfile action...");
@@ -44202,6 +44202,10 @@ async function run() {
         const { LR_004_user } = await Promise.resolve().then(() => __importStar(__nccwpck_require__(3311))); // Should use file extension .ts
         const lr_004 = new LR_004_user(adapter, reporter);
         await lr_004.execute();
+        console.log("teste of LR_005");
+        const { LR_005_avoidPipUpgrade } = await Promise.resolve().then(() => __importStar(__nccwpck_require__(7746)));
+        const lr_005 = new LR_005_avoidPipUpgrade(adapter, reporter);
+        await lr_005.execute();
         reporter.renderTable();
         core.summary.write();
     }
@@ -44683,6 +44687,117 @@ class LR_004_user {
     }
 }
 exports.LR_004_user = LR_004_user;
+
+
+/***/ }),
+
+/***/ 7746:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LR_005_avoidPipUpgrade = void 0;
+const dockerfileAST_1 = __nccwpck_require__(4216);
+const fs_1 = __nccwpck_require__(9896);
+const utils = __importStar(__nccwpck_require__(1798));
+class LR_005_avoidPipUpgrade {
+    constructor(adapter, reporter, // Need to use general ClassReporter
+    issueTitle = "Avoid using 'pip install --upgrade'", rule = "LR_005_avoidPipUpgrade") {
+        this.adapter = adapter;
+        this.reporter = reporter;
+        this.issueTitle = issueTitle;
+        this.rule = rule;
+        // Padrões a detectar no Dockerfile
+        this.problematicPatterns = [
+            /pip\s+install\s+--upgrade/,
+            /pip\s+install\s+-U/,
+            /pip3\s+install\s+--upgrade/,
+            /pip3\s+install\s+-U/,
+        ];
+    }
+    async execute() {
+        try {
+            const dockerfilePath = await utils.finder({
+                dir: this.adapter.workspace,
+                file: "Dockerfile", //TODO: Dont consider other names for dockerfile
+                ignore: ["node_modules/**"],
+                onlyFiles: true,
+            });
+            if (dockerfilePath.length === 0) {
+                throw new Error("No Dockerfile found in LR_005_avoidPipUpgrade");
+            }
+            const dockerfileContent = await fs_1.promises.readFile(dockerfilePath[0], "utf8");
+            const dockerfile = new dockerfileAST_1.AdapterDockerfileAST(dockerfileContent);
+            //   const searchResult = dockerfile.searchPattern(this.problematicPatterns);
+            const searchResult = dockerfile.searchFirstPattern(this.problematicPatterns);
+            console.log("💻💻💻💻💻Search Result:", searchResult);
+            if ((await searchResult).found == false) {
+                this.reporter.infoSuccess(`Great! No 'pip install --upgrade' found in your Dockerfile at: ${dockerfilePath[0]}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "✔️",
+                    details: this.issueTitle,
+                    link: "",
+                });
+                return;
+            }
+            const issue = await this.reporter.newIssueIfNotExists({
+                title: this.issueTitle,
+                body: `Your Dockerfile located at ${dockerfilePath[0]} contains a 'pip install --upgrade' command at line ${(await searchResult).line}. Using '--upgrade' can lead to unpredictable builds and potential compatibility issues. It's recommended to specify exact package versions to ensure consistent and reliable builds. This practice breaches the LR_005_avoidPipUpgrade rule.`,
+                labels: ["LR_005_avoidPipUpgrade", "dockerfile", "scan-dockerfile"],
+            });
+            if (issue != null) {
+                this.reporter.infoWarning(`Issue created: ${issue.html_url}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "❌",
+                    details: this.issueTitle,
+                    link: issue.html_url,
+                });
+            }
+        }
+        catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error(`❌ Error executing ${this.rule}:`, errorMsg);
+            throw new Error(`Failed to execute ${this.rule}: ${errorMsg}`);
+        }
+    }
+}
+exports.LR_005_avoidPipUpgrade = LR_005_avoidPipUpgrade;
 
 
 /***/ }),
