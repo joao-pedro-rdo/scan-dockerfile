@@ -51795,7 +51795,7 @@ async function run() {
             console.log("API_TOKEN not provided");
             throw new Error("API_TOKEN is required for AI functionality");
         }
-        const langchainService = new LangchainService("gpt-3.5-turbo", 0.2, 3000, API_TOKEN);
+        const langchainService = new LangchainService("gemini-1.5-flash", 0.2, 1000, API_TOKEN);
         const testLLM = langchainService.suggestRefactor({
             dockerfileSnippet: "RUN chmod 777 /app/script.sh",
             context: "This is a mistake, use 777 permissions on linux, correct it",
