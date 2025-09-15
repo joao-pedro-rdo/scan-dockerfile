@@ -60,7 +60,7 @@ async function run() {
     const langchainService = new LangchainService(
       "gpt-3.5-turbo",
       0.2,
-      500,
+      3000,
       API_TOKEN
     );
     const testLLM = langchainService.suggestRefactor({
