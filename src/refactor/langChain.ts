@@ -54,9 +54,9 @@ export class LangchainService {
     //   systemMessage += `\n\nFOCO EM PERFORMANCE: Priorize otimizações de cache, redução de layers, etc.`;
     // }
 
-    if (suggestion) {
-      systemMessage += `\n\nSUGESTÃO: ${suggestion}`;
-    }
+    // if (suggestion) {
+    //   systemMessage += `\n\nSUGESTÃO: ${suggestion}`;
+    // }
     return PromptTemplate.fromTemplate(`${systemMessage}
 
     TRECHO DO DOCKERFILE:
