@@ -16,7 +16,7 @@ async function run() {
     //! If cant search dockerfile in the workspace, the action broken
 
     const reporter = new githubaActionsReporters(adapter);
-    const listIssue = await adapter.listIssues();
+    // const listIssue = await adapter.listIssues();
     // console.log("List of issues:", listIssue);
 
     reporter.startTable();
@@ -42,6 +42,13 @@ async function run() {
     const { LR_004_user } = await import("./linterRules/LR_004_user"); // Should use file extension .ts
     const lr_004 = new LR_004_user(adapter, reporter);
     await lr_004.execute();
+
+    console.log("teste of LR_005");
+    const { LR_005_avoidPipUpgrade } = await import(
+      "./linterRules/LR_005_avoidPipUpgrade"
+    );
+    const lr_005 = new LR_005_avoidPipUpgrade(adapter, reporter);
+    await lr_005.execute();
 
     reporter.renderTable();
     core.summary.write();
