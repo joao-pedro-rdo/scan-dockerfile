@@ -1,6 +1,6 @@
-import { addLinkIssue, INewIssue, INewPR, ISummary, ITableRow } from "../adapters/reporterInterfce";
-import { IgithubaActionsReporters } from "../adapters/reporterInterfce";
-import { IGitHubActionsAdapter, IGitHubIssue } from "../adapters/githubActionsInterface";
+import { addLinkIssue, INewIssue, INewPR, ISummary, ITableRow } from "../contracts/reporterInterfce";
+import { IgithubaActionsReporters } from "../contracts/reporterInterfce";
+import { IGitHubActionsAdapter, IGitHubIssue } from "../contracts/githubActionsInterface";
 /**
  * Class for reporting GitHub Actions events.
  */

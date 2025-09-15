@@ -1,5 +1,5 @@
-import { IGitHubActionsAdapter } from "../adapters/githubActionsInterface";
-import { IgithubaActionsReporters } from "../adapters/reporterInterfce";
+import { IGitHubActionsAdapter } from "../contracts/githubActionsInterface";
+import { IgithubaActionsReporters } from "../contracts/reporterInterfce";
 import { ILinterRule } from "../contracts/LR_interface";
 /**
  * Linter rule LR_001_dockerignore checks if a .dockerignore file exists in the repository.

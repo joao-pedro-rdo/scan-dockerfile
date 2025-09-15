@@ -1,4 +1,4 @@
-import { IGitHubActionsAdapter } from "../adapters/githubActionsInterface";
+import { IGitHubActionsAdapter } from "../contracts/githubActionsInterface";
 import { githubaActionsReporters } from "../reporters/githubaActionsReporters";
 import { ILinterRule } from "../contracts/LR_interface";
 export declare class LR_003_declarePortUsage implements ILinterRule {
