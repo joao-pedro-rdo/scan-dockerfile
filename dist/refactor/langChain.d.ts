@@ -4,10 +4,15 @@ interface RefactorRequest {
     ruleType?: string;
 }
 interface RefactorResponse {
+    code: string;
     suggestion: string;
     explanation: string;
     confidence: number;
 }
+/**
+ * LangchainService integrates with Google Gemini via LangChain to provide AI-driven suggestions for Dockerfile refactoring.
+ * It uses prompt templates and output parsers to structure interactions with the LLM.
+ */
 export declare class LangchainService {
     private llm;
     private outputParser;

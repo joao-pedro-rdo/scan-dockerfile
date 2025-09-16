@@ -29,4 +29,6 @@ export declare class AdapterDockerfileAST {
      */
     searchPattern2(patterns: RegExp[]): Promise<Array<IResponseAstDockerfile>>;
     searchFirstPattern(patterns: RegExp[]): Promise<IResponseAstDockerfile>;
+    searchConsecutiveKeyword(obj: IRequestAstDockerfile): Promise<Array<IResponseAstDockerfile>>;
+    searchAllConsecutiveGroups(obj: IRequestAstDockerfile): Promise<Array<Array<IResponseAstDockerfile>>>;
 }
