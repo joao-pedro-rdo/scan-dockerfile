@@ -39,7 +39,6 @@ export class LR_004_user implements ILinterRule {
         args: [],
       });
 
-      // Check if the search result contains a WORKDIR instruction
       if (
         searchResult_01.keyword.length > 0 &&
         searchResult_02.keyword.length > 0

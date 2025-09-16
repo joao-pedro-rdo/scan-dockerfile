@@ -1,6 +1,7 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
+import { connected } from "process";
 
 interface RefactorRequest {
   dockerfileSnippet: string;
@@ -9,11 +10,15 @@ interface RefactorRequest {
 }
 
 interface RefactorResponse {
+  code: string;
   suggestion: string;
   explanation: string;
   confidence: number;
 }
-
+/**
+ * LangchainService integrates with Google Gemini via LangChain to provide AI-driven suggestions for Dockerfile refactoring.
+ * It uses prompt templates and output parsers to structure interactions with the LLM.
+ */
 export class LangchainService {
   private llm: ChatGoogleGenerativeAI;
   private outputParser: StringOutputParser;
@@ -34,10 +39,8 @@ export class LangchainService {
     this.outputParser = new StringOutputParser();
   }
 
-  private createPromptTemplate(
-    ruleType?: string,
-    suggestion?: string
-  ): PromptTemplate {
+  // Make the prompt template dynamic based on ruleType
+  private createPromptTemplate(ruleType?: string): PromptTemplate {
     let systemMessage = `You are a Docker and DevOps expert. Analyze the provided Dockerfile snippet and suggest a refactoring following best practices.
 
     RULES:
@@ -45,24 +48,36 @@ export class LangchainService {
     - Be specific and practical
     - Briefly explain the reason for the change
     - If no improvements are needed, say "No improvements necessary"
-    - Format the response as JSON with these fields: suggestion (string), explanation (string), confidence (number between 0 and 1)
-    
-    FOCUS AREAS:`;
+    - Format the response as JSON with these fields: code (string), suggestion  (string), explanation (string), confidence (number between 0 and 1)
 
-    // ✅ TIPOS DE ANÁLISE ESPECÍFICOS
-    if (ruleType === "security") {
-      systemMessage += `\n- Security: non-root users, secure base images, secrets management`;
-    } else if (ruleType === "performance") {
-      systemMessage += `\n- Performance: cache optimization, layer reduction, multi-stage builds`;
-    } else if (ruleType === "best-practices") {
-      systemMessage += `\n- Best practices: WORKDIR, proper COPY usage, package management`;
-    } else {
-      systemMessage += `\n- General: security, performance, and best practices`;
+    EXAMPLE INPUT:
+    {
+      "dockerfileSnippet": "RUN chmod 777 /app/script.sh",
+      "context": "This is a mistake, use 777 permissions on linux, correct it"
     }
 
-    if (suggestion) {
-      systemMessage += `\n\nSPECIFIC SUGGESTION TO VALIDATE: ${suggestion}`;
-    }
+    EXAMPLE RESPONSE:
+    {
+      "code": "RUN chmod +x /app/script.sh",
+      "suggestion": "Replace 'chmod 777' with 'chmod +x' to enhance security.",
+      "explanation": "Using 777 permissions can expose the application to security risks by allowing write access to all users.",
+      "confidence": 0.9
+    }`;
+
+    // // REMOVE FOR TEST
+    // if (ruleType === "security") {
+    //   systemMessage += `\n- Security: non-root users, secure base images, secrets management`;
+    // } else if (ruleType === "performance") {
+    //   systemMessage += `\n- Performance: cache optimization, layer reduction, multi-stage builds`;
+    // } else if (ruleType === "best-practices") {
+    //   systemMessage += `\n- Best practices: WORKDIR, proper COPY usage, package management`;
+    // } else {
+    //   systemMessage += `\n- General: security, performance, and best practices`;
+    // }
+
+    // if (suggestion) {
+    //   systemMessage += `\n\nSPECIFIC SUGGESTION TO VALIDATE: ${suggestion}`;
+    // }
 
     return PromptTemplate.fromTemplate(`${systemMessage}
 
@@ -77,6 +92,7 @@ export class LangchainService {
 
   async suggestRefactor(request: RefactorRequest): Promise<RefactorResponse> {
     try {
+      // Make the prompt and add ruleType if provided
       const promptTemplate = this.createPromptTemplate(request.ruleType);
 
       // prompt -> LLM -> parser
@@ -88,18 +104,20 @@ export class LangchainService {
       });
 
       try {
-        // Remove markdown se houver
+        // Remove markdown if present and parse JSON
         const cleanResponse = response.replace(/```json\n?|\n?```/g, "").trim();
         const parsed = JSON.parse(cleanResponse);
 
         return {
-          suggestion: parsed.suggestion || response,
+          code: parsed.code,
+          suggestion: parsed.suggestion,
           explanation: parsed.explanation || "No explanation provided",
           confidence: this.normalizeConfidence(parsed.confidence),
         };
       } catch (parseError) {
         console.warn("Failed to parse JSON response, using raw text");
         return {
+          code: "Unstructured AI response",
           suggestion: response,
           explanation: "Unstructured AI response",
           confidence: 0.3,
@@ -115,7 +133,6 @@ export class LangchainService {
     }
   }
 
-  // ✅ NOVO: Normalizar confidence
   private normalizeConfidence(confidence: any): number {
     if (typeof confidence === "number" && confidence >= 0 && confidence <= 1) {
       return confidence;
@@ -123,7 +140,6 @@ export class LangchainService {
     return 0.5; // Valor padrão
   }
 
-  // ✅ MELHORADO: Validação de confiança
   isHighConfidence(response: RefactorResponse): boolean {
     return (
       response.confidence >= 0.7 &&
@@ -133,7 +149,6 @@ export class LangchainService {
     );
   }
 
-  // ✅ MELHORADO: Formatação
   public formatSuggestion(suggestion: string): string {
     return suggestion
       .trim()
@@ -144,7 +159,6 @@ export class LangchainService {
       .trim();
   }
 
-  // ✅ NOVO: Método para análise específica de regras
   async analyzeRule(
     dockerfileContent: string,
     ruleName: string,

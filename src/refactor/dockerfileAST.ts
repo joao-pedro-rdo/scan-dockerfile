@@ -210,4 +210,137 @@ export class AdapterDockerfileAST {
       );
     }
   }
+
+  async searchConsecutiveKeyword(
+    obj: IRequestAstDockerfile
+  ): Promise<Array<IResponseAstDockerfile>> {
+    const allInstructions: Array<IResponseAstDockerfile> = [];
+
+    try {
+      // 1. Coleta todas as instruções em ordem
+      for (const instruction of this.content.getInstructions()) {
+        const keyword = instruction.getKeyword();
+        const args = instruction.getArguments();
+        const range = instruction.getRange();
+
+        //Show for debugging
+        // TODO Add to core.debug
+        console.log(`🔹 ${keyword}`);
+        console.log(`   Args: ${args.join(" ")}`);
+        console.log(`   pos: line ${range.start.line + 1}`);
+
+        allInstructions.push({
+          found: true,
+          keyword: [keyword],
+          args: args.map((arg: { getValue: () => any }) => arg.getValue()),
+          line: [range.start.line + 1],
+        });
+      }
+
+      // 2. Encontra apenas o PRIMEIRO grupo consecutivo
+      let i = 0;
+      while (i < allInstructions.length) {
+        if (
+          allInstructions[i].keyword[0].toUpperCase() ===
+          obj.keyword.toUpperCase()
+        ) {
+          const consecutiveGroup: Array<IResponseAstDockerfile> = [];
+
+          // Adiciona o primeiro match
+          consecutiveGroup.push(allInstructions[i]);
+
+          // Procura por matches consecutivos (sem interrupção)
+          let j = i + 1;
+          while (
+            j < allInstructions.length &&
+            allInstructions[j].keyword[0].toUpperCase() ===
+              obj.keyword.toUpperCase()
+          ) {
+            consecutiveGroup.push(allInstructions[j]);
+            j++;
+          }
+
+          // ✅ MUDANÇA PRINCIPAL: Retorna apenas o primeiro grupo encontrado
+          return consecutiveGroup;
+        }
+        i++;
+      }
+
+      // Se não encontrou nenhum grupo consecutivo
+      return [];
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      console.error(
+        `❌ Error executing searchConsecutiveKeyword on dockerfileAST:`,
+        errorMsg
+      );
+      throw new Error(
+        `Failed to execute searchConsecutiveKeyword on dockerfileAST: ${errorMsg}`
+      );
+    }
+  }
+
+  async searchAllConsecutiveGroups(
+    obj: IRequestAstDockerfile
+  ): Promise<Array<Array<IResponseAstDockerfile>>> {
+    const allInstructions: Array<IResponseAstDockerfile> = [];
+    const consecutiveGroups: Array<Array<IResponseAstDockerfile>> = [];
+
+    try {
+      // Coleta todas as instruções
+      for (const instruction of this.content.getInstructions()) {
+        const keyword = instruction.getKeyword();
+        const args = instruction.getArguments();
+        const range = instruction.getRange();
+
+        allInstructions.push({
+          found: true,
+          keyword: [keyword],
+          args: args.map((arg: { getValue: () => any }) => arg.getValue()),
+          line: [range.start.line + 1],
+        });
+      }
+
+      // Encontra TODOS os grupos consecutivos
+      let i = 0;
+      while (i < allInstructions.length) {
+        if (
+          allInstructions[i].keyword[0].toUpperCase() ===
+          obj.keyword.toUpperCase()
+        ) {
+          const consecutiveGroup: Array<IResponseAstDockerfile> = [];
+
+          // Adiciona o primeiro
+          consecutiveGroup.push(allInstructions[i]);
+
+          // Procura consecutivos
+          let j = i + 1;
+          while (
+            j < allInstructions.length &&
+            allInstructions[j].keyword[0].toUpperCase() ===
+              obj.keyword.toUpperCase()
+          ) {
+            consecutiveGroup.push(allInstructions[j]);
+            j++;
+          }
+
+          // ✅ Salva cada grupo encontrado
+          consecutiveGroups.push(consecutiveGroup);
+
+          i = j; // Pula para depois do grupo
+        } else {
+          i++;
+        }
+      }
+
+      // Retorna todos os grupos em um array flat
+      return consecutiveGroups.length > 0 ? consecutiveGroups : [[]];
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      console.error(`❌ Error executing searchAllConsecutiveGroups:`, errorMsg);
+      throw new Error(
+        `Failed to execute searchAllConsecutiveGroups: ${errorMsg}`
+      );
+    }
+  }
 }

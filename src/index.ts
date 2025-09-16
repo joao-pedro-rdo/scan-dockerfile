@@ -50,32 +50,39 @@ async function run() {
     const lr_005 = new LR_005_avoidPipUpgrade(adapter, reporter);
     await lr_005.execute();
 
-    console.log("Test LangChain refactor");
-    const { LangchainService } = await import("./refactor/langChain");
-    const API_TOKEN = core.getInput("API_TOKEN");
-    if (!API_TOKEN) {
-      console.log("API_TOKEN not provided");
-      throw new Error("API_TOKEN is required for AI functionality");
-    }
-    const langchainService = new LangchainService(
-      "gemini-1.5-flash",
-      0.2,
-      1000,
-      API_TOKEN
-    );
-    const testLLM = langchainService.suggestRefactor({
-      dockerfileSnippet: "RUN chmod 777 /app/script.sh",
-      context: "This is a mistake, use 777 permissions on linux, correct it",
-    });
+    console.log("+++++ teste of LR_006");
+    const { LR_006_joinRun } = await import("./linterRules/LR_006_joinRun");
+    const lr_006 = new LR_006_joinRun(adapter, reporter);
+    await lr_006.execute();
 
-    console.log("CONFIDENCE:", (await testLLM).confidence);
-    console.log("Suggestion:", (await testLLM).suggestion);
-    console.log("Explanation:", (await testLLM).explanation);
+    // console.log("Test LangChain refactor");
+    // const { LangchainService } = await import("./refactor/langChain");
+    // const API_TOKEN = core.getInput("API_TOKEN");
+    // if (!API_TOKEN) {
+    //   console.log("API_TOKEN not provided");
+    //   throw new Error("API_TOKEN is required for AI functionality");
+    // }
 
-    console.log("REFACTOR SUGGESTION FORMATTED:");
-    console.log(langchainService.formatSuggestion((await testLLM).suggestion));
+    // const langchainService = new LangchainService(
+    //   "gemini-1.5-flash",
+    //   0.2,
+    //   1000,
+    //   API_TOKEN
+    // );
+    // const testLLM = langchainService.suggestRefactor({
+    //   dockerfileSnippet: "RUN chmod 777 /app/script.sh",
+    //   context: "This is a mistake, use 777 permissions on linux, correct it",
+    // });
 
-    reporter.renderTable();
+    // console.log("Code:", (await testLLM).code);
+    // console.log("Suggestion:", (await testLLM).suggestion);
+    // console.log("Explanation:", (await testLLM).explanation);
+    // console.log("CONFIDENCE:", (await testLLM).confidence);
+
+    // console.log("REFACTOR SUGGESTION FORMATTED:");
+    // console.log(langchainService.formatSuggestion((await testLLM).suggestion));
+
+    // reporter.renderTable();
     core.summary.write();
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
