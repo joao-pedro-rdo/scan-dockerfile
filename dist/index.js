@@ -52484,6 +52484,22 @@ class LR_006_joinRun {
                 console.log("++++++ RETURN IA SUGGESTION: ", aiSuggestion.suggestion);
                 console.log("++++++ RETURN IA EXPLANATION: ", aiSuggestion.explanation);
                 console.log("++++++ RETURN IA CONFIDENCE: ", aiSuggestion.confidence);
+                const issueBody = this.formatIssueBody(searchResult, aiSuggestion, dockerfileContent);
+                // 7. ✅ CRIA a issue no GitHub
+                const issue = await this.reporter.newIssueIfNotExists({
+                    title: this.issueTitle,
+                    body: issueBody, // ← Aqui usa o body formatado
+                    labels: ["LR_006_joinRun", "performance", "ai-suggested"],
+                });
+                // 8. ✅ ADICIONA à tabela de resultados
+                if (issue) {
+                    this.reporter.addTableRow({
+                        rule: this.rule,
+                        status: "⚠️",
+                        details: `${searchResult.length} consecutive RUNs found`,
+                        link: issue.html_url,
+                    });
+                }
             }
         }
         catch (error) {
