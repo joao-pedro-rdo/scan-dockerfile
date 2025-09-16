@@ -1,4 +1,4 @@
-import { ChatOpenAI } from "@langchain/openai";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
@@ -15,21 +15,20 @@ interface RefactorResponse {
 }
 
 export class LangchainService {
-  private llm: ChatOpenAI;
+  private llm: ChatGoogleGenerativeAI;
   private outputParser: StringOutputParser;
 
   constructor(
-    model: string,
+    model?: string,
     temperature?: number,
     maxTokens?: number,
     apiKey?: string
   ) {
-    // Setting od model
-    this.llm = new ChatOpenAI({
-      modelName: model || "gpt-3.5-turbo",
+    this.llm = new ChatGoogleGenerativeAI({
+      model: model || "gemini-1.5-flash",
       temperature: temperature || 0.1,
-      maxTokens: maxTokens || 500,
-      apiKey: apiKey,
+      maxOutputTokens: maxTokens || 500,
+      apiKey: apiKey || process.env.GOOGLE_API_KEY,
     });
     // Setting of output parser
     this.outputParser = new StringOutputParser();
@@ -43,28 +42,37 @@ export class LangchainService {
 
     RULES:
     - Respond in English
-    - Be specific and practicals
+    - Be specific and practical
     - Briefly explain the reason for the change
     - If no improvements are needed, say "No improvements necessary"
-    - Format the response as JSON with these fields: suggestion (string), explanation (string), confidence (number between 0 and 1)`;
-    // if (ruleType === "security") {
-    //   systemMessage += `\n\nFOCO EM SEGURANÇA: Priorize aspectos de segurança como usuários não-root, imagens base seguras, etc.`;
-    // } else if (ruleType === "performance") {
-    //   systemMessage += `\n\nFOCO EM PERFORMANCE: Priorize otimizações de cache, redução de layers, etc.`;
-    // }
+    - Format the response as JSON with these fields: suggestion (string), explanation (string), confidence (number between 0 and 1)
+    
+    FOCUS AREAS:`;
 
-    // if (suggestion) {
-    //   systemMessage += `\n\nSUGESTÃO: ${suggestion}`;
-    // }
+    // ✅ TIPOS DE ANÁLISE ESPECÍFICOS
+    if (ruleType === "security") {
+      systemMessage += `\n- Security: non-root users, secure base images, secrets management`;
+    } else if (ruleType === "performance") {
+      systemMessage += `\n- Performance: cache optimization, layer reduction, multi-stage builds`;
+    } else if (ruleType === "best-practices") {
+      systemMessage += `\n- Best practices: WORKDIR, proper COPY usage, package management`;
+    } else {
+      systemMessage += `\n- General: security, performance, and best practices`;
+    }
+
+    if (suggestion) {
+      systemMessage += `\n\nSPECIFIC SUGGESTION TO VALIDATE: ${suggestion}`;
+    }
+
     return PromptTemplate.fromTemplate(`${systemMessage}
 
-    TRECHO DO DOCKERFILE:
+    DOCKERFILE SNIPPET:
     {dockerfileSnippet}
 
-    CONTEXTO ADICIONAL:
+    ADDITIONAL CONTEXT:
     {context}
 
-    RESPOSTA:`);
+    ANALYSIS:`);
   }
 
   async suggestRefactor(request: RefactorRequest): Promise<RefactorResponse> {
@@ -80,14 +88,17 @@ export class LangchainService {
       });
 
       try {
-        const parsed = JSON.parse(response);
+        // Remove markdown se houver
+        const cleanResponse = response.replace(/```json\n?|\n?```/g, "").trim();
+        const parsed = JSON.parse(cleanResponse);
+
         return {
           suggestion: parsed.suggestion || response,
           explanation: parsed.explanation || "No explanation provided",
-          confidence: parsed.confidence || 0.5,
+          confidence: this.normalizeConfidence(parsed.confidence),
         };
       } catch (parseError) {
-        // If unable to parse, return simple response
+        console.warn("Failed to parse JSON response, using raw text");
         return {
           suggestion: response,
           explanation: "Unstructured AI response",
@@ -95,7 +106,7 @@ export class LangchainService {
         };
       }
     } catch (error) {
-      console.error("Error calling LangChain:", error);
+      console.error("Error calling Gemini:", error);
       throw new Error(
         `Refactoring suggestion failed: ${
           error instanceof Error ? error.message : String(error)
@@ -104,21 +115,45 @@ export class LangchainService {
     }
   }
 
-  // Method to validate if the suggestion is applicable
+  // ✅ NOVO: Normalizar confidence
+  private normalizeConfidence(confidence: any): number {
+    if (typeof confidence === "number" && confidence >= 0 && confidence <= 1) {
+      return confidence;
+    }
+    return 0.5; // Valor padrão
+  }
+
+  // ✅ MELHORADO: Validação de confiança
   isHighConfidence(response: RefactorResponse): boolean {
     return (
       response.confidence >= 0.7 &&
       response.suggestion !== "No improvements necessary" &&
-      response.suggestion.trim().length > 10
+      response.suggestion.trim().length > 10 &&
+      !response.suggestion.toLowerCase().includes("no improvement")
     );
   }
 
-  // Method to clean and format the suggestion
+  // ✅ MELHORADO: Formatação
   public formatSuggestion(suggestion: string): string {
     return suggestion
       .trim()
-      .replace(/```dockerfile\n?/g, "") // Remove code markdown
-      .replace(/```\n?/g, "")
+      .replace(/```dockerfile\n?/g, "") // Remove markdown dockerfile
+      .replace(/```json\n?/g, "") // Remove markdown json
+      .replace(/```\n?/g, "") // Remove markdown genérico
+      .replace(/^\*\*|\*\*$/g, "") // Remove bold markdown
       .trim();
+  }
+
+  // ✅ NOVO: Método para análise específica de regras
+  async analyzeRule(
+    dockerfileContent: string,
+    ruleName: string,
+    ruleDescription: string
+  ): Promise<RefactorResponse> {
+    return this.suggestRefactor({
+      dockerfileSnippet: dockerfileContent,
+      context: `Analyzing compliance with rule: ${ruleName} - ${ruleDescription}`,
+      ruleType: "best-practices",
+    });
   }
 }
