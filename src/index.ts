@@ -82,6 +82,7 @@ async function run() {
     const { LR_006_joinRun } = await import("./linterRules/LR_006_joinRun");
     const lr_006 = new LR_006_joinRun(adapter, reporter, langchainService);
     await lr_006.execute();
+
     reporter.renderTable();
     core.summary.write();
   } catch (error) {

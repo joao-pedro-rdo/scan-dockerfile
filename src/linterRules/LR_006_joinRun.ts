@@ -12,6 +12,7 @@ import {
   RefactorRequest,
   RefactorResponse,
 } from "../contracts/iaServiceInterface";
+import { AIMessage } from "@langchain/core/messages";
 
 export class LR_006_joinRun implements ILinterRule {
   constructor(
@@ -53,17 +54,11 @@ export class LR_006_joinRun implements ILinterRule {
         const aiSuggestion = await this.iaService.suggestRefactor(
           refactorRequest
         );
+        console.log("++++++ RETURN IA: ", aiSuggestion.code);
+        console.log("++++++ RETURN IA SUGGESTION: ", aiSuggestion.suggestion);
+        console.log("++++++ RETURN IA EXPLANATION: ", aiSuggestion.explanation);
+        console.log("++++++ RETURN IA CONFIDENCE: ", aiSuggestion.confidence);
       }
-
-      const preIA = this.prepareRefactorRequest(
-        searchResult,
-        dockerfileContent
-      );
-      console.log("++++++  Pre IA: ", preIA);
-
-      const aiSuggestion = await this.iaService.suggestRefactor(preIA);
-      console.log("++++++  AI Suggestion: ", aiSuggestion);
-      console.log("++++++  Search Result RUN: ", searchResult);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error(`❌ Error executing LR_006_joinRun:`, errorMsg);
@@ -94,7 +89,6 @@ export class LR_006_joinRun implements ILinterRule {
 
     // ✅ Criar contexto com informações específicas
     const context = `
-      RULE: ${this.rule} - ${this.issueTitle}
 
       PROBLEM: Found ${
         searchResult.length
@@ -111,6 +105,7 @@ export class LR_006_joinRun implements ILinterRule {
       ${problematicLines.map((l) => `Line ${l.line}: ${l.content}`).join("\n")}
           `.trim();
 
+    console.log("Context prepared for AI:", context);
     return {
       dockerfileSnippet,
       context,
