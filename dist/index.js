@@ -52879,19 +52879,19 @@ class LangchainService {
     - If no improvements are needed, say "No improvements necessary"
     - Format the response as JSON with these fields: code (string), suggestion  (string), explanation (string), confidence (number between 0 and 1)
 
-    EXAMPLE INPUT:
-    {
-      "dockerfileSnippet": "RUN chmod 777 /app/script.sh",
-      "context": "This is a mistake, use 777 permissions on linux, correct it"
-    }
+     EXAMPLE INPUT:
+  {{
+    "dockerfileSnippet": "RUN chmod 777 /app/script.sh",
+    "context": "This is a mistake, use 777 permissions on linux, correct it"
+  }}
 
-    EXAMPLE RESPONSE:
-    {
-      "code": "RUN chmod +x /app/script.sh",
-      "suggestion": "Replace 'chmod 777' with 'chmod +x' to enhance security.",
-      "explanation": "Using 777 permissions can expose the application to security risks by allowing write access to all users.",
-      "confidence": 0.9
-    }`;
+  EXAMPLE RESPONSE:
+  {{
+    "code": "RUN chmod +x /app/script.sh",
+    "suggestion": "Replace 'chmod 777' with 'chmod +x' to enhance security.",
+    "explanation": "Using 777 permissions can expose the application to security risks by allowing write access to all users.",
+    "confidence": 0.9
+  }}`;
         // // REMOVE FOR TEST
         // if (ruleType === "security") {
         //   systemMessage += `\n- Security: non-root users, secure base images, secrets management`;
