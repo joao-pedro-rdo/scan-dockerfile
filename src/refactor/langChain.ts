@@ -2,19 +2,11 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { connected } from "process";
+import {
+  RefactorRequest,
+  RefactorResponse,
+} from "../contracts/iaServiceInterface.js";
 
-interface RefactorRequest {
-  dockerfileSnippet: string;
-  context?: string;
-  ruleType?: string;
-}
-
-interface RefactorResponse {
-  code: string;
-  suggestion: string;
-  explanation: string;
-  confidence: number;
-}
 /**
  * LangchainService integrates with Google Gemini via LangChain to provide AI-driven suggestions for Dockerfile refactoring.
  * It uses prompt templates and output parsers to structure interactions with the LLM.
@@ -89,7 +81,11 @@ export class LangchainService {
 
     ANALYSIS:`);
   }
-
+  /**
+   *
+   * @param request: RefactorRequest
+   * @returns RefactorResponse
+   */
   async suggestRefactor(request: RefactorRequest): Promise<RefactorResponse> {
     try {
       // Make the prompt and add ruleType if provided
