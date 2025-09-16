@@ -52480,12 +52480,11 @@ class LR_006_joinRun {
             if (searchResult && searchResult.length > 0) {
                 const refactorRequest = this.prepareRefactorRequest(searchResult, dockerfileContent);
                 const aiSuggestion = await this.iaService.suggestRefactor(refactorRequest);
+                console.log("++++++ RETURN IA: ", aiSuggestion.code);
+                console.log("++++++ RETURN IA SUGGESTION: ", aiSuggestion.suggestion);
+                console.log("++++++ RETURN IA EXPLANATION: ", aiSuggestion.explanation);
+                console.log("++++++ RETURN IA CONFIDENCE: ", aiSuggestion.confidence);
             }
-            const preIA = this.prepareRefactorRequest(searchResult, dockerfileContent);
-            console.log("++++++  Pre IA: ", preIA);
-            const aiSuggestion = await this.iaService.suggestRefactor(preIA);
-            console.log("++++++  AI Suggestion: ", aiSuggestion);
-            console.log("++++++  Search Result RUN: ", searchResult);
         }
         catch (error) {
             const errorMsg = error instanceof Error ? error.message : String(error);
@@ -52511,7 +52510,6 @@ class LR_006_joinRun {
             .join("\n");
         // ✅ Criar contexto com informações específicas
         const context = `
-      RULE: ${this.rule} - ${this.issueTitle}
 
       PROBLEM: Found ${searchResult.length} consecutive RUN commands that could be optimized.
 
@@ -52525,6 +52523,7 @@ class LR_006_joinRun {
       SPECIFIC COMMANDS TO OPTIMIZE:
       ${problematicLines.map((l) => `Line ${l.line}: ${l.content}`).join("\n")}
           `.trim();
+        console.log("Context prepared for AI:", context);
         return {
             dockerfileSnippet,
             context,
