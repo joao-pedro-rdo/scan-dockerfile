@@ -1,3 +1,4 @@
+
 import { IGitHubActionsAdapter } from "../contracts/githubActionsInterface";
 import { githubaActionsReporters } from "../reporters/githubaActionsReporters";
 import { ILinterRule } from "../contracts/LR_interface";
