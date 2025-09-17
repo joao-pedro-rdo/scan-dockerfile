@@ -1,12 +1,5 @@
-name: "Scan Docker Image"
-description: |
-  Scan Dockerfiles in your repository for security best practices and optimization opportunities.
-
-  Required Permissions:
-  - contents: read (to access repository files)
-  - issues: write (to create issues with scan results)
-  - pull-requests: write (to comment on PRs)
-
+name: "Scan Dockerfile"
+description: "AI-powered Dockerfile scanner for security, optimization, and best practices with automated issue reporting."
 author: "Joao Pedro Ramos de Oliveira"
 
 inputs:
@@ -16,9 +9,8 @@ inputs:
       - contents:read, issues:write, pull-requests:write
     required: true
 
-  #TODO: change to API_KEY make optional
   API_TOKEN:
-    description: "API key for the language model (e.g., OpenAI API key)"
+    description: "Gemini API key for AI-powered suggestions"
     required: true
 
 outputs:
