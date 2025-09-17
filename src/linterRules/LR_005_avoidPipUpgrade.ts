@@ -5,13 +5,21 @@ import { AdapterDockerfileAST } from "../refactor/dockerfileAST";
 import { promises as fs } from "fs";
 import * as utils from "../utils";
 
-export class LR_003_declarePortUsage implements ILinterRule {
+export class LR_005_avoidPipUpgrade implements ILinterRule {
   constructor(
     private adapter: IGitHubActionsAdapter,
     private reporter: githubaActionsReporters, // Need to use general ClassReporter
-    public issueTitle: string = "EXPOSE instruction found in Dockerfile",
-    public rule: string = "LR_003_declarePortUsage"
+    public issueTitle: string = "Avoid using 'pip install --upgrade'",
+    public rule: string = "LR_005_avoidPipUpgrade"
   ) {}
+
+  // Padrões a detectar no Dockerfile
+  private problematicPatterns = [
+    /pip\s+install\s+--upgrade/,
+    /pip\s+install\s+-U/,
+    /pip3\s+install\s+--upgrade/,
+    /pip3\s+install\s+-U/,
+  ];
 
   async execute() {
     try {
@@ -23,23 +31,21 @@ export class LR_003_declarePortUsage implements ILinterRule {
       });
 
       if (dockerfilePath.length === 0) {
-        throw new Error("No Dockerfile found in LR_003_declarePortUsage");
+        throw new Error("No Dockerfile found in LR_005_avoidPipUpgrade");
       }
-      //TODO: Consider multiple dockerfiles
+
       const dockerfileContent = await fs.readFile(dockerfilePath[0], "utf8");
       const dockerfile = new AdapterDockerfileAST(dockerfileContent);
 
-      // ask the AST to search for EXPOSE
-      const searchResult = await dockerfile.searchKeyword({
-        keyword: "EXPOSE",
-        args: [],
-      });
+      //   const searchResult = dockerfile.searchPattern(this.problematicPatterns);
+      const searchResult = dockerfile.searchFirstPattern(
+        this.problematicPatterns
+      );
+      console.log("💻💻💻💻💻Search Result:", searchResult);
 
-      // Check if the search result contains a WORKDIR instruction
-      const { keyword, line } = searchResult;
-      if (keyword.length > 0) {
+      if ((await searchResult).found == false) {
         this.reporter.infoSuccess(
-          `Great you have a EXPOSE instruction in your Dockerfile and Declared port usage at: ${dockerfilePath[0]}:${line}`
+          `Great! No 'pip install --upgrade' found in your Dockerfile at: ${dockerfilePath[0]}`
         );
         this.reporter.addTableRow({
           rule: this.rule,
@@ -52,8 +58,14 @@ export class LR_003_declarePortUsage implements ILinterRule {
 
       const issue = await this.reporter.newIssueIfNotExists({
         title: this.issueTitle,
-        body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a EXPOSE instruction. It's recommended to set a EXPOSE to ensure that your application runs in the correct directory context. This practice breaches the LR_003_declarePortUsage rule.`,
-        labels: ["LR_003_declarePortUsage", "dockerfile", "scan-dockerfile"],
+        body: `Your Dockerfile located at ${
+          dockerfilePath[0]
+        } contains a 'pip install --upgrade' command at line ${
+          (
+            await searchResult
+          ).line
+        }. Using '--upgrade' can lead to unpredictable builds and potential compatibility issues. It's recommended to specify exact package versions to ensure consistent and reliable builds. This practice breaches the LR_005_avoidPipUpgrade rule.`,
+        labels: ["LR_005_avoidPipUpgrade", "dockerfile", "scan-dockerfile"],
       });
 
       if (issue != null) {
@@ -66,12 +78,10 @@ export class LR_003_declarePortUsage implements ILinterRule {
           link: issue.html_url,
         });
       }
-
-      return;
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error(`❌ Error executing LR_003_declarePortUsage:`, errorMsg);
-      throw new Error(`Failed to execute LR_003_declarePortUsage: ${errorMsg}`);
+      console.error(`❌ Error executing ${this.rule}:`, errorMsg);
+      throw new Error(`Failed to execute ${this.rule}: ${errorMsg}`);
     }
   }
 }

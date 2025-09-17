@@ -1,8 +1,7 @@
-
 import { IGitHubActionsAdapter } from "../contracts/githubActionsInterface";
 import { githubaActionsReporters } from "../reporters/githubaActionsReporters";
 import { ILinterRule } from "../contracts/LR_interface";
-export declare class LR_003_declarePortUsage implements ILinterRule {
+export declare class LR_004_user implements ILinterRule {
     private adapter;
     private reporter;
     issueTitle: string;

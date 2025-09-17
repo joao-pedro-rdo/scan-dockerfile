@@ -16,7 +16,7 @@ async function run() {
     //! If cant search dockerfile in the workspace, the action broken
 
     const reporter = new githubaActionsReporters(adapter);
-    const listIssue = await adapter.listIssues();
+    // const listIssue = await adapter.listIssues();
     // console.log("List of issues:", listIssue);
 
     reporter.startTable();
@@ -31,6 +31,58 @@ async function run() {
     const lr_002 = new LR_002_setWorkdir(adapter, reporter);
     await lr_002.execute();
 
+    console.log("teste of LR_003");
+    const { LR_003_declarePortUsage } = await import(
+      "./linterRules/LR_003_declarePortUsage"
+    );
+    const lr_003 = new LR_003_declarePortUsage(adapter, reporter);
+    await lr_003.execute();
+
+    console.log("teste of LR_004");
+    const { LR_004_user } = await import("./linterRules/LR_004_user"); // Should use file extension .ts
+    const lr_004 = new LR_004_user(adapter, reporter);
+    await lr_004.execute();
+
+    console.log("teste of LR_005");
+    const { LR_005_avoidPipUpgrade } = await import(
+      "./linterRules/LR_005_avoidPipUpgrade"
+    );
+    const lr_005 = new LR_005_avoidPipUpgrade(adapter, reporter);
+    await lr_005.execute();
+
+    console.log("Test LangChain refactor");
+
+    const { LangchainService } = await import("./refactor/langChain");
+    const API_TOKEN = core.getInput("API_TOKEN");
+    if (!API_TOKEN) {
+      console.log("API_TOKEN not provided");
+      throw new Error("API_TOKEN is required for AI functionality");
+    }
+
+    const langchainService = new LangchainService(
+      "gemini-1.5-flash",
+      0.2,
+      1000,
+      API_TOKEN
+    );
+    // const testLLM = langchainService.suggestRefactor({
+    //   dockerfileSnippet: "RUN chmod 777 /app/script.sh",
+    //   context: "This is a mistake, use 777 permissions on linux, correct it",
+    // });
+
+    // console.log("Code:", (await testLLM).code);
+    // console.log("Suggestion:", (await testLLM).suggestion);
+    // console.log("Explanation:", (await testLLM).explanation);
+    // console.log("CONFIDENCE:", (await testLLM).confidence);
+
+    // console.log("REFACTOR SUGGESTION FORMATTED:");
+    // console.log(langchainService.formatSuggestion((await testLLM).suggestion));
+
+    console.log("+++++ teste of LR_006");
+    const { LR_006_joinRun } = await import("./linterRules/LR_006_joinRun");
+    const lr_006 = new LR_006_joinRun(adapter, reporter, langchainService);
+    await lr_006.execute();
+
     reporter.renderTable();
     core.summary.write();
   } catch (error) {
@@ -41,3 +93,19 @@ async function run() {
 }
 
 run();
+
+/*
+ * Copyright 2024 João Pedro Ramos de Oliveira
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */

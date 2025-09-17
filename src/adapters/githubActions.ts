@@ -1,5 +1,8 @@
 import * as github from "@actions/github";
-import { IGitHubActionsAdapter, IGitHubIssue } from "./githubActionsInterface";
+import {
+  IGitHubActionsAdapter,
+  IGitHubIssue,
+} from "../contracts/githubActionsInterface";
 
 export class GitHubActionsAdapter implements IGitHubActionsAdapter {
   // TODO: Verify if need to private

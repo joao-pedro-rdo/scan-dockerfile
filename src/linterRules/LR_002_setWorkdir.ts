@@ -7,9 +7,9 @@ import {
   IRequestAstDockerfile,
   IResponseAstDockerfile,
 } from "../refactor/dockerfileAST";
-import { ILinterRule } from "./LR_interface";
-import { ITableRow } from "../adapters/reporterInterfce";
-import { IGitHubActionsAdapter } from "../adapters/githubActionsInterface";
+import { ILinterRule } from "../contracts/LR_interface";
+import { ITableRow } from "../contracts/reporterInterfce";
+import { IGitHubActionsAdapter } from "../contracts/githubActionsInterface";
 /**
  * Linter rule LR_002_setWorkdir checks if a Dockerfile contains a WORKDIR instruction.
  * @param {GitHubActionsAdapter} adapter - The GitHub Actions adapter for accessing the workspace.

@@ -1,4 +1,4 @@
-import { IGitHubActionsAdapter, IGitHubIssue } from "./githubActionsInterface";
+import { IGitHubActionsAdapter, IGitHubIssue } from "../contracts/githubActionsInterface";
 export declare class GitHubActionsAdapter implements IGitHubActionsAdapter {
     token: string;
     workspace: string;
