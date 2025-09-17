@@ -20,18 +20,6 @@ inputs:
   API_TOKEN:
     description: "API key for the language model (e.g., OpenAI API key)"
     required: true
-  # dockerfile-path:
-  #   description: "Path to scan for Dockerfiles (default: repository root)"
-  #   required: false
-  #   default: "."
-  # create-issue:
-  #   description: "Create an issue with scan results (true/false)"
-  #   required: false
-  #   default: "true"
-  # issue-title:
-  #   description: "Custom title for the created issue"
-  #   required: false
-  #   default: "🐳 Dockerfile Security Scan Results"
 
 outputs:
   COMMENT_ID:

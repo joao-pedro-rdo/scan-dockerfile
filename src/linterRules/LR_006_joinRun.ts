@@ -148,46 +148,38 @@ export class LR_006_joinRun implements ILinterRule {
       return { line: lineNumber, content: `${command} ${args}`.trim() };
     });
 
-    return `
-      ## 🐳 ${this.issueTitle}
+    return `## 🐳 ${this.issueTitle}
 
-      ### 📍 **Issue Found:**
-      Found **${
-        searchResult.length
-      }** consecutive RUN commands that can be optimized to reduce Docker layers.
+### 📍 **Issue Found:**
+Found **${
+      searchResult.length
+    }** consecutive RUN commands that can be optimized to reduce Docker layers.
 
-      ### 🔍 **Affected Lines:**
-      ${problematicLines
-        .map((l) => `- **Line ${l.line}:** \`${l.content}\``)
-        .join("\n")}
+### 🔍 **Affected Lines:**
+${problematicLines
+  .map((l) => `- **Line ${l.line}:** \`${l.content}\``)
+  .join("\n")}
 
-      ### 🤖 **AI Suggestion (Confidence: ${(
-        aiSuggestion.confidence * 100
-      ).toFixed(1)}%):**
+### 🤖 **AI Suggestion (Confidence: ${(aiSuggestion.confidence * 100).toFixed(
+      1
+    )}%):**
 
-      **Recommended Fix:**
-      \`\`\`dockerfile
-      ${aiSuggestion.code}
-      \`\`\`
+**Recommended Fix:**
+\`\`\`dockerfile
+${aiSuggestion.code}
+\`\`\`
 
-      **Explanation:**
-      ${aiSuggestion.explanation}
+**Explanation:**
+${aiSuggestion.explanation}
 
-      **Why this matters:**
-      ${aiSuggestion.suggestion}
+**Why this matters:**
+${aiSuggestion.suggestion}
 
-      ### 📋 **Rule Details:**
-      - **Rule ID:** \`${this.rule}\`
-      - **Category:** Performance Optimization
-      - **Severity:** Medium
+### 🔧 **How to Fix:**
+1. Replace the consecutive RUN commands with the suggested optimized version
+2. Test your Docker build to ensure functionality remains intact
 
-      ### 🔧 **How to Fix:**
-      1. Replace the consecutive RUN commands with the suggested optimized version
-      2. Test your Docker build to ensure functionality remains intact
-      3. Verify that the final image size is reduced
-
-      ---
-      *This issue was automatically detected by our Dockerfile linter and enhanced with AI suggestions.*
-          `.trim();
+---
+*This issue was automatically detected by our Dockerfile linter and enhanced with AI suggestions.*`;
   }
 }
