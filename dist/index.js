@@ -51820,6 +51820,21 @@ async function run() {
     }
 }
 run();
+/*
+ * Copyright 2024 João Pedro Ramos de Oliveira
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 
 /***/ }),
@@ -52553,43 +52568,35 @@ class LR_006_joinRun {
             const lineNumber = result.line[0];
             return { line: lineNumber, content: `${command} ${args}`.trim() };
         });
-        return `
-      ## 🐳 ${this.issueTitle}
+        return `## 🐳 ${this.issueTitle}
 
-      ### 📍 **Issue Found:**
-      Found **${searchResult.length}** consecutive RUN commands that can be optimized to reduce Docker layers.
+### 📍 **Issue Found:**
+Found **${searchResult.length}** consecutive RUN commands that can be optimized to reduce Docker layers.
 
-      ### 🔍 **Affected Lines:**
-      ${problematicLines
+### 🔍 **Affected Lines:**
+${problematicLines
             .map((l) => `- **Line ${l.line}:** \`${l.content}\``)
             .join("\n")}
 
-      ### 🤖 **AI Suggestion (Confidence: ${(aiSuggestion.confidence * 100).toFixed(1)}%):**
+### 🤖 **AI Suggestion (Confidence: ${(aiSuggestion.confidence * 100).toFixed(1)}%):**
 
-      **Recommended Fix:**
-      \`\`\`dockerfile
-      ${aiSuggestion.code}
-      \`\`\`
+**Recommended Fix:**
+\`\`\`dockerfile
+${aiSuggestion.code}
+\`\`\`
 
-      **Explanation:**
-      ${aiSuggestion.explanation}
+**Explanation:**
+${aiSuggestion.explanation}
 
-      **Why this matters:**
-      ${aiSuggestion.suggestion}
+**Why this matters:**
+${aiSuggestion.suggestion}
 
-      ### 📋 **Rule Details:**
-      - **Rule ID:** \`${this.rule}\`
-      - **Category:** Performance Optimization
-      - **Severity:** Medium
+### 🔧 **How to Fix:**
+1. Replace the consecutive RUN commands with the suggested optimized version
+2. Test your Docker build to ensure functionality remains intact
 
-      ### 🔧 **How to Fix:**
-      1. Replace the consecutive RUN commands with the suggested optimized version
-      2. Test your Docker build to ensure functionality remains intact
-      3. Verify that the final image size is reduced
-
-      ---
-      *This issue was automatically detected by our Dockerfile linter and enhanced with AI suggestions.*
-          `.trim();
+---
+*This issue was automatically detected by our Dockerfile linter and enhanced with AI suggestions.*`;
     }
 }
 exports.LR_006_joinRun = LR_006_joinRun;
