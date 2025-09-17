@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Actions Toolkit Core - Exemplos HTML</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0d1117;
+            color: #c9d1d9;
+        }
+        
+        .example {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            background: #161b22;
+        }
+        
+        .method-name {
+            color: #79c0ff;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .code-snippet {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 12px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #e6edf3;
+        }
+        
+        .output-label {
+            color: #f85149;
+            font-weight: bold;
+            margin: 10px 0 5px 0;
+        }
+        
+        .output {
+            border: 2px solid #238636;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            background: #0d1421;
+        }
+        
+        pre {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 12px;
+            overflow-x: auto;
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            background: #6e768166;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        blockquote {
+            border-left: 4px solid #30363d;
+            padding-left: 16px;
+            margin: 16px 0;
+            font-style: italic;
+        }
+        
+        details {
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 8px;
+        }
+        
+        summary {
+            cursor: pointer;
+            font-weight: bold;
+            color: #79c0ff;
+        }
+        
+        h1 {
+            color: #f0f6fc;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #f0f6fc;
+        }
+        
+        ol, ul {
+            padding-left: 20px;
+        }
+        
+        li {
+            margin: 5px 0;
+        }
+        
+        a {
+            color: #58a6ff;
+        }
+        
+        a:hover {
+            color: #79c0ff;
+        }
+        
+        hr {
+            border: none;
+            border-top: 1px solid #30363d;
+            margin: 20px 0;
+        }
+        
+        img {
+            border: 1px solid #30363d;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <h1>GitHub Actions Toolkit Core - Exemplos HTML 🚀</h1>
+    <p>Demonstração visual de como cada método do <code>core.summary</code> é renderizado em HTML:</p>
+
+    <div class="example">
+        <div class="method-name">core.summary.addRaw()</div>
+        <div class="code-snippet">core.summary.addRaw('Some content here :speech_balloon:', true)</div>
+        <div class="output-label">📤 Output HTML:</div>
+        <div class="output">
+            Some content here 💬<br>
+        </div>
+    </div>
+
+    <div class="example">
+        <div class="method-name">core.summary.addEOL()</div>
+        <div class="code-snippet">core.summary.addEOL()</div>
+        <div class="output-label">📤 Output HTML:</div>
+        <div class="output">
+            (Quebra de linha - POSIX: \n, Windows: \r\n)<br>
+        </div>
+    </div>
+
+    <div class="example">
+        <div class="method-name">core.summary.addCodeBlock()</div>
+        <div class="code-snippet">core.summary.addCodeBlock('console.log(\'hello world\')', 'javascript')</div>
+        <div class="output-label">📤 Output HTML:</div>
+        <div class="output">
+            <pre lang="javascript"><code>console.log('hello world')</code></pre>
+        </div>
+    </div>
+
+    <div class="example">
+        <div class="method-name">core.summary.addList()</div>
+        <div class="code-snippet">core.summary.addList(['item1','item2','item3'], true)</div>
+        <div class="output-label">📤 Output HTML:</div>
+        <div class="output">
+            <ol>
+                <li>item1</li>
+                <li>item2</li>
+                <li>item3</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="example">
+        <div class="method-name">core.summary.addDetails()</div>
+        <div class="code-snippet">core.summary.addDetails('Label', 'Some detail that will be collapsed')</div>
+        <div class="output-label">📤 Output HTML:</div>
+        <div class="output">
+            <details>
+                <summary>Label</summary>
+                Some detail that will be collapsed
+            </details>
+        </div>
+    </div>
+
+    <div class="example">
+        <div class="method-name">core.summary.addImage()</div>
+        <div class="code-snippet">core.summary.addImage('example.png', 'alt description of img', {width: '100', height: '100'})</div>
+        <div class="output-label">📤 Output HTML:</div>
+        <div class="output">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzIxMjYyZCIgc3Ryb2tlPSIjMzAzNjNkIi8+CiAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiNjOWQxZDkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+SU1BR0U8L3RleHQ+Cjwvc3ZnPg==" 
+                 alt="alt description of img" 
+                 width="100" 
+                 height="100">
+        </div>
+    </div>
+
+    <div class="example">
+        <div class="method-name">core.summary.addHeading()</div>
+        <div class="code-snippet">core.summary.addHeading('My Heading', '2')</div>
+        <div class="output-label">📤 Output HTML:</div>
+        <div class="output">
+            <h2>My Heading</h2>
+        </div>
+    </div>
+
+    <div class="example">
+        <div class="method-name">core.summary.addSeparator()</div>
+        <div class="code-snippet">core.summary.addSeparator()</div>
+        <div class="output-label">📤 Output HTML:</div>
+        <div class="output">
+            <hr>
+        </div>
+    </div>
+
+    <div class="example">
+        <div class="method-name">core.summary.addBreak()</div>
+        <div class="code-snippet">core.summary.addBreak()</div>
+        <div class="output-label">📤 Output HTML:</div>
+        <div class="output">
+            Texto antes<br>Texto depois da quebra de linha
+        </div>
+    </div>
+
+    <div class="example">
+        <div class="method-name">core.summary.addQuote()</div>
+        <div class="code-snippet">core.summary.addQuote('To be or not to be', 'Shakespeare')</div>
+        <div class="output-label">📤 Output HTML:</div>
+        <div class="output">
+            <blockquote cite="Shakespeare">To be or not to be</blockquote>
+        </div>
+    </div>
+
+    <div class="example">
+        <div class="method-name">core.summary.addLink()</div>
+        <div class="code-snippet">core.summary.addLink('click here', 'https://github.com')</div>
+        <div class="output-label">📤 Output HTML:</div>
+        <div class="output">
+            <a href="https://github.com">click here</a>
+        </div>
+    </div>
+
+    <div class="example">
+        <div class="method-name">core.summary.addTable()</div>
+        <div class="code-snippet">const tableData = [
+  [{data: 'Header1', header: true}, {data: 'Header2', header: true}, {data: 'Header3', header: true}],
+  [{data: 'MyData1'}, {data: 'MyData2'}, {data: 'MyData3'}]
+]
+core.summary.addTable(tableData)</div>
+        <div class="output-label">📤 Output HTML:</div>
+        <div class="output">
+            <table style="border-collapse: collapse; width: 100%;">
+                <tr>
+                    <th style="border: 1px solid #30363d; padding: 8px; background: #21262d;">Header1</th>
+                    <th style="border: 1px solid #30363d; padding: 8px; background: #21262d;">Header2</th>
+                    <th style="border: 1px solid #30363d; padding: 8px; background: #21262d;">Header3</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #30363d; padding: 8px;">MyData1</td>
+                    <td style="border: 1px solid #30363d; padding: 8px;">MyData2</td>
+                    <td style="border: 1px solid #30363d; padding: 8px;">MyData3</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="example">
+        <div class="method-name">core.summary.addTable() - com colspan e rowspan</div>
+        <div class="code-snippet">const complexTableData = [
+  [{data: 'Header 1', header: true, colspan: '2'}, {data: 'Header 2', header: true}],
+  [{data: 'Row 1 Col 1', rowspan: '2'}, {data: 'Row 1 Col 2'}, {data: 'Row 1 Col 3'}],
+  [{data: 'Row 2 Col 2'}, {data: 'Row 2 Col 3'}]
+]
+core.summary.addTable(complexTableData)</div>
+        <div class="output-label">📤 Output HTML:</div>
+        <div class="output">
+            <table style="border-collapse: collapse; width: 100%;">
+                <tr>
+                    <th style="border: 1px solid #30363d; padding: 8px; background: #21262d;" colspan="2">Header 1</th>
+                    <th style="border: 1px solid #30363d; padding: 8px; background: #21262d;">Header 2</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #30363d; padding: 8px;" rowspan="2">Row 1 Col 1</td>
+                    <td style="border: 1px solid #30363d; padding: 8px;">Row 1 Col 2</td>
+                    <td style="border: 1px solid #30363d; padding: 8px;">Row 1 Col 3</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #30363d; padding: 8px;">Row 2 Col 2</td>
+                    <td style="border: 1px solid #30363d; padding: 8px;">Row 2 Col 3</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div style="margin-top: 40px; padding: 20px; border: 1px solid #f85149; border-radius: 8px; background: #161b22;">
+        <h3>🛠️ Métodos Utilitários do Buffer:</h3>
+        
+        <div style="margin: 15px 0;">
+            <div class="method-name">core.summary.clear()</div>
+            <div class="code-snippet">core.summary.clear()</div>
+            <p style="margin: 5px 0; color: #8b949e;">Esvazia o buffer do summary E apaga o arquivo de summary no disco</p>
+        </div>
+
+        <div style="margin: 15px 0;">
+            <div class="method-name">core.summary.stringify()</div>
+            <div class="code-snippet">const summaryContent = core.summary.stringify()</div>
+            <p style="margin: 5px 0; color: #8b949e;">Retorna o conteúdo atual do buffer como uma string</p>
+        </div>
+
+        <div style="margin: 15px 0;">
+            <div class="method-name">core.summary.isEmptyBuffer()</div>
+            <div class="code-snippet">const isEmpty = core.summary.isEmptyBuffer()</div>
+            <p style="margin: 5px 0; color: #8b949e;">Verifica se o buffer do summary está vazio</p>
+        </div>
+
+        <div style="margin: 15px 0;">
+            <div class="method-name">core.summary.emptyBuffer()</div>
+            <div class="code-snippet">core.summary.emptyBuffer()</div>
+            <p style="margin: 5px 0; color: #8b949e;">Reseta o buffer sem escrever no arquivo de summary no disco</p>
+        </div>
+
+        <div style="margin: 15px 0;">
+            <div class="method-name">core.summary.write()</div>
+            <div class="code-snippet">core.summary.write({overwrite: true})</div>
+            <p style="margin: 5px 0; color: #8b949e;">Escreve o texto do buffer no arquivo e esvazia o buffer. Opcionalmente sobrescreve todo o conteúdo existente</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px; padding: 20px; border: 1px solid #58a6ff; border-radius: 8px; background: #0d1421;">
+        <h3>🖥️ Simulação Real dos Logs do GitHub Actions:</h3>
+        <div style="background: #000; color: #00ff00; font-family: 'Courier New', monospace; padding: 15px; border-radius: 6px; font-size: 13px; line-height: 1.4; overflow-x: auto;">
+            <div style="margin: 2px 0;"><span style="color: #888;">2024-09-02T10:30:45.123Z</span> <span style="color: #32cd32;">✅ Build completed successfully!</span></div>
+            <div style="margin: 2px 0;"><span style="color: #888;">2024-09-02T10:30:46.456Z</span> <span style="color: #ffff00;">⚠️  Warning: Some dependencies are outdated</span></div>
+            <div style="margin: 2px 0;"><span style="color: #888;">2024-09-02T10:30:47.789Z</span> <span style="color: #ff0000;">❌ Tests failed in module: authentication</span></div>
+            <div style="margin: 8px 0 2px 0;"><span style="color: #888;">2024-09-02T10:30:48.012Z</span> <span style="color: #00ffff; font-weight: bold;">Deployment Status Report</span></div>
+            <div style="margin: 2px 0;"><span style="color: #888;">2024-09-02T10:30:48.345Z</span> <span style="color: #32cd32;">• Frontend: <span style="font-weight: bold;">Deployed</span></span></div>
+            <div style="margin: 2px 0;"><span style="color: #888;">2024-09-02T10:30:48.678Z</span> <span style="color: #32cd32;">• Backend: <span style="font-weight: bold;">Deployed</span></span></div>
+            <div style="margin: 2px 0;"><span style="color: #888;">2024-09-02T10:30:49.901Z</span> <span style="color: #ff0000;">• Database: <span style="font-weight: bold;">Failed</span></span></div>
+            <div style="margin: 8px 0 2px 0;"><span style="color: #888;">2024-09-02T10:30:50.234Z</span> <span style="color: #fff;">Running test suite...</span></div>
+            <div style="margin: 2px 0;"><span style="color: #888;">2024-09-02T10:30:52.567Z</span> <span style="color: #32cd32;">✓ Unit tests passed (127 tests)</span></div>
+            <div style="margin: 2px 0;"><span style="color: #888;">2024-09-02T10:30:54.890Z</span> <span style="color: #ffff00;">⚠ Integration tests completed with warnings (45 tests)</span></div>
+            <div style="margin: 2px 0;"><span style="color: #888;">2024-09-02T10:30:56.123Z</span> <span style="color: #ff0000;">✗ E2E tests failed (3 of 12 tests failed)</span></div>
+            <div style="margin: 8px 0 2px 0;"><span style="color: #888;">2024-09-02T10:30:58.456Z</span> <span style="color: #00ffff; font-weight: bold;">📊 Summary:</span></div>
+            <div style="margin: 2px 0;"><span style="color: #888;">2024-09-02T10:30:58.789Z</span> <span style="color: #32cd32;">✅ Build: SUCCESS</span></div>
+            <div style="margin: 2px 0;"><span style="color: #888;">2024-09-02T10:30:59.012Z</span> <span style="color: #ff0000;">❌ Deploy: FAILED</span></div>
+            <div style="margin: 2px 0;"><span style="color: #888;">2024-09-02T10:30:59.345Z</span> <span style="color: #ffff00;">⏱️ Total time: 2m 14s</span></div>
+        </div>
+        <p style="margin-top: 15px; color: #8b949e; font-size: 14px;">
+            💡 <strong>Dica:</strong> Esta é uma simulação de como os logs coloridos aparecem no terminal do GitHub Actions. 
+            Os timestamps são gerados automaticamente e as cores ajudam a identificar rapidamente sucessos (verde), 
+            avisos (amarelo) e erros (vermelho).
+        </p>
+    </div>
+
+    <div style="margin-top: 40px; padding: 20px; border: 1px solid #30363d; border-radius: 8px; background: #161b22;">
+        <h3>💡 Como usar no GitHub Actions:</h3>
+        <pre><code>import * as core from '@actions/core'
+
+// Exemplo prático com cores nos logs
+core.info('\u001b[32m✅ Build completed successfully!')
+core.info('\u001b[33m⚠️  Warning: Some dependencies are outdated')
+core.info('\u001b[31m❌ Tests failed in module: authentication')
+
+// Usando cores para destacar informações importantes
+core.info('\u001b[1;36mDeployment Status Report\u001b[0m')
+core.info('\u001b[32m• Frontend: \u001b[1mDeployed\u001b[0m')
+core.info('\u001b[32m• Backend: \u001b[1mDeployed\u001b[0m') 
+core.info('\u001b[31m• Database: \u001b[1mFailed\u001b[0m')
+
+// Tabela de resultados de testes com cores
+const testResults = [
+  [{data: 'Test Suite', header: true}, {data: 'Status', header: true}, {data: 'Duration', header: true}],
+  [{data: 'Unit Tests'}, {data: '✅ Pass'}, {data: '2.3s'}],
+  [{data: 'Integration Tests'}, {data: '✅ Pass'}, {data: '5.1s'}],
+  [{data: 'E2E Tests'}, {data: '❌ Fail'}, {data: '1.2s'}]
+]
+
+core.summary
+  .addHeading('🚀 Relatório de Deployment', '1')
+  .addSeparator()
+  .addRaw('Status: ', false)
+  .addRaw('✅ Sucesso\n', true)
+  .addBreak()
+  .addQuote('Deploy realizado com sucesso!', 'Sistema')
+  .addCodeBlock('npm run build && npm run deploy', 'bash')
+  .addHeading('📊 Resultados dos Testes', '2')
+  .addTable(testResults)
+  .write() // Salva o summary no GitHub
+
+// Verificar se o buffer está vazio
+if (!core.summary.isEmptyBuffer()) {
+  core.info('\u001b[32m✅ Summary criado com sucesso!')
+}</code></pre>
+    </div>
+
+</body>
+</html>

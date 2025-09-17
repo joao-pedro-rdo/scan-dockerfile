@@ -1,0 +1,38 @@
+name: "Scan Docker Image"
+description: |
+  Scan Dockerfiles in your repository for security best practices and optimization opportunities.
+
+  Required Permissions:
+  - contents: read (to access repository files)
+  - issues: write (to create issues with scan results)
+  - pull-requests: write (to comment on PRs)
+
+author: "Joao Pedro Ramos de Oliveira"
+
+inputs:
+  GITHUB_TOKEN:
+    description: |
+      GitHub token for authentication. Must have permissions:
+      - contents:read, issues:write, pull-requests:write
+    required: true
+
+  #TODO: change to API_KEY make optional
+  API_TOKEN:
+    description: "API key for the language model (e.g., OpenAI API key)"
+    required: true
+
+outputs:
+  COMMENT_ID:
+    description: "ID of the comment where the scan results were posted"
+  ISSUE_ID:
+    description: "ID of the issue created with scan results"
+  SCAN_STATUS:
+    description: "Overall scan status (success/warning/error)"
+
+runs:
+  using: "node20"
+  main: "dist/index.js"
+
+branding:
+  icon: "shield"
+  color: "blue"

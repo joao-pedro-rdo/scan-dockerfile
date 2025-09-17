@@ -1,0 +1,38 @@
+{
+  "name": "scan-dockerfile",
+  "version": "1.0.0",
+  "description": "Scan a Docker image actions for best practices",
+  "main": "dist/index.js",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "ncc build src/index.ts --license licenses.txt",
+    "start": "node dist/index.js",
+    "build:ci": "npm run type-check && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joao-pedro-rdo/scan-dockefile.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/joao-pedro-rdo/scan-dockefile/issues"
+  },
+  "homepage": "https://github.com/joao-pedro-rdo/scan-dockefile#readme",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.1",
+    "@langchain/core": "^0.3.75",
+    "@langchain/google-genai": "^0.2.18",
+    "@octokit/webhooks-definitions": "^3.68.1",
+    "dockerfile-ast": "^0.7.1",
+    "fast-glob": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "@vercel/ncc": "^0.38.3",
+    "typedoc": "^0.28.11",
+    "typescript": "^5.9.2"
+  }
+}

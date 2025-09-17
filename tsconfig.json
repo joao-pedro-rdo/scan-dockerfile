@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    // Module Resolution
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es2020",
+    "lib": ["es2020"],
+
+    // File Layout
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    // Interop Settings
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "verbatimModuleSyntax": false,
+
+    // Type Checking
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // Emit Settings
+    "declaration": true,
+    "sourceMap": true,
+
+    // Node.js Types
+    "types": ["node"],
+    "typeRoots": ["./node_modules/@types"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}
