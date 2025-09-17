@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: joao-pedro-rdo/scan-dockerfile@v1
+      - uses: joao-pedro-rdo/scan-dockerfile@v0.1.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           API_TOKEN: ${{ secrets.API_TOKEN }}
