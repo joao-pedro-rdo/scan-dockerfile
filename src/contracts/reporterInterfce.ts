@@ -7,8 +7,8 @@ export interface IReporter {
   info?(msg: string): void;
   summary?(obj: ISummary): void;
   addLinkIssue?(obj: addLinkIssue): void;
-  newIssue?(obj: INewIssue): Promise<void>;
-  newPr?(obj: INewPR): Promise<void>;
+  newIssue?(obj: INewIssue): Promise<IGitHubIssue>;
+  newPr?(obj: INewPR): Promise<IGitHubIssue | null>;
 }
 
 export interface IgithubaActionsReporters extends IReporter {
@@ -25,7 +25,7 @@ export interface IgithubaActionsReporters extends IReporter {
   infoWarning(text: string): void;
   infoError(text: string): void;
   info(text: string): void;
-  newIssue(obj: INewIssue): Promise<void>;
+  newIssue(obj: INewIssue): Promise<IGitHubIssue>;
   newIssueIfNotExists(obj: INewIssue): Promise<IGitHubIssue | null>;
 }
 

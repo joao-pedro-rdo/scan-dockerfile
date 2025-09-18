@@ -76,32 +76,66 @@ export class githubaActionsReporters implements IgithubaActionsReporters {
    * Create New Issue
    * @param obj: INewIssue
    * @see {@link https://octokit.github.io/rest.js/ | Octokit.js Documentation}
+   * @returns obj: IGithubIssue (Obj of the created issue)
    */
 
-  async newIssue(obj: INewIssue) {
-    // console.log("🤢 Ockotkit: ", this.IGitHubActionsAdapter.octokit);
-    await this.IGitHubActionsAdapter.octokit.rest.issues.create({
-      owner: this.IGitHubActionsAdapter.owner,
-      repo: this.IGitHubActionsAdapter.repo,
-      title: obj.title,
-      body: obj.body,
-      labels: obj.labels,
-    });
+  async newIssue(obj: INewIssue): Promise<IGitHubIssue> {
+    try {
+      const response =
+        await this.IGitHubActionsAdapter.octokit.rest.issues.create({
+          owner: this.IGitHubActionsAdapter.owner,
+          repo: this.IGitHubActionsAdapter.repo,
+          title: obj.title,
+          body: obj.body,
+          labels: obj.labels,
+        });
+      return {
+        id: response.data.id,
+        number: response.data.number,
+        title: response.data.title,
+        html_url: response.data.html_url,
+        body: response.data.body,
+        state: response.data.state,
+        labels: response.data.labels,
+      };
+    } catch (error) {
+      console.error("Error creating issue:", error);
+      throw error;
+    }
   }
-  /**
-   * Create New Pull Request
-   * @param obj: INewPR
-   */
-  //TODO implement new PR is not working
-  async newPr(obj: INewPR) {
-    await this.IGitHubActionsAdapter.octokit.rest.pulls.create({
-      owner: this.IGitHubActionsAdapter.owner,
-      repo: this.IGitHubActionsAdapter.repo,
-      title: obj.title,
-      body: obj.body,
-      head: obj.head,
-    });
-  }
+  // TODO implement new PR is not working
+  // async newPr(obj: INewPR): Promise<IGitHubIssue | null> {
+  //   try {
+  //     const response = await this.IGitHubActionsAdapter.octokit.rest.pulls.create({
+  //       owner: this.IGitHubActionsAdapter.owner,
+  //       repo: this.IGitHubActionsAdapter.repo,
+  //       title: obj.title,
+  //       body: obj.body,
+  //       head: obj.head,
+  //       base: obj.base,
+  //     });
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error("Error creating pull request:", error);
+  //     throw error;
+  //   }
+  // }
+  //     throw error;
+  // }
+  // /**
+  //  * Create New Pull Request
+  //  * @param obj: INewPR
+  //  */
+  // //TODO implement new PR is not working
+  // async newPr(obj: INewPR) {
+  //   await this.IGitHubActionsAdapter.octokit.rest.pulls.create({
+  //     owner: this.IGitHubActionsAdapter.owner,
+  //     repo: this.IGitHubActionsAdapter.repo,
+  //     title: obj.title,
+  //     body: obj.body,
+  //     head: obj.head,
+  //   });
+  // }
 
   /**
    * Create a new issue if one with the same title does not already exist.
@@ -114,10 +148,7 @@ export class githubaActionsReporters implements IgithubaActionsReporters {
     if (!existing) {
       // Issue does not exist, create it
       const createdIssue = await this.newIssue(obj);
-      // Return the newly created issue
-      const existing: IGitHubIssue | null =
-        await this.IGitHubActionsAdapter.findOpenIssueByTitle(obj.title);
-      return existing;
+      return createdIssue;
     } else {
       // Issue already exists, return
       return existing;
