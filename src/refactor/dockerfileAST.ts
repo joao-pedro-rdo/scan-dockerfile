@@ -217,7 +217,6 @@ export class AdapterDockerfileAST {
     const allInstructions: Array<IResponseAstDockerfile> = [];
 
     try {
-      // 1. Coleta todas as instruções em ordem
       for (const instruction of this.content.getInstructions()) {
         const keyword = instruction.getKeyword();
         const args = instruction.getArguments();
@@ -237,7 +236,6 @@ export class AdapterDockerfileAST {
         });
       }
 
-      // 2. Encontra apenas o PRIMEIRO grupo consecutivo
       let i = 0;
       while (i < allInstructions.length) {
         if (
@@ -246,10 +244,8 @@ export class AdapterDockerfileAST {
         ) {
           const consecutiveGroup: Array<IResponseAstDockerfile> = [];
 
-          // Adiciona o primeiro match
           consecutiveGroup.push(allInstructions[i]);
 
-          // Procura por matches consecutivos (sem interrupção)
           let j = i + 1;
           while (
             j < allInstructions.length &&
@@ -260,13 +256,11 @@ export class AdapterDockerfileAST {
             j++;
           }
 
-          // ✅ MUDANÇA PRINCIPAL: Retorna apenas o primeiro grupo encontrado
           return consecutiveGroup;
         }
         i++;
       }
 
-      // Se não encontrou nenhum grupo consecutivo
       return [];
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);

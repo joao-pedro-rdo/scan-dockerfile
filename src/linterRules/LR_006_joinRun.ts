@@ -46,7 +46,7 @@ export class LR_006_joinRun implements ILinterRule {
         args: [],
       });
 
-      if (searchResult && searchResult.length > 0) {
+      if (searchResult && searchResult.length > 1) {
         const refactorRequest = this.prepareRefactorRequest(
           searchResult,
           dockerfileContent
@@ -65,14 +65,12 @@ export class LR_006_joinRun implements ILinterRule {
           dockerfileContent
         );
 
-        // 7. ✅ CRIA a issue no GitHub
         const issue = await this.reporter.newIssueIfNotExists({
           title: this.issueTitle,
           body: issueBody, // ← Aqui usa o body formatado
           labels: ["LR_006_joinRun", "performance", "ai-suggested"],
         });
 
-        // 8. ✅ ADICIONA à tabela de resultados
         if (issue) {
           this.reporter.addTableRow({
             rule: this.rule,

@@ -58,9 +58,10 @@ async function run() {
       console.log("API_TOKEN not provided");
       throw new Error("API_TOKEN is required for AI functionality");
     }
+    const MODEL_NAME = core.getInput("MODEL_NAME") || "gemini-1.5-flash";
 
     const langchainService = new LangchainService(
-      "gemini-1.5-flash",
+      MODEL_NAME,
       0.2,
       1000,
       API_TOKEN

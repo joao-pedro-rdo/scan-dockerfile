@@ -20,6 +20,10 @@ inputs:
   API_TOKEN:
     description: "API key for the language model (e.g., OpenAI API key)"
     required: true
+  MODEL_NAME:
+    description: "Name of the language model to use (default: gemini-1.5-flash)"
+    required: false
+    default: "gemini-1.5-flash"
 
 outputs:
   COMMENT_ID:

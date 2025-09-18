@@ -16,7 +16,8 @@
 </p>
 A GitHub Action that scans Dockerfiles in your repository and suggests best practices for container security, optimization, and maintainability.
 
-> **⚠️ Status:** This action is in **Development**. Please report any issues or suggestions.
+> [!WARNING]  
+> This action is in **Development**. Please report any issues or suggestions.
 
 ## ✨ Features
 
@@ -33,6 +34,12 @@ A GitHub Action that scans Dockerfiles in your repository and suggests best prac
 
 ### ✅ Basic Usage ✅
 
+> [!NOTE]
+> Currently, only supports Dockerfiles named `Dockerfile`
+
+> [!NOTE]  
+> Currently, only supports models from Gemini
+
 ```yaml
 name: Dockerfile Scanner
 on: [push, pull_request]
@@ -48,22 +55,31 @@ jobs:
       - uses: actions/checkout@v4
       - uses: joao-pedro-rdo/scan-dockerfile@v1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          API_TOKEN: ${{ secrets.API_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          API_TOKEN: ${{ secrets.API_TOKEN }} # Required
+          MODEL_NAME: "gemini-1.5-flash" # Optional, defaults to gemini-1.5-flash
 ```
 
 ## 📋 Inputs
 
-| Input          | Description                           | Required | Default |
-| -------------- | ------------------------------------- | -------- | ------- |
-| `github-token` | GitHub token for API access           | ✅       | -       |
-| `API_TOKEN`    | API token for external service access | ✅       | -       |
+| Input          | Description                           | Required | Default          |
+| -------------- | ------------------------------------- | -------- | ---------------- |
+| `GITHUB_TOKEN` | GitHub token for API access           | ✅       | -                |
+| `API_TOKEN`    | API token for external service access | ✅       | -                |
+| `MODEL_NAME`   | Name of the language model to use     | ❌       | gemini-1.5-flash |
 
 ## 📤 Outputs
 
 | Output         | Description                     |
 | -------------- | ------------------------------- |
 | `issues-found` | Number of issues found and link |
+
+## ✨ Next Features
+
+- 🔜 Support all models on LangChain
+- 🔜 Support custom Dockerfile names and paths
+- 🔜 Setting which Linter Rules you want to enable
+- 🔜 API_TOKEN not required
 
 ## 🔍 What We Check
 
@@ -95,9 +111,9 @@ jobs:
 - 🔜 File permissions
 - 🔜 Documentation completeness
 
-## 📊 Example Output
+<!-- ## 📊 Example Output
 
-❌ TODO: Add example output here
+❌ TODO: Add example output here -->
 
 ## 🛠️ Development
 
