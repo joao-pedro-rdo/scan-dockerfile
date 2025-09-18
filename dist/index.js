@@ -51795,7 +51795,8 @@ async function run() {
             console.log("API_TOKEN not provided");
             throw new Error("API_TOKEN is required for AI functionality");
         }
-        const langchainService = new LangchainService("gemini-1.5-flash", 0.2, 1000, API_TOKEN);
+        const MODEL_NAME = core.getInput("MODEL_NAME") || "gemini-1.5-flash";
+        const langchainService = new LangchainService(MODEL_NAME, 0.2, 1000, API_TOKEN);
         // const testLLM = langchainService.suggestRefactor({
         //   dockerfileSnippet: "RUN chmod 777 /app/script.sh",
         //   context: "This is a mistake, use 777 permissions on linux, correct it",
@@ -52492,7 +52493,7 @@ class LR_006_joinRun {
                 keyword: "RUN",
                 args: [],
             });
-            if (searchResult && searchResult.length > 0) {
+            if (searchResult && searchResult.length > 1) {
                 const refactorRequest = this.prepareRefactorRequest(searchResult, dockerfileContent);
                 const aiSuggestion = await this.iaService.suggestRefactor(refactorRequest);
                 console.log("++++++ RETURN IA: ", aiSuggestion.code);
@@ -52500,13 +52501,11 @@ class LR_006_joinRun {
                 console.log("++++++ RETURN IA EXPLANATION: ", aiSuggestion.explanation);
                 console.log("++++++ RETURN IA CONFIDENCE: ", aiSuggestion.confidence);
                 const issueBody = this.formatIssueBody(searchResult, aiSuggestion, dockerfileContent);
-                // 7. ✅ CRIA a issue no GitHub
                 const issue = await this.reporter.newIssueIfNotExists({
                     title: this.issueTitle,
                     body: issueBody, // ← Aqui usa o body formatado
                     labels: ["LR_006_joinRun", "performance", "ai-suggested"],
                 });
-                // 8. ✅ ADICIONA à tabela de resultados
                 if (issue) {
                     this.reporter.addTableRow({
                         rule: this.rule,
@@ -52764,7 +52763,6 @@ class AdapterDockerfileAST {
     async searchConsecutiveKeyword(obj) {
         const allInstructions = [];
         try {
-            // 1. Coleta todas as instruções em ordem
             for (const instruction of this.content.getInstructions()) {
                 const keyword = instruction.getKeyword();
                 const args = instruction.getArguments();
@@ -52781,15 +52779,12 @@ class AdapterDockerfileAST {
                     line: [range.start.line + 1],
                 });
             }
-            // 2. Encontra apenas o PRIMEIRO grupo consecutivo
             let i = 0;
             while (i < allInstructions.length) {
                 if (allInstructions[i].keyword[0].toUpperCase() ===
                     obj.keyword.toUpperCase()) {
                     const consecutiveGroup = [];
-                    // Adiciona o primeiro match
                     consecutiveGroup.push(allInstructions[i]);
-                    // Procura por matches consecutivos (sem interrupção)
                     let j = i + 1;
                     while (j < allInstructions.length &&
                         allInstructions[j].keyword[0].toUpperCase() ===
@@ -52797,12 +52792,10 @@ class AdapterDockerfileAST {
                         consecutiveGroup.push(allInstructions[j]);
                         j++;
                     }
-                    // ✅ MUDANÇA PRINCIPAL: Retorna apenas o primeiro grupo encontrado
                     return consecutiveGroup;
                 }
                 i++;
             }
-            // Se não encontrou nenhum grupo consecutivo
             return [];
         }
         catch (error) {
