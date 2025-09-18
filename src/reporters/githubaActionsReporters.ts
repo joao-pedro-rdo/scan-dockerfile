@@ -113,7 +113,7 @@ export class githubaActionsReporters implements IgithubaActionsReporters {
       await this.IGitHubActionsAdapter.findOpenIssueByTitle(obj.title);
     if (!existing) {
       // Issue does not exist, create it
-      await this.newIssue(obj);
+      const createdIssue = await this.newIssue(obj);
       // Return the newly created issue
       const existing: IGitHubIssue | null =
         await this.IGitHubActionsAdapter.findOpenIssueByTitle(obj.title);

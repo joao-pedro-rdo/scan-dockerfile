@@ -71,7 +71,9 @@ export class LR_006_joinRun implements ILinterRule {
           labels: ["LR_006_joinRun", "performance", "ai-suggested"],
         });
 
-        if (issue) {
+        if (issue != null) {
+          this.reporter.infoWarning(`Issue created: ${issue.html_url}`);
+
           this.reporter.addTableRow({
             rule: this.rule,
             status: "⚠️",
