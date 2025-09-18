@@ -35,26 +35,26 @@ async function run() {
 
     console.log("teste of LR_002");
     const lr_002 = new LR_002_setWorkdir(adapter, reporter);
-    await lr_002.execute();
+    await lr_002.execute(name_Dockerfile);
 
     console.log("teste of LR_003");
     const { LR_003_declarePortUsage } = await import(
       "./linterRules/LR_003_declarePortUsage"
     );
     const lr_003 = new LR_003_declarePortUsage(adapter, reporter);
-    await lr_003.execute();
+    await lr_003.execute(name_Dockerfile);
 
     console.log("teste of LR_004");
     const { LR_004_user } = await import("./linterRules/LR_004_user"); // Should use file extension .ts
     const lr_004 = new LR_004_user(adapter, reporter);
-    await lr_004.execute();
+    await lr_004.execute(name_Dockerfile);
 
     console.log("teste of LR_005");
     const { LR_005_avoidPipUpgrade } = await import(
       "./linterRules/LR_005_avoidPipUpgrade"
     );
     const lr_005 = new LR_005_avoidPipUpgrade(adapter, reporter);
-    await lr_005.execute();
+    await lr_005.execute(name_Dockerfile);
 
     console.log("Test LangChain refactor");
 
@@ -88,7 +88,7 @@ async function run() {
     console.log("+++++ teste of LR_006");
     const { LR_006_joinRun } = await import("./linterRules/LR_006_joinRun");
     const lr_006 = new LR_006_joinRun(adapter, reporter, langchainService);
-    await lr_006.execute();
+    await lr_006.execute(name_Dockerfile);
 
     reporter.renderTable();
     core.summary.write();
