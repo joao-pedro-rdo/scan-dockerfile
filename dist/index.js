@@ -52506,7 +52506,8 @@ class LR_006_joinRun {
                     body: issueBody, // ← Aqui usa o body formatado
                     labels: ["LR_006_joinRun", "performance", "ai-suggested"],
                 });
-                if (issue) {
+                if (issue != null) {
+                    this.reporter.infoWarning(`Issue created: ${issue.html_url}`);
                     this.reporter.addTableRow({
                         rule: this.rule,
                         status: "⚠️",
@@ -53104,7 +53105,7 @@ class githubaActionsReporters {
         const existing = await this.IGitHubActionsAdapter.findOpenIssueByTitle(obj.title);
         if (!existing) {
             // Issue does not exist, create it
-            await this.newIssue(obj);
+            const createdIssue = await this.newIssue(obj);
             // Return the newly created issue
             const existing = await this.IGitHubActionsAdapter.findOpenIssueByTitle(obj.title);
             return existing;
