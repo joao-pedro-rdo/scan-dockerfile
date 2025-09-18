@@ -58,15 +58,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           API_TOKEN: ${{ secrets.API_TOKEN }} # Required
           MODEL_NAME: "gemini-1.5-flash" # Optional, defaults to gemini-1.5-flash
+          NAME_DOCKERFILE: "Dockerfile-back" # Optional, defaults to Dockerfile
 ```
 
 ## 📋 Inputs
 
-| Input          | Description                           | Required | Default          |
-| -------------- | ------------------------------------- | -------- | ---------------- |
-| `GITHUB_TOKEN` | GitHub token for API access           | ✅       | -                |
-| `API_TOKEN`    | API token for external service access | ✅       | -                |
-| `MODEL_NAME`   | Name of the language model to use     | ❌       | gemini-1.5-flash |
+| Input             | Description                                                   | Required | Default          |
+| ----------------- | ------------------------------------------------------------- | -------- | ---------------- |
+| `GITHUB_TOKEN`    | GitHub token for API access                                   | ✅       | -                |
+| `API_TOKEN`       | API token for external service access                         | ✅       | -                |
+| `MODEL_NAME`      | Name of the language model to use                             | ❌       | gemini-1.5-flash |
+| `NAME_DOCKERFILE` | Name of the Dockerfile to scan (only one supported currently) | ❌       | Dockerfile       |
 
 ## 📤 Outputs
 
