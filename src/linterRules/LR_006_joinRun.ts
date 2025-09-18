@@ -23,15 +23,28 @@ export class LR_006_joinRun implements ILinterRule {
     public rule: string = "LR_006_joinRun"
   ) {}
 
-  async execute(): Promise<void> {
+  //todo i NEDD CONSIDER TROW ERROR
+  private async searchDockerfilePath(
+    name_Dockerfile: string
+  ): Promise<string[]> {
+    const dockerfilePath = await utils.finder({
+      dir: this.adapter.workspace,
+      file: name_Dockerfile,
+      ignore: ["node_modules/**"],
+      onlyFiles: true,
+    });
+    return dockerfilePath;
+  }
+  /** Check if the Dockerfile contains a WORKDIR instruction.
+   * If not, create a GitHub issue recommending adding a WORKDIR instruction.
+   * This method uses the AdapterDockerfileAST to parse and analyze the Dockerfile.
+   * And search your Dockerfile automatically
+   * @returns {Promise<void>} - A promise that resolves when the check is complete.
+   * @param name_Dockerfile - Name of the Dockerfile to search for
+   */
+  async execute(name_Dockerfile: string): Promise<void> {
     try {
-      // Search for Dockerfile in the workspace
-      const dockerfilePath = await utils.finder({
-        dir: this.adapter.workspace,
-        file: "Dockerfile", //TODO: Dont consider other names for dockerfile
-        ignore: ["node_modules/**"],
-        onlyFiles: true,
-      });
+      const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
       // if no dockerfile found, throw error
       if (dockerfilePath.length === 0) {
         throw new Error("No Dockerfile found in LR_006_joinRun");

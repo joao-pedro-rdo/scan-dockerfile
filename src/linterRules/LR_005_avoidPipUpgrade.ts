@@ -21,14 +21,27 @@ export class LR_005_avoidPipUpgrade implements ILinterRule {
     /pip3\s+install\s+-U/,
   ];
 
-  async execute() {
+  private async searchDockerfilePath(
+    name_Dockerfile: string
+  ): Promise<string[]> {
+    const dockerfilePath = await utils.finder({
+      dir: this.adapter.workspace,
+      file: name_Dockerfile,
+      ignore: ["node_modules/**"],
+      onlyFiles: true,
+    });
+    return dockerfilePath;
+  }
+  /** Check if the Dockerfile contains a WORKDIR instruction.
+   * If not, create a GitHub issue recommending adding a WORKDIR instruction.
+   * This method uses the AdapterDockerfileAST to parse and analyze the Dockerfile.
+   * And search your Dockerfile automatically
+   * @returns {Promise<void>} - A promise that resolves when the check is complete.
+   * @param name_Dockerfile - Name of the Dockerfile to search for
+   */
+  async execute(name_Dockerfile: string): Promise<void> {
     try {
-      const dockerfilePath = await utils.finder({
-        dir: this.adapter.workspace,
-        file: "Dockerfile", //TODO: Dont consider other names for dockerfile
-        ignore: ["node_modules/**"],
-        onlyFiles: true,
-      });
+      const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
 
       if (dockerfilePath.length === 0) {
         throw new Error("No Dockerfile found in LR_005_avoidPipUpgrade");

@@ -80,6 +80,10 @@ jobs:
 - 🔜 Support custom Dockerfile names and paths
 - 🔜 Setting which Linter Rules you want to enable
 - 🔜 API_TOKEN not required
+- 🔜 Create PR to fix recommendations automatically
+- 🔜 Add support for multiple Dockerfile paths
+- 🔜 More control over issue creation (labels, assignees, etc)
+- 🔜 Support other platforms (GitLab, CLI ...)
 
 ## 🔍 What We Check
 

@@ -12,6 +12,12 @@ async function run() {
       core.getInput("GITHUB_TOKEN"),
       process.env.GITHUB_WORKSPACE || process.cwd()
     );
+
+    let name_Dockerfile = core.getInput("NAME_DOCKERFILE");
+    if (!name_Dockerfile) {
+      name_Dockerfile = "Dockerfile";
+    }
+
     // TODO: Verify if dockerfile exists in the workspace
     //! If cant search dockerfile in the workspace, the action broken
 

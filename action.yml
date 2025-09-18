@@ -24,6 +24,10 @@ inputs:
     description: "Name of the language model to use (default: gemini-1.5-flash)"
     required: false
     default: "gemini-1.5-flash"
+  NAME_DOCKERFILE:
+    description: "Name of the Dockerfile to scan (default: Dockerfile), multiple dockerfile dont supported yet."
+    required: false
+    default: "Dockerfile"
 
 outputs:
   COMMENT_ID:

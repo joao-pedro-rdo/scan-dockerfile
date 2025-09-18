@@ -5,5 +5,5 @@ export interface ILinterRule {
   //  private reporter: IgithubaActionsReporters
   issueTitle: string;
   rule: string;
-  execute(): Promise<void>;
+  execute(name_Dockerfile?: string): Promise<void>;
 }
