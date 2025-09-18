@@ -94,6 +94,16 @@ export class LR_006_joinRun implements ILinterRule {
             link: issue.html_url,
           });
         }
+      } else {
+        this.reporter.infoSuccess(
+          `Great! No consecutive RUN commands found in your Dockerfile at: ${dockerfilePath[0]}`
+        );
+        this.reporter.addTableRow({
+          rule: this.rule,
+          status: "✔️",
+          details: this.issueTitle,
+          link: "",
+        });
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
