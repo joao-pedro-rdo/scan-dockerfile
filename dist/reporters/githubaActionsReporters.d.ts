@@ -1,4 +1,4 @@
-import { addLinkIssue, INewIssue, INewPR, ISummary, ITableRow } from "../contracts/reporterInterfce";
+import { addLinkIssue, INewIssue, ISummary, ITableRow } from "../contracts/reporterInterfce";
 import { IgithubaActionsReporters } from "../contracts/reporterInterfce";
 import { IGitHubActionsAdapter, IGitHubIssue } from "../contracts/githubActionsInterface";
 /**
@@ -40,19 +40,15 @@ export declare class githubaActionsReporters implements IgithubaActionsReporters
      * Create New Issue
      * @param obj: INewIssue
      * @see {@link https://octokit.github.io/rest.js/ | Octokit.js Documentation}
+     * @returns obj: IGithubIssue (Obj of the created issue)
      */
-    newIssue(obj: INewIssue): Promise<void>;
-    /**
-     * Create New Pull Request
-     * @param obj: INewPR
-     */
-    newPr(obj: INewPR): Promise<void>;
+    newIssue(obj: INewIssue): Promise<IGitHubIssue>;
     /**
      * Create a new issue if one with the same title does not already exist.
      * @param obj: INewIssue
      * @returns obj: IGithubIssue, or null if an error occurs.
      */
-    newIssueIfNotExists(obj: INewIssue): Promise<IGitHubIssue | null>;
+    newIssueIfNotExists(obj: INewIssue): Promise<IGitHubIssue>;
     createSummary(): Promise<void>;
     startTable(): void;
     addTableRow(obj: ITableRow): void;
