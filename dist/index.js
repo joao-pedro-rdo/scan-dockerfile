@@ -51763,6 +51763,10 @@ async function run() {
     try {
         //TODO Verify if exists dockerfile in the workspace because if not exists, the action dont make sense
         const adapter = new githubActions_1.GitHubActionsAdapter(core.getInput("GITHUB_TOKEN"), process.env.GITHUB_WORKSPACE || process.cwd());
+        let name_Dockerfile = core.getInput("NAME_DOCKERFILE");
+        if (!name_Dockerfile) {
+            name_Dockerfile = "Dockerfile";
+        }
         // TODO: Verify if dockerfile exists in the workspace
         //! If cant search dockerfile in the workspace, the action broken
         const reporter = new githubaActionsReporters_1.githubaActionsReporters(adapter);
@@ -51775,19 +51779,19 @@ async function run() {
         await lr_001.execute();
         console.log("teste of LR_002");
         const lr_002 = new LR_002_setWorkdir_1.LR_002_setWorkdir(adapter, reporter);
-        await lr_002.execute();
+        await lr_002.execute(name_Dockerfile);
         console.log("teste of LR_003");
         const { LR_003_declarePortUsage } = await Promise.resolve().then(() => __importStar(__nccwpck_require__(9124)));
         const lr_003 = new LR_003_declarePortUsage(adapter, reporter);
-        await lr_003.execute();
+        await lr_003.execute(name_Dockerfile);
         console.log("teste of LR_004");
         const { LR_004_user } = await Promise.resolve().then(() => __importStar(__nccwpck_require__(25692))); // Should use file extension .ts
         const lr_004 = new LR_004_user(adapter, reporter);
-        await lr_004.execute();
+        await lr_004.execute(name_Dockerfile);
         console.log("teste of LR_005");
         const { LR_005_avoidPipUpgrade } = await Promise.resolve().then(() => __importStar(__nccwpck_require__(57746)));
         const lr_005 = new LR_005_avoidPipUpgrade(adapter, reporter);
-        await lr_005.execute();
+        await lr_005.execute(name_Dockerfile);
         console.log("Test LangChain refactor");
         const { LangchainService } = await Promise.resolve().then(() => __importStar(__nccwpck_require__(72903)));
         const API_TOKEN = core.getInput("API_TOKEN");
@@ -51810,7 +51814,7 @@ async function run() {
         console.log("+++++ teste of LR_006");
         const { LR_006_joinRun } = await Promise.resolve().then(() => __importStar(__nccwpck_require__(57944)));
         const lr_006 = new LR_006_joinRun(adapter, reporter, langchainService);
-        await lr_006.execute();
+        await lr_006.execute(name_Dockerfile);
         reporter.renderTable();
         core.summary.write();
     }
@@ -52010,20 +52014,25 @@ class LR_002_setWorkdir {
         this.issueTitle = issueTitle;
         this.rule = rule;
     }
+    async searchDockerfilePath(name_Dockerfile) {
+        const dockerfilePath = await utils.finder({
+            dir: this.adapter.workspace,
+            file: name_Dockerfile,
+            ignore: ["node_modules/**"],
+            onlyFiles: true,
+        });
+        return dockerfilePath;
+    }
     /** Check if the Dockerfile contains a WORKDIR instruction.
      * If not, create a GitHub issue recommending adding a WORKDIR instruction.
      * This method uses the AdapterDockerfileAST to parse and analyze the Dockerfile.
      * And search your Dockerfile automatically
      * @returns {Promise<void>} - A promise that resolves when the check is complete.
+     * @param name_Dockerfile - Name of the Dockerfile to search for
      */
-    async execute() {
+    async execute(name_Dockerfile) {
         try {
-            const dockerfilePath = await utils.finder({
-                dir: this.adapter.workspace,
-                file: "Dockerfile", //TODO: Dont consider other names for dockerfile
-                ignore: ["node_modules/**"],
-                onlyFiles: true,
-            });
+            const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
             if (dockerfilePath.length === 0) {
                 throw new Error("No Dockerfile found in LR_002_setWorkdir");
             }
@@ -52136,14 +52145,25 @@ class LR_003_declarePortUsage {
         this.issueTitle = issueTitle;
         this.rule = rule;
     }
-    async execute() {
+    async searchDockerfilePath(name_Dockerfile) {
+        const dockerfilePath = await utils.finder({
+            dir: this.adapter.workspace,
+            file: name_Dockerfile,
+            ignore: ["node_modules/**"],
+            onlyFiles: true,
+        });
+        return dockerfilePath;
+    }
+    /** Check if the Dockerfile contains a WORKDIR instruction.
+     * If not, create a GitHub issue recommending adding a WORKDIR instruction.
+     * This method uses the AdapterDockerfileAST to parse and analyze the Dockerfile.
+     * And search your Dockerfile automatically
+     * @returns {Promise<void>} - A promise that resolves when the check is complete.
+     * @param name_Dockerfile - Name of the Dockerfile to search for
+     */
+    async execute(name_Dockerfile) {
         try {
-            const dockerfilePath = await utils.finder({
-                dir: this.adapter.workspace,
-                file: "Dockerfile", //TODO: Dont consider other names for dockerfile
-                ignore: ["node_modules/**"],
-                onlyFiles: true,
-            });
+            const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
             if (dockerfilePath.length === 0) {
                 throw new Error("No Dockerfile found in LR_003_declarePortUsage");
             }
@@ -52246,14 +52266,25 @@ class LR_004_user {
         this.issueTitle = issueTitle;
         this.rule = rule;
     }
-    async execute() {
+    async searchDockerfilePath(name_Dockerfile) {
+        const dockerfilePath = await utils.finder({
+            dir: this.adapter.workspace,
+            file: name_Dockerfile,
+            ignore: ["node_modules/**"],
+            onlyFiles: true,
+        });
+        return dockerfilePath;
+    }
+    /** Check if the Dockerfile contains a WORKDIR instruction.
+     * If not, create a GitHub issue recommending adding a WORKDIR instruction.
+     * This method uses the AdapterDockerfileAST to parse and analyze the Dockerfile.
+     * And search your Dockerfile automatically
+     * @returns {Promise<void>} - A promise that resolves when the check is complete.
+     * @param name_Dockerfile - Name of the Dockerfile to search for
+     */
+    async execute(name_Dockerfile) {
         try {
-            const dockerfilePath = await utils.finder({
-                dir: this.adapter.workspace,
-                file: "Dockerfile", //TODO: Dont consider other names for dockerfile
-                ignore: ["node_modules/**"],
-                onlyFiles: true,
-            });
+            const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
             if (dockerfilePath.length === 0) {
                 throw new Error("No Dockerfile found in LR_004_declarePortUsage");
             }
@@ -52368,14 +52399,25 @@ class LR_005_avoidPipUpgrade {
             /pip3\s+install\s+-U/,
         ];
     }
-    async execute() {
+    async searchDockerfilePath(name_Dockerfile) {
+        const dockerfilePath = await utils.finder({
+            dir: this.adapter.workspace,
+            file: name_Dockerfile,
+            ignore: ["node_modules/**"],
+            onlyFiles: true,
+        });
+        return dockerfilePath;
+    }
+    /** Check if the Dockerfile contains a WORKDIR instruction.
+     * If not, create a GitHub issue recommending adding a WORKDIR instruction.
+     * This method uses the AdapterDockerfileAST to parse and analyze the Dockerfile.
+     * And search your Dockerfile automatically
+     * @returns {Promise<void>} - A promise that resolves when the check is complete.
+     * @param name_Dockerfile - Name of the Dockerfile to search for
+     */
+    async execute(name_Dockerfile) {
         try {
-            const dockerfilePath = await utils.finder({
-                dir: this.adapter.workspace,
-                file: "Dockerfile", //TODO: Dont consider other names for dockerfile
-                ignore: ["node_modules/**"],
-                onlyFiles: true,
-            });
+            const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
             if (dockerfilePath.length === 0) {
                 throw new Error("No Dockerfile found in LR_005_avoidPipUpgrade");
             }
@@ -52472,15 +52514,26 @@ class LR_006_joinRun {
         this.issueTitle = issueTitle;
         this.rule = rule;
     }
-    async execute() {
+    //todo i NEDD CONSIDER TROW ERROR
+    async searchDockerfilePath(name_Dockerfile) {
+        const dockerfilePath = await utils.finder({
+            dir: this.adapter.workspace,
+            file: name_Dockerfile,
+            ignore: ["node_modules/**"],
+            onlyFiles: true,
+        });
+        return dockerfilePath;
+    }
+    /** Check if the Dockerfile contains a WORKDIR instruction.
+     * If not, create a GitHub issue recommending adding a WORKDIR instruction.
+     * This method uses the AdapterDockerfileAST to parse and analyze the Dockerfile.
+     * And search your Dockerfile automatically
+     * @returns {Promise<void>} - A promise that resolves when the check is complete.
+     * @param name_Dockerfile - Name of the Dockerfile to search for
+     */
+    async execute(name_Dockerfile) {
         try {
-            // Search for Dockerfile in the workspace
-            const dockerfilePath = await utils.finder({
-                dir: this.adapter.workspace,
-                file: "Dockerfile", //TODO: Dont consider other names for dockerfile
-                ignore: ["node_modules/**"],
-                onlyFiles: true,
-            });
+            const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
             // if no dockerfile found, throw error
             if (dockerfilePath.length === 0) {
                 throw new Error("No Dockerfile found in LR_006_joinRun");
