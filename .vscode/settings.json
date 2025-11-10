@@ -7,7 +7,8 @@
   "editor.formatOnSave": true,
   // Ativa o "Code Actions on Save" para o ESLint auto-corrigir erros
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+    // "source.fixAll.eslint": "explicit"
+     "source.fixAll": true
   },
   // Valida o ESLint para estes tipos de arquivo
   "eslint.validate": [

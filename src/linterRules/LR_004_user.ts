@@ -12,9 +12,7 @@ export class LR_004_user implements ILinterRule {
     public issueTitle: string = "User instruction found in Dockerfile",
     public rule: string = "LR_004_user"
   ) {}
-  private async searchDockerfilePath(
-    name_Dockerfile: string
-  ): Promise<string[]> {
+  private async searchDockerfilePath(name_Dockerfile: string): Promise<string[]> {
     const dockerfilePath = await utils.finder({
       dir: this.adapter.workspace,
       file: name_Dockerfile,
@@ -52,10 +50,7 @@ export class LR_004_user implements ILinterRule {
         args: [],
       });
 
-      if (
-        searchResult_01.keyword.length > 0 &&
-        searchResult_02.keyword.length > 0
-      ) {
+      if (searchResult_01.keyword.length > 0 && searchResult_02.keyword.length > 0) {
         this.reporter.infoSuccess(
           `Great you have a USER instruction in your Dockerfile and Declared user at: ${dockerfilePath[0]}`
         );

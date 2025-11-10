@@ -1,17 +1,11 @@
 import { IGitHubActionsAdapter } from "../contracts/githubActionsInterface";
 import { githubaActionsReporters } from "../reporters/githubaActionsReporters";
 import { ILinterRule } from "../contracts/LR_interface";
-import {
-  AdapterDockerfileAST,
-  IResponseAstDockerfile,
-} from "../refactor/dockerfileAST";
+import { AdapterDockerfileAST, IResponseAstDockerfile } from "../refactor/dockerfileAST";
 import { promises as fs } from "fs";
 import * as utils from "../utils";
 import { LangchainService } from "../refactor/langChain";
-import {
-  RefactorRequest,
-  RefactorResponse,
-} from "../contracts/iaServiceInterface";
+import { RefactorRequest, RefactorResponse } from "../contracts/iaServiceInterface";
 import { AIMessage } from "@langchain/core/messages";
 
 export class LR_006_joinRun implements ILinterRule {
@@ -24,9 +18,7 @@ export class LR_006_joinRun implements ILinterRule {
   ) {}
 
   //todo i NEDD CONSIDER TROW ERROR
-  private async searchDockerfilePath(
-    name_Dockerfile: string
-  ): Promise<string[]> {
+  private async searchDockerfilePath(name_Dockerfile: string): Promise<string[]> {
     const dockerfilePath = await utils.finder({
       dir: this.adapter.workspace,
       file: name_Dockerfile,
@@ -60,23 +52,14 @@ export class LR_006_joinRun implements ILinterRule {
       });
 
       if (searchResult && searchResult.length > 1) {
-        const refactorRequest = this.prepareRefactorRequest(
-          searchResult,
-          dockerfileContent
-        );
-        const aiSuggestion = await this.iaService.suggestRefactor(
-          refactorRequest
-        );
+        const refactorRequest = this.prepareRefactorRequest(searchResult, dockerfileContent);
+        const aiSuggestion = await this.iaService.suggestRefactor(refactorRequest);
         console.log("++++++ RETURN IA: ", aiSuggestion.code);
         console.log("++++++ RETURN IA SUGGESTION: ", aiSuggestion.suggestion);
         console.log("++++++ RETURN IA EXPLANATION: ", aiSuggestion.explanation);
         console.log("++++++ RETURN IA CONFIDENCE: ", aiSuggestion.confidence);
 
-        const issueBody = this.formatIssueBody(
-          searchResult,
-          aiSuggestion,
-          dockerfileContent
-        );
+        const issueBody = this.formatIssueBody(searchResult, aiSuggestion, dockerfileContent);
 
         const issue = await this.reporter.newIssueIfNotExists({
           title: this.issueTitle,
@@ -136,9 +119,7 @@ export class LR_006_joinRun implements ILinterRule {
     // ✅ Criar contexto com informações específicas
     const context = `
 
-      PROBLEM: Found ${
-        searchResult.length
-      } consecutive RUN commands that could be optimized.
+      PROBLEM: Found ${searchResult.length} consecutive RUN commands that could be optimized.
 
       AFFECTED LINES: ${problematicLines.map((l) => l.line).join(", ")}
 
@@ -179,13 +160,9 @@ Found **${
     }** consecutive RUN commands that can be optimized to reduce Docker layers.
 
 ### 🔍 **Affected Lines:**
-${problematicLines
-  .map((l) => `- **Line ${l.line}:** \`${l.content}\``)
-  .join("\n")}
+${problematicLines.map((l) => `- **Line ${l.line}:** \`${l.content}\``).join("\n")}
 
-### 🤖 **AI Suggestion (Confidence: ${(aiSuggestion.confidence * 100).toFixed(
-      1
-    )}%):**
+### 🤖 **AI Suggestion (Confidence: ${(aiSuggestion.confidence * 100).toFixed(1)}%):**
 
 **Recommended Fix:**
 \`\`\`dockerfile

@@ -21,9 +21,7 @@ export class LR_005_avoidPipUpgrade implements ILinterRule {
     /pip3\s+install\s+-U/,
   ];
 
-  private async searchDockerfilePath(
-    name_Dockerfile: string
-  ): Promise<string[]> {
+  private async searchDockerfilePath(name_Dockerfile: string): Promise<string[]> {
     const dockerfilePath = await utils.finder({
       dir: this.adapter.workspace,
       file: name_Dockerfile,
@@ -51,9 +49,7 @@ export class LR_005_avoidPipUpgrade implements ILinterRule {
       const dockerfile = new AdapterDockerfileAST(dockerfileContent);
 
       //   const searchResult = dockerfile.searchPattern(this.problematicPatterns);
-      const searchResult = dockerfile.searchFirstPattern(
-        this.problematicPatterns
-      );
+      const searchResult = dockerfile.searchFirstPattern(this.problematicPatterns);
       console.log("💻💻💻💻💻Search Result:", searchResult);
 
       if ((await searchResult).found == false) {
@@ -74,9 +70,7 @@ export class LR_005_avoidPipUpgrade implements ILinterRule {
         body: `Your Dockerfile located at ${
           dockerfilePath[0]
         } contains a 'pip install --upgrade' command at line ${
-          (
-            await searchResult
-          ).line
+          (await searchResult).line
         }. Using '--upgrade' can lead to unpredictable builds and potential compatibility issues. It's recommended to specify exact package versions to ensure consistent and reliable builds. This practice breaches the LR_005_avoidPipUpgrade rule.`,
         labels: ["LR_005_avoidPipUpgrade", "dockerfile", "scan-dockerfile"],
       });

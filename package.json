@@ -8,7 +8,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "ncc build src/index.ts --license licenses.txt",
     "start": "node dist/index.js",
-    "build:ci": "npm run type-check && npm run build"
+    "build:ci": "npm run type-check && npm run build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "format:ts": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "format:md": "prettier --write \"*.md\""
   },
   "repository": {
     "type": "git",
@@ -32,7 +36,45 @@
   "devDependencies": {
     "@types/node": "^24.2.1",
     "@vercel/ncc": "^0.38.3",
+    "prettier": "^3.6.2",
     "typedoc": "^0.28.11",
     "typescript": "^5.9.2"
+  },
+  "overrides": {
+    "printWidth": 100,
+    "tabWidth": 2,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": false,
+    "quoteProps": "as-needed",
+    "trailingComma": "es5",
+    "bracketSpacing": true,
+    "bracketSameLine": false,
+    "arrowParens": "always",
+    "endOfLine": "lf",
+    "files": [
+      {
+        "files": "*.ts",
+        "options": {
+          "printWidth": 100,
+          "semi": true,
+          "singleQuote": false
+        }
+      },
+      {
+        "files": "*.md",
+        "options": {
+          "printWidth": 80,
+          "proseWrap": "preserve"
+        }
+      },
+      {
+        "files": "*.{yaml,yml}",
+        "options": {
+          "printWidth": 120,
+          "tabWidth": 2
+        }
+      }
+    ]
   }
 }

@@ -2,10 +2,7 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { connected } from "process";
-import {
-  RefactorRequest,
-  RefactorResponse,
-} from "../contracts/iaServiceInterface.js";
+import { RefactorRequest, RefactorResponse } from "../contracts/iaServiceInterface.js";
 
 /**
  * LangchainService integrates with Google Gemini via LangChain to provide AI-driven suggestions for Dockerfile refactoring.
@@ -15,12 +12,7 @@ export class LangchainService {
   private llm: ChatGoogleGenerativeAI;
   private outputParser: StringOutputParser;
 
-  constructor(
-    model?: string,
-    temperature?: number,
-    maxTokens?: number,
-    apiKey?: string
-  ) {
+  constructor(model?: string, temperature?: number, maxTokens?: number, apiKey?: string) {
     this.llm = new ChatGoogleGenerativeAI({
       model: model || "gemini-1.5-flash",
       temperature: temperature || 0.1,
@@ -122,9 +114,7 @@ export class LangchainService {
     } catch (error) {
       console.error("Error calling Gemini:", error);
       throw new Error(
-        `Refactoring suggestion failed: ${
-          error instanceof Error ? error.message : String(error)
-        }`
+        `Refactoring suggestion failed: ${error instanceof Error ? error.message : String(error)}`
       );
     }
   }

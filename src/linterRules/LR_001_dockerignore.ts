@@ -1,11 +1,5 @@
-import {
-  IAdapter,
-  IGitHubActionsAdapter,
-} from "../contracts/githubActionsInterface";
-import {
-  IgithubaActionsReporters,
-  IReporter,
-} from "../contracts/reporterInterfce";
+import { IAdapter, IGitHubActionsAdapter } from "../contracts/githubActionsInterface";
+import { IgithubaActionsReporters, IReporter } from "../contracts/reporterInterfce";
 import * as utils from "../utils";
 import { ILinterRule } from "../contracts/LR_interface";
 
@@ -39,9 +33,7 @@ export class LR_001_dockerignore implements ILinterRule {
 
       if (dockerignoreFiles.length > 0) {
         this.reporter.infoSuccess(
-          `Great you have a .dockerignore file found at: ${dockerignoreFiles.join(
-            ", "
-          )}`
+          `Great you have a .dockerignore file found at: ${dockerignoreFiles.join(", ")}`
         );
         this.reporter.addTableRow({
           rule: this.rule,

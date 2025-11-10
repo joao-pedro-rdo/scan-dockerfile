@@ -24,9 +24,7 @@ export class AdapterDockerfileAST {
     this.content = DockerfileParser.parse(content);
   }
 
-  async searchKeyword(
-    obj: IRequestAstDockerfile
-  ): Promise<IResponseAstDockerfile> {
+  async searchKeyword(obj: IRequestAstDockerfile): Promise<IResponseAstDockerfile> {
     try {
       for (const instruction of this.content.getInstructions()) {
         const keyword = instruction.getKeyword();
@@ -45,9 +43,7 @@ export class AdapterDockerfileAST {
           }] to [${range.end.line + 1},${range.end.character + 1}]`
         );
 
-        if (
-          instruction.getKeyword().toUpperCase() === obj.keyword.toUpperCase()
-        ) {
+        if (instruction.getKeyword().toUpperCase() === obj.keyword.toUpperCase()) {
           return {
             found: true,
             keyword: [keyword],
@@ -66,13 +62,8 @@ export class AdapterDockerfileAST {
       };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error(
-        `❌ Error executing searchKeyword on dockerfileAST:`,
-        errorMsg
-      );
-      throw new Error(
-        `Failed to execute searchKeywordon dockerfileAST : ${errorMsg}`
-      );
+      console.error(`❌ Error executing searchKeyword on dockerfileAST:`, errorMsg);
+      throw new Error(`Failed to execute searchKeywordon dockerfileAST : ${errorMsg}`);
     }
   }
 
@@ -81,9 +72,7 @@ export class AdapterDockerfileAST {
    * @param pattern: RegExp
    * @returns Array of IResponseAstDockerfile with all matches (keyword, args, line)
    */
-  async searchPattern(
-    patterns: RegExp[]
-  ): Promise<Array<IResponseAstDockerfile>> {
+  async searchPattern(patterns: RegExp[]): Promise<Array<IResponseAstDockerfile>> {
     const match: Array<IResponseAstDockerfile> = [];
 
     try {
@@ -93,9 +82,7 @@ export class AdapterDockerfileAST {
         const range = instruction.getRange();
 
         //Convert line of args to string
-        const argsString = args
-          .map((arg: { getValue: () => any }) => arg.getValue())
-          .join(" ");
+        const argsString = args.map((arg: { getValue: () => any }) => arg.getValue()).join(" ");
 
         // Seacrh for pattern in the argsString
         // Using matchAll to find all occurrences
@@ -115,13 +102,8 @@ export class AdapterDockerfileAST {
       return match;
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error(
-        `❌ Error executing searchPattern on dockerfileAST:`,
-        errorMsg
-      );
-      throw new Error(
-        `Failed to execute searchPattern on dockerfileAST : ${errorMsg}`
-      );
+      console.error(`❌ Error executing searchPattern on dockerfileAST:`, errorMsg);
+      throw new Error(`Failed to execute searchPattern on dockerfileAST : ${errorMsg}`);
     }
   }
 
@@ -129,9 +111,7 @@ export class AdapterDockerfileAST {
    * This method checks if any of the provided patterns match any instruction
    * @param patterns: RegExp[]
    */
-  async searchPattern2(
-    patterns: RegExp[]
-  ): Promise<Array<IResponseAstDockerfile>> {
+  async searchPattern2(patterns: RegExp[]): Promise<Array<IResponseAstDockerfile>> {
     const match: Array<IResponseAstDockerfile> = [];
 
     try {
@@ -140,9 +120,7 @@ export class AdapterDockerfileAST {
         const args = instruction.getArguments();
         const range = instruction.getRange();
 
-        const argsString = args
-          .map((arg: { getValue: () => any }) => arg.getValue())
-          .join(" ");
+        const argsString = args.map((arg: { getValue: () => any }) => arg.getValue()).join(" ");
 
         const hasMatch = patterns.some((pattern) => pattern.test(argsString));
 
@@ -158,28 +136,19 @@ export class AdapterDockerfileAST {
       return match;
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error(
-        `❌ Error executing searchFirstPattern on dockerfileAST:`,
-        errorMsg
-      );
-      throw new Error(
-        `Failed to execute searchFirstPattern on dockerfileAST : ${errorMsg}`
-      );
+      console.error(`❌ Error executing searchFirstPattern on dockerfileAST:`, errorMsg);
+      throw new Error(`Failed to execute searchFirstPattern on dockerfileAST : ${errorMsg}`);
     }
   }
 
-  async searchFirstPattern(
-    patterns: RegExp[]
-  ): Promise<IResponseAstDockerfile> {
+  async searchFirstPattern(patterns: RegExp[]): Promise<IResponseAstDockerfile> {
     try {
       for (const instruction of this.content.getInstructions()) {
         const keyword = instruction.getKeyword();
         const args = instruction.getArguments();
         const range = instruction.getRange();
 
-        const argsString = args
-          .map((arg: { getValue: () => any }) => arg.getValue())
-          .join(" ");
+        const argsString = args.map((arg: { getValue: () => any }) => arg.getValue()).join(" ");
 
         const hasMatch = patterns.some((pattern) => pattern.test(argsString));
 
@@ -201,13 +170,8 @@ export class AdapterDockerfileAST {
       };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error(
-        `❌ Error executing searchFirstPattern on dockerfileAST:`,
-        errorMsg
-      );
-      throw new Error(
-        `Failed to execute searchFirstPattern on dockerfileAST : ${errorMsg}`
-      );
+      console.error(`❌ Error executing searchFirstPattern on dockerfileAST:`, errorMsg);
+      throw new Error(`Failed to execute searchFirstPattern on dockerfileAST : ${errorMsg}`);
     }
   }
 
@@ -238,10 +202,7 @@ export class AdapterDockerfileAST {
 
       let i = 0;
       while (i < allInstructions.length) {
-        if (
-          allInstructions[i].keyword[0].toUpperCase() ===
-          obj.keyword.toUpperCase()
-        ) {
+        if (allInstructions[i].keyword[0].toUpperCase() === obj.keyword.toUpperCase()) {
           const consecutiveGroup: Array<IResponseAstDockerfile> = [];
 
           consecutiveGroup.push(allInstructions[i]);
@@ -249,8 +210,7 @@ export class AdapterDockerfileAST {
           let j = i + 1;
           while (
             j < allInstructions.length &&
-            allInstructions[j].keyword[0].toUpperCase() ===
-              obj.keyword.toUpperCase()
+            allInstructions[j].keyword[0].toUpperCase() === obj.keyword.toUpperCase()
           ) {
             consecutiveGroup.push(allInstructions[j]);
             j++;
@@ -264,13 +224,8 @@ export class AdapterDockerfileAST {
       return [];
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error(
-        `❌ Error executing searchConsecutiveKeyword on dockerfileAST:`,
-        errorMsg
-      );
-      throw new Error(
-        `Failed to execute searchConsecutiveKeyword on dockerfileAST: ${errorMsg}`
-      );
+      console.error(`❌ Error executing searchConsecutiveKeyword on dockerfileAST:`, errorMsg);
+      throw new Error(`Failed to execute searchConsecutiveKeyword on dockerfileAST: ${errorMsg}`);
     }
   }
 
@@ -298,10 +253,7 @@ export class AdapterDockerfileAST {
       // Encontra TODOS os grupos consecutivos
       let i = 0;
       while (i < allInstructions.length) {
-        if (
-          allInstructions[i].keyword[0].toUpperCase() ===
-          obj.keyword.toUpperCase()
-        ) {
+        if (allInstructions[i].keyword[0].toUpperCase() === obj.keyword.toUpperCase()) {
           const consecutiveGroup: Array<IResponseAstDockerfile> = [];
 
           // Adiciona o primeiro
@@ -311,8 +263,7 @@ export class AdapterDockerfileAST {
           let j = i + 1;
           while (
             j < allInstructions.length &&
-            allInstructions[j].keyword[0].toUpperCase() ===
-              obj.keyword.toUpperCase()
+            allInstructions[j].keyword[0].toUpperCase() === obj.keyword.toUpperCase()
           ) {
             consecutiveGroup.push(allInstructions[j]);
             j++;
@@ -332,9 +283,7 @@ export class AdapterDockerfileAST {
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error(`❌ Error executing searchAllConsecutiveGroups:`, errorMsg);
-      throw new Error(
-        `Failed to execute searchAllConsecutiveGroups: ${errorMsg}`
-      );
+      throw new Error(`Failed to execute searchAllConsecutiveGroups: ${errorMsg}`);
     }
   }
 }

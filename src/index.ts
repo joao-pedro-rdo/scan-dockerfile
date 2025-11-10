@@ -38,9 +38,7 @@ async function run() {
     await lr_002.execute(name_Dockerfile);
 
     console.log("teste of LR_003");
-    const { LR_003_declarePortUsage } = await import(
-      "./linterRules/LR_003_declarePortUsage"
-    );
+    const { LR_003_declarePortUsage } = await import("./linterRules/LR_003_declarePortUsage");
     const lr_003 = new LR_003_declarePortUsage(adapter, reporter);
     await lr_003.execute(name_Dockerfile);
 
@@ -50,9 +48,7 @@ async function run() {
     await lr_004.execute(name_Dockerfile);
 
     console.log("teste of LR_005");
-    const { LR_005_avoidPipUpgrade } = await import(
-      "./linterRules/LR_005_avoidPipUpgrade"
-    );
+    const { LR_005_avoidPipUpgrade } = await import("./linterRules/LR_005_avoidPipUpgrade");
     const lr_005 = new LR_005_avoidPipUpgrade(adapter, reporter);
     await lr_005.execute(name_Dockerfile);
 
@@ -66,12 +62,7 @@ async function run() {
     }
     const MODEL_NAME = core.getInput("MODEL_NAME") || "gemini-1.5-flash";
 
-    const langchainService = new LangchainService(
-      MODEL_NAME,
-      0.2,
-      1000,
-      API_TOKEN
-    );
+    const langchainService = new LangchainService(MODEL_NAME, 0.2, 1000, API_TOKEN);
     // const testLLM = langchainService.suggestRefactor({
     //   dockerfileSnippet: "RUN chmod 777 /app/script.sh",
     //   context: "This is a mistake, use 777 permissions on linux, correct it",

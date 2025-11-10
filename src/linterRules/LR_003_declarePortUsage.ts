@@ -13,9 +13,7 @@ export class LR_003_declarePortUsage implements ILinterRule {
     public rule: string = "LR_003_declarePortUsage"
   ) {}
 
-  private async searchDockerfilePath(
-    name_Dockerfile: string
-  ): Promise<string[]> {
+  private async searchDockerfilePath(name_Dockerfile: string): Promise<string[]> {
     const dockerfilePath = await utils.finder({
       dir: this.adapter.workspace,
       file: name_Dockerfile,

@@ -5,14 +5,8 @@ import {
   ISummary,
   ITableRow,
 } from "../contracts/reporterInterfce";
-import {
-  IReporter,
-  IgithubaActionsReporters,
-} from "../contracts/reporterInterfce";
-import {
-  IGitHubActionsAdapter,
-  IGitHubIssue,
-} from "../contracts/githubActionsInterface";
+import { IReporter, IgithubaActionsReporters } from "../contracts/reporterInterfce";
+import { IGitHubActionsAdapter, IGitHubIssue } from "../contracts/githubActionsInterface";
 import { info } from "console";
 const github = require("@actions/github");
 const core = require("@actions/core");
@@ -81,14 +75,13 @@ export class githubaActionsReporters implements IgithubaActionsReporters {
 
   async newIssue(obj: INewIssue): Promise<IGitHubIssue> {
     try {
-      const response =
-        await this.IGitHubActionsAdapter.octokit.rest.issues.create({
-          owner: this.IGitHubActionsAdapter.owner,
-          repo: this.IGitHubActionsAdapter.repo,
-          title: obj.title,
-          body: obj.body,
-          labels: obj.labels,
-        });
+      const response = await this.IGitHubActionsAdapter.octokit.rest.issues.create({
+        owner: this.IGitHubActionsAdapter.owner,
+        repo: this.IGitHubActionsAdapter.repo,
+        title: obj.title,
+        body: obj.body,
+        labels: obj.labels,
+      });
       return {
         id: response.data.id,
         number: response.data.number,
@@ -143,8 +136,9 @@ export class githubaActionsReporters implements IgithubaActionsReporters {
    * @returns obj: IGithubIssue, or null if an error occurs.
    */
   async newIssueIfNotExists(obj: INewIssue) {
-    const existing: IGitHubIssue | null =
-      await this.IGitHubActionsAdapter.findOpenIssueByTitle(obj.title);
+    const existing: IGitHubIssue | null = await this.IGitHubActionsAdapter.findOpenIssueByTitle(
+      obj.title
+    );
     if (!existing) {
       // Issue does not exist, create it
       const createdIssue = await this.newIssue(obj);

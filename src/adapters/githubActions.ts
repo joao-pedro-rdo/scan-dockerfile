@@ -1,8 +1,5 @@
 import * as github from "@actions/github";
-import {
-  IGitHubActionsAdapter,
-  IGitHubIssue,
-} from "../contracts/githubActionsInterface";
+import { IGitHubActionsAdapter, IGitHubIssue } from "../contracts/githubActionsInterface";
 
 export class GitHubActionsAdapter implements IGitHubActionsAdapter {
   // TODO: Verify if need to private
@@ -43,12 +40,10 @@ export class GitHubActionsAdapter implements IGitHubActionsAdapter {
 
   async checkPermissions() {
     try {
-      return await this.octokit.rest.actions.getGithubActionsDefaultWorkflowPermissionsRepository(
-        {
-          owner: this.owner,
-          repo: this.repo,
-        }
-      );
+      return await this.octokit.rest.actions.getGithubActionsDefaultWorkflowPermissionsRepository({
+        owner: this.owner,
+        repo: this.repo,
+      });
     } catch (error) {
       console.error(`Erro ao verificar as permissões:`);
       return [];

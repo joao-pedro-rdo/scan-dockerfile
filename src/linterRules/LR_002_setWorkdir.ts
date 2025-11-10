@@ -22,9 +22,7 @@ export class LR_002_setWorkdir implements ILinterRule {
     public issueTitle: string = "No WORKDIR instruction found in Dockerfile",
     public rule: string = "LR_002_setWorkdir"
   ) {}
-  private async searchDockerfilePath(
-    name_Dockerfile: string
-  ): Promise<string[]> {
+  private async searchDockerfilePath(name_Dockerfile: string): Promise<string[]> {
     const dockerfilePath = await utils.finder({
       dir: this.adapter.workspace,
       file: name_Dockerfile,
