@@ -4,6 +4,7 @@ import { GitHubActionsAdapter } from "./adapters/githubActions";
 import { githubaActionsReporters } from "./reporters/githubaActionsReporters";
 import { LR_001_dockerignore } from "./linterRules/LR_001_dockerignore";
 import { LR_002_setWorkdir } from "./linterRules/LR_002_setWorkdir";
+import { LR_007_dependencies_order } from "./linterRules/LR_007_dependencies_order";
 // Initialize the GitHub Actions adapter with the provided token and workspace
 async function run() {
   try {
@@ -29,60 +30,63 @@ async function run() {
 
     console.log("Starting the scan-dockerfile action...");
 
-    console.log("teste of new issue");
-    const lr_001 = new LR_001_dockerignore(adapter, reporter);
-    await lr_001.execute();
+    const lr_007 = new LR_007_dependencies_order(adapter, reporter);
+    await lr_007.execute(name_Dockerfile);
 
-    console.log("teste of LR_002");
-    const lr_002 = new LR_002_setWorkdir(adapter, reporter);
-    await lr_002.execute(name_Dockerfile);
+    // console.log("teste of new issue");
+    // const lr_001 = new LR_001_dockerignore(adapter, reporter);
+    // await lr_001.execute();
 
-    console.log("teste of LR_003");
-    const { LR_003_declarePortUsage } = await import("./linterRules/LR_003_declarePortUsage");
-    const lr_003 = new LR_003_declarePortUsage(adapter, reporter);
-    await lr_003.execute(name_Dockerfile);
+    // console.log("teste of LR_002");
+    // const lr_002 = new LR_002_setWorkdir(adapter, reporter);
+    // await lr_002.execute(name_Dockerfile);
 
-    console.log("teste of LR_004");
-    const { LR_004_user } = await import("./linterRules/LR_004_user"); // Should use file extension .ts
-    const lr_004 = new LR_004_user(adapter, reporter);
-    await lr_004.execute(name_Dockerfile);
+    // console.log("teste of LR_003");
+    // const { LR_003_declarePortUsage } = await import("./linterRules/LR_003_declarePortUsage");
+    // const lr_003 = new LR_003_declarePortUsage(adapter, reporter);
+    // await lr_003.execute(name_Dockerfile);
 
-    console.log("teste of LR_005");
-    const { LR_005_avoidPipUpgrade } = await import("./linterRules/LR_005_avoidPipUpgrade");
-    const lr_005 = new LR_005_avoidPipUpgrade(adapter, reporter);
-    await lr_005.execute(name_Dockerfile);
+    // console.log("teste of LR_004");
+    // const { LR_004_user } = await import("./linterRules/LR_004_user"); // Should use file extension .ts
+    // const lr_004 = new LR_004_user(adapter, reporter);
+    // await lr_004.execute(name_Dockerfile);
 
-    console.log("Test LangChain refactor");
+    // console.log("teste of LR_005");
+    // const { LR_005_avoidPipUpgrade } = await import("./linterRules/LR_005_avoidPipUpgrade");
+    // const lr_005 = new LR_005_avoidPipUpgrade(adapter, reporter);
+    // await lr_005.execute(name_Dockerfile);
 
-    const { LangchainService } = await import("./refactor/langChain");
-    const API_TOKEN = core.getInput("API_TOKEN");
-    if (!API_TOKEN) {
-      console.log("API_TOKEN not provided");
-      throw new Error("API_TOKEN is required for AI functionality");
-    }
-    const MODEL_NAME = core.getInput("MODEL_NAME") || "gemini-1.5-flash";
+    // console.log("Test LangChain refactor");
 
-    const langchainService = new LangchainService(MODEL_NAME, 0.2, 1000, API_TOKEN);
-    // const testLLM = langchainService.suggestRefactor({
-    //   dockerfileSnippet: "RUN chmod 777 /app/script.sh",
-    //   context: "This is a mistake, use 777 permissions on linux, correct it",
-    // });
+    // const { LangchainService } = await import("./refactor/langChain");
+    // const API_TOKEN = core.getInput("API_TOKEN");
+    // if (!API_TOKEN) {
+    //   console.log("API_TOKEN not provided");
+    //   throw new Error("API_TOKEN is required for AI functionality");
+    // }
+    // const MODEL_NAME = core.getInput("MODEL_NAME") || "gemini-1.5-flash";
 
-    // console.log("Code:", (await testLLM).code);
-    // console.log("Suggestion:", (await testLLM).suggestion);
-    // console.log("Explanation:", (await testLLM).explanation);
-    // console.log("CONFIDENCE:", (await testLLM).confidence);
+    // const langchainService = new LangchainService(MODEL_NAME, 0.2, 1000, API_TOKEN);
+    // // const testLLM = langchainService.suggestRefactor({
+    // //   dockerfileSnippet: "RUN chmod 777 /app/script.sh",
+    // //   context: "This is a mistake, use 777 permissions on linux, correct it",
+    // // });
 
-    // console.log("REFACTOR SUGGESTION FORMATTED:");
-    // console.log(langchainService.formatSuggestion((await testLLM).suggestion));
+    // // console.log("Code:", (await testLLM).code);
+    // // console.log("Suggestion:", (await testLLM).suggestion);
+    // // console.log("Explanation:", (await testLLM).explanation);
+    // // console.log("CONFIDENCE:", (await testLLM).confidence);
 
-    console.log("+++++ teste of LR_006");
-    const { LR_006_joinRun } = await import("./linterRules/LR_006_joinRun");
-    const lr_006 = new LR_006_joinRun(adapter, reporter, langchainService);
-    await lr_006.execute(name_Dockerfile);
+    // // console.log("REFACTOR SUGGESTION FORMATTED:");
+    // // console.log(langchainService.formatSuggestion((await testLLM).suggestion));
 
-    reporter.renderTable();
-    core.summary.write();
+    // console.log("+++++ teste of LR_006");
+    // const { LR_006_joinRun } = await import("./linterRules/LR_006_joinRun");
+    // const lr_006 = new LR_006_joinRun(adapter, reporter, langchainService);
+    // await lr_006.execute(name_Dockerfile);
+
+    // reporter.renderTable();
+    // core.summary.write();
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     console.error(`❌ Error running the action:`, errorMsg);
