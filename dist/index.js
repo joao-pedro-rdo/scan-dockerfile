@@ -44329,7 +44329,7 @@ class LR_007_dependencies_order {
             const dockerfileContent = await fs_1.promises.readFile(dockerfilePath[0], "utf8");
             const dockerfile = new dockerfileAST_1.AdapterDockerfileAST(dockerfileContent);
             // ask the AST to search for COPY
-            const searchResult = await dockerfile.searchKeyword({
+            const searchResult = await dockerfile.searchConsecutiveKeyword({
                 keyword: "COPY",
                 args: [],
             });
