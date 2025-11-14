@@ -11,7 +11,9 @@ export class LR_007_dependencies_order implements ILinterRule {
     private adapter: IGitHubActionsAdapter,
     private reporter: githubaActionsReporters, // Need to use general ClassReporter
     public issueTitle: string = "Ensure dependencies are installed in the correct order",
-    public rule: string = "LR_007_dependencies_order"
+    public rule: string = "LR_007_dependencies_order",
+    public listDependencies: JSON[],
+    public listSource: JSON[]
   ) {}
   execute(name_Dockerfile?: string): Promise<void> {
     throw new Error("Method not implemented.");
@@ -26,46 +28,68 @@ export class LR_007_dependencies_order implements ILinterRule {
     return dockerfilePath;
   }
 
-  async verify_type(obj: Array<IResponseAstDockerfile>): Promise<void> {
-    const analysisResults = obj.map((item, index) => {
-      const source = item.args[0];      // Primeiro arg: origem
-      const destination = item.args[1]; // Segundo arg: destino  
-      const line = item.line[0];
-      
-    //* If this a dir
-      if (source === '.' || source === './') {
-      //! fazer a interaçao no repositorio para verificar o conteudo
-    }
+  /** Normalize operations to have one source per object, some COPY/ADD can have multiple sources
+   * @param obj Array of IResponseAstDockerfile
+   * @returns Array of normalized operations
+   * @example
+   */
+  private normalizeOperations(obj: Array<IResponseAstDockerfile>) {
+    return obj.flatMap((item, itemIndex) => {
+      if (item.args.length < 2) return [];
+
+      const destination = item.args[item.args.length - 1];
+      const sources = item.args.slice(0, -1);
+
+      return sources.map((source, sourceIndex) => ({
+        source,
+        destination,
+        line: item.line[0],
+        keyword: item.keyword[0],
+        itemIndex,
+        sourceIndex,
+      }));
+    });
   }
-      
 
+  public async verify_type(obj: Array<IResponseAstDockerfile>): Promise<void> {
+    const operations = this.normalizeOperations(obj);
+    console.log("Normalized Operations:", operations);
 
-    
-    
-      // implementar a logica para verificar o tipo de operacao
-    // Func verificar qual a o tipo de operacao realizada na instrucao, retornar se é dependecy ou sorce
-    //  . .  sorce
-    // package.json dependecy
-    // receber um obj com instucao
-    // no caso de mais de um rodar iterativamente
-    // consultar o ENUM de lista de dependencias e lista de source
-
-    //   SEARCH RESULT COPY [
-    // { found: true, keyword: [ 'COPY' ], args: [ '.', '.' ], line: [ 8 ] },
-    // {
-    //   found: true,
-    //   keyword: [ 'COPY' ],
-    //   args: [ 'package*.json', './' ],
-    //   line: [ 12 ]
+    // //* If this a dir
+    //   if (source === '.' || source === './') {
+    //     console.log(`📂📂📂📂 Line ${line}: Source is a directory (${source})`);
+    //   //! fazer a interaçao no repositorsio para verificar o conteudo
     // }
-  
 
-  // se for um . ou diretorio iterar o repositorio para verificar oq tem la, e ver o padrao correspondente e comprar todos os arquivos que ele tem para o padrao de dependecy e o resto sera sorce
-  // ai fazer a logisca heurustica para verificar
+    // for (let i = 0; i < this.listSource.length; i++) {
 
-  // Passo 01: Coletar todas as instruções COPY e ADD do Dockerfile.
-  // Passo 02: Para cada instrução coletada, identificar seu tipo ("dependency" ou "source").
-  // Passo 03: Verificar se há alguma instrução do tipo "source" posicionada após uma instrução do tipo "dependency". Se sim, retornar TRUE. Caso contrário, retornar FALSE.
+    // }
+    // for (const source of this.listDependencies) {
+  }
+}
+
+// implementar a logica para verificar o tipo de operacao
+// Func verificar qual a o tipo de operacao realizada na instrucao, retornar se é dependecy ou sorce
+//  . .  sorce
+// package.json dependecy
+// no caso de mais de um rodar iterativamente
+// consultar o ENUM de lista de dependencias e lista de source
+
+//   SEARCH RESULT COPY [
+// { found: true, keyword: [ 'COPY' ], args: [ '.', '.' ], line: [ 8 ] },
+// {
+//   found: true,
+//   keyword: [ 'COPY' ],
+//   args: [ 'package*.json', './' ],
+//   line: [ 12 ]
+// }
+
+// se for um . ou diretorio iterar o repositorio para verificar oq tem la, e ver o padrao correspondente e comprar todos os arquivos que ele tem para o padrao de dependecy e o resto sera sorce
+// ai fazer a logisca heurustica para verificar
+
+// Passo 01: Coletar todas as instruções COPY e ADD do Dockerfile.
+// Passo 02: Para cada instrução coletada, identificar seu tipo ("dependency" ou "source").
+// Passo 03: Verificar se há alguma instrução do tipo "source" posicionada após uma instrução do tipo "dependency". Se sim, retornar TRUE. Caso contrário, retornar FALSE.
 
 //   async execute(name_Dockerfile: string): Promise<any> {
 //     try {
