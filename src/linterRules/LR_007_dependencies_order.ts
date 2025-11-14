@@ -2,6 +2,7 @@ import { IGitHubActionsAdapter } from "../contracts/githubActionsInterface";
 import { githubaActionsReporters } from "../reporters/githubaActionsReporters";
 import { ILinterRule } from "../contracts/LR_interface";
 import { AdapterDockerfileAST } from "../refactor/dockerfileAST";
+import { IResponseAstDockerfile } from "../refactor/dockerfileAST";
 import { promises as fs } from "fs";
 import * as utils from "../utils";
 
@@ -12,6 +13,9 @@ export class LR_007_dependencies_order implements ILinterRule {
     public issueTitle: string = "Ensure dependencies are installed in the correct order",
     public rule: string = "LR_007_dependencies_order"
   ) {}
+  execute(name_Dockerfile?: string): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
   private async searchDockerfilePath(name_Dockerfile: string): Promise<string[]> {
     const dockerfilePath = await utils.finder({
       dir: this.adapter.workspace,
@@ -21,22 +25,65 @@ export class LR_007_dependencies_order implements ILinterRule {
     });
     return dockerfilePath;
   }
-  async execute(name_Dockerfile: string): Promise<any> {
-    try {
-      const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
-      const dockerfileContent = await fs.readFile(dockerfilePath[0], "utf8");
-      const dockerfile = new AdapterDockerfileAST(dockerfileContent);
 
-      // ask the AST to search for COPY
-      const searchResult = await dockerfile.searchConsecutiveKeyword({
-        keyword: "COPY",
-        args: [],
-      });
-      console.log("SEARCH RESULT COPY", searchResult);
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error(`❌ Error executing ${this.rule}:`, errorMsg);
-      throw new Error(`Failed to execute ${this.rule}: ${errorMsg}`);
+  async verify_type(obj: Array<IResponseAstDockerfile>): Promise<void> {
+    const analysisResults = obj.map((item, index) => {
+      const source = item.args[0];      // Primeiro arg: origem
+      const destination = item.args[1]; // Segundo arg: destino  
+      const line = item.line[0];
+      
+    //* If this a dir
+      if (source === '.' || source === './') {
+      //! fazer a interaçao no repositorio para verificar o conteudo
     }
   }
-}
+      
+
+
+    
+    
+      // implementar a logica para verificar o tipo de operacao
+    // Func verificar qual a o tipo de operacao realizada na instrucao, retornar se é dependecy ou sorce
+    //  . .  sorce
+    // package.json dependecy
+    // receber um obj com instucao
+    // no caso de mais de um rodar iterativamente
+    // consultar o ENUM de lista de dependencias e lista de source
+
+    //   SEARCH RESULT COPY [
+    // { found: true, keyword: [ 'COPY' ], args: [ '.', '.' ], line: [ 8 ] },
+    // {
+    //   found: true,
+    //   keyword: [ 'COPY' ],
+    //   args: [ 'package*.json', './' ],
+    //   line: [ 12 ]
+    // }
+  
+
+  // se for um . ou diretorio iterar o repositorio para verificar oq tem la, e ver o padrao correspondente e comprar todos os arquivos que ele tem para o padrao de dependecy e o resto sera sorce
+  // ai fazer a logisca heurustica para verificar
+
+  // Passo 01: Coletar todas as instruções COPY e ADD do Dockerfile.
+  // Passo 02: Para cada instrução coletada, identificar seu tipo ("dependency" ou "source").
+  // Passo 03: Verificar se há alguma instrução do tipo "source" posicionada após uma instrução do tipo "dependency". Se sim, retornar TRUE. Caso contrário, retornar FALSE.
+
+//   async execute(name_Dockerfile: string): Promise<any> {
+//     try {
+//       const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
+//       const dockerfileContent = await fs.readFile(dockerfilePath[0], "utf8");
+//       const dockerfile = new AdapterDockerfileAST(dockerfileContent);
+
+//       // ask the AST to search for COPY
+//       const searchResult = await dockerfile.searchConsecutiveKeyword({
+//         keyword: "COPY",
+//         args: [],
+//       });
+
+//       console.log("SEARCH RESULT COPY", searchResult);
+//     } catch (error) {
+//       const errorMsg = error instanceof Error ? error.message : String(error);
+//       console.error(`❌ Error executing ${this.rule}:`, errorMsg);
+//       throw new Error(`Failed to execute ${this.rule}: ${errorMsg}`);
+//     }
+//   }
+// }
