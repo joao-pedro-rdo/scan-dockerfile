@@ -44132,6 +44132,58 @@ exports.GitHubActionsAdapter = GitHubActionsAdapter;
 
 /***/ }),
 
+/***/ 933:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.HeuristicDependenciesOrderImpl = void 0;
+class HeuristicDependenciesOrderImpl {
+    constructor() {
+        this.listDependecy = [
+            "package.json",
+            "package*.json",
+            "package-lock.json",
+            "yarn.lock",
+            "pnpm-lock.yaml",
+            "requirements.txt",
+            "requirements/*.txt",
+            "Pipfile",
+            "Pipfile.lock",
+            "go.mod",
+            "go.sum",
+            "Cargo.toml",
+            "Cargo.lock",
+            "pom.xml",
+            "build.gradle",
+            "composer.json",
+        ];
+        this.listSorces = [
+            ".",
+            "./",
+            "./*",
+            "src",
+            "src/",
+            "src/*",
+            "app",
+            "app/",
+            "app/*",
+            "*.py",
+            "*.js",
+            "*.ts",
+            "*.java",
+            "*.go",
+        ];
+        // this.listDependecy = listRequirement;
+        // this.listSorces = listSorces;
+    }
+}
+exports.HeuristicDependenciesOrderImpl = HeuristicDependenciesOrderImpl;
+
+
+/***/ }),
+
 /***/ 9407:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -44306,9 +44358,10 @@ exports.LR_007_dependencies_order = void 0;
 const dockerfileAST_1 = __nccwpck_require__(4216);
 const fs_1 = __nccwpck_require__(9896);
 const utils = __importStar(__nccwpck_require__(1798));
+const heuristic_dependencies_order_1 = __nccwpck_require__(933);
 class LR_007_dependencies_order {
     constructor(adapter, reporter, // Need to use general ClassReporter
-    issueTitle = "Ensure dependencies are installed in the correct order", rule = "LR_007_dependencies_order"
+    issueTitle = "Ensure dependencies are installed in the correct order", rule = "LR_007_dependencies_order", heuristc = new heuristic_dependencies_order_1.HeuristicDependenciesOrderImpl()
     // public listDependencies: JSON[],
     // public listSource: JSON[]
     ) {
@@ -44316,6 +44369,26 @@ class LR_007_dependencies_order {
         this.reporter = reporter;
         this.issueTitle = issueTitle;
         this.rule = rule;
+        this.heuristc = heuristc;
+    }
+    async execute(name_Dockerfile) {
+        try {
+            const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
+            const dockerfileContent = await fs_1.promises.readFile(dockerfilePath[0], "utf8");
+            const dockerfile = new dockerfileAST_1.AdapterDockerfileAST(dockerfileContent);
+            // ask the AST to search for COPY
+            const searchResult = await dockerfile.searchConsecutiveKeyword({
+                keyword: "COPY",
+                args: [],
+            });
+            console.log("SEARCH RESULT COPY", searchResult);
+            await this.verify_type(searchResult);
+        }
+        catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error(`❌ Error executing ${this.rule}:`, errorMsg);
+            throw new Error(`Failed to execute ${this.rule}: ${errorMsg}`);
+        }
     }
     async searchDockerfilePath(name_Dockerfile) {
         const dockerfilePath = await utils.finder({
@@ -44344,58 +44417,35 @@ class LR_007_dependencies_order {
                 keyword: item.keyword[0],
                 itemIndex,
                 sourceIndex,
+                type: this.classifyOperation({
+                    source,
+                    destination,
+                    line: item.line[0],
+                    keyword: item.keyword[0],
+                }),
             }));
         });
+    }
+    // Classify operation as 'dependency' or 'source' or 'unknown'
+    classifyOperation(operation) {
+        for (let i = 0; i < this.heuristc.listDependecy.length; i++) {
+            if (operation.source === this.heuristc.listDependecy[i]) {
+                return "dependency";
+            }
+            if (operation.source === this.heuristc.listSorces[i]) {
+                return "source";
+            }
+        }
+        return "unknown";
     }
     async verify_type(obj) {
         const operations = this.normalizeOperations(obj);
         console.log("Normalized Operations:", operations);
-        // //* If this a dir
-        //   if (source === '.' || source === './') {
-        //     console.log(`📂📂📂📂 Line ${line}: Source is a directory (${source})`);
-        //   //! fazer a interaçao no repositorsio para verificar o conteudo
-        // }
-        // for (let i = 0; i < this.listSource.length; i++) {
-        // }
-        // for (const source of this.listDependencies) {
-    }
-    // implementar a logica para verificar o tipo de operacao
-    // Func verificar qual a o tipo de operacao realizada na instrucao, retornar se é dependecy ou sorce
-    //  . .  sorce
-    // package.json dependecy
-    // no caso de mais de um rodar iterativamente
-    // consultar o ENUM de lista de dependencias e lista de source
-    //   SEARCH RESULT COPY [
-    // { found: true, keyword: [ 'COPY' ], args: [ '.', '.' ], line: [ 8 ] },
-    // {
-    //   found: true,
-    //   keyword: [ 'COPY' ],
-    //   args: [ 'package*.json', './' ],
-    //   line: [ 12 ]
-    // }
-    // se for um . ou diretorio iterar o repositorio para verificar oq tem la, e ver o padrao correspondente e comprar todos os arquivos que ele tem para o padrao de dependecy e o resto sera sorce
-    // ai fazer a logisca heurustica para verificar
-    // Passo 01: Coletar todas as instruções COPY e ADD do Dockerfile.
-    // Passo 02: Para cada instrução coletada, identificar seu tipo ("dependency" ou "source").
-    // Passo 03: Verificar se há alguma instrução do tipo "source" posicionada após uma instrução do tipo "dependency". Se sim, retornar TRUE. Caso contrário, retornar FALSE.
-    async execute(name_Dockerfile) {
-        try {
-            const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
-            const dockerfileContent = await fs_1.promises.readFile(dockerfilePath[0], "utf8");
-            const dockerfile = new dockerfileAST_1.AdapterDockerfileAST(dockerfileContent);
-            // ask the AST to search for COPY
-            const searchResult = await dockerfile.searchConsecutiveKeyword({
-                keyword: "COPY",
-                args: [],
-            });
-            console.log("SEARCH RESULT COPY", searchResult);
-            await this.verify_type(searchResult);
-        }
-        catch (error) {
-            const errorMsg = error instanceof Error ? error.message : String(error);
-            console.error(`❌ Error executing ${this.rule}:`, errorMsg);
-            throw new Error(`Failed to execute ${this.rule}: ${errorMsg}`);
-        }
+        const classified = operations.map((op) => ({
+            ...op,
+            type: this.classifyOperation(op),
+        }));
+        console.log("Classified Operations:", classified);
     }
 }
 exports.LR_007_dependencies_order = LR_007_dependencies_order;
