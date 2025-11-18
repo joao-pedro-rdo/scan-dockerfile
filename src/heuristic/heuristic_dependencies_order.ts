@@ -1,13 +1,47 @@
 export interface HeuristicDependenciesOrder {
-  listRequirement: JSON[];
-  listSorces: JSON[];
+  // listRequirement: any;
+  // listSorces: any;
 }
 
 export class HeuristicDependenciesOrderImpl implements HeuristicDependenciesOrder {
-  constructor(listRequirement: JSON[], listSorces: JSON[]) {
-    this.listRequirement = listRequirement;
-    this.listSorces = listSorces;
+  constructor() {
+    // this.listDependecy = listRequirement;
+    // this.listSorces = listSorces;
   }
-  listRequirement: JSON[];
-  listSorces: JSON[];
+
+  listDependecy = [
+    "package.json",
+    "package*.json",
+    "package-lock.json",
+    "yarn.lock",
+    "pnpm-lock.yaml",
+    "requirements.txt",
+    "requirements/*.txt",
+    "Pipfile",
+    "Pipfile.lock",
+    "go.mod",
+    "go.sum",
+    "Cargo.toml",
+    "Cargo.lock",
+    "pom.xml",
+    "build.gradle",
+    "composer.json",
+  ];
+
+  listSorces = [
+    ".",
+    "./",
+    "./*",
+    "src",
+    "src/",
+    "src/*",
+    "app",
+    "app/",
+    "app/*",
+    "*.py",
+    "*.js",
+    "*.ts",
+    "*.java",
+    "*.go",
+  ];
 }
