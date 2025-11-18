@@ -44382,13 +44382,59 @@ class LR_007_dependencies_order {
                 args: [],
             });
             console.log("SEARCH RESULT COPY", searchResult);
-            await this.verify_type(searchResult);
+            const operations = await this.verify_type(searchResult);
+            const hasViolation = await this.verify_order(operations);
+            if (hasViolation) {
+                console.log("❌ Violation detected! Dependencies should come before source code.");
+                // // Reporta a issue
+                // await this.reporter.newIssueIfNotExists({
+                //   title: this.issueTitle,
+                //   body: this.formatIssueBody(operations),
+                //   labels: ["dockerfile", "optimization"],
+                // });
+            }
+            else {
+                console.log("✅ No violations found! Dependencies are correctly ordered.");
+            }
         }
         catch (error) {
             const errorMsg = error instanceof Error ? error.message : String(error);
             console.error(`❌ Error executing ${this.rule}:`, errorMsg);
             throw new Error(`Failed to execute ${this.rule}: ${errorMsg}`);
         }
+    }
+    async verify_order(obj) {
+        const dependencies = obj.filter((op) => op.type === "dependency");
+        const sources = obj.filter((op) => op.type === "source");
+        if (dependencies.length === 0 || sources.length === 0) {
+            return { hasViolation: false, violations: [] };
+        }
+        const violations = [];
+        // Para cada dependência
+        for (const dependency of dependencies) {
+            // Encontra todos os sources que vêm ANTES desta dependência
+            const sourcesBeforeIt = sources.filter((source) => source.line < dependency.line);
+            if (sourcesBeforeIt.length > 0) {
+                violations.push({
+                    dependency,
+                    sourcesBeforeIt,
+                });
+            }
+        }
+        return {
+            hasViolation: violations.length > 0,
+            violations,
+        };
+    }
+    async verify_type(obj) {
+        const operations = this.normalizeOperations(obj);
+        console.log("Normalized Operations:", operations);
+        const classified = operations.map((op) => ({
+            ...op,
+            type: this.classifyOperation(op),
+        }));
+        console.log("Classified Operations:", classified);
+        return classified;
     }
     async searchDockerfilePath(name_Dockerfile) {
         const dockerfilePath = await utils.finder({
@@ -44437,15 +44483,6 @@ class LR_007_dependencies_order {
             }
         }
         return "unknown";
-    }
-    async verify_type(obj) {
-        const operations = this.normalizeOperations(obj);
-        console.log("Normalized Operations:", operations);
-        const classified = operations.map((op) => ({
-            ...op,
-            type: this.classifyOperation(op),
-        }));
-        console.log("Classified Operations:", classified);
     }
 }
 exports.LR_007_dependencies_order = LR_007_dependencies_order;
