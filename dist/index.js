@@ -61165,7 +61165,8 @@ class AIMessageChunk extends base_js_1.BaseMessageChunk {
                 tool_call_chunks: [],
             };
         }
-        else if (fields.tool_call_chunks === undefined) {
+        else if (fields.tool_call_chunks === undefined ||
+            fields.tool_call_chunks.length === 0) {
             initParams = {
                 ...fields,
                 tool_calls: fields.tool_calls ?? [],
@@ -61177,26 +61178,46 @@ class AIMessageChunk extends base_js_1.BaseMessageChunk {
             };
         }
         else {
-            const groupedToolCallChunk = fields.tool_call_chunks.reduce((acc, chunk) => {
-                // Assign a fallback ID if the chunk doesn't have one
-                // This can happen with tools that have empty schemas
-                const chunkId = chunk.id || `fallback-${chunk.index || 0}`;
-                acc[chunkId] = acc[chunkId] ?? [];
-                acc[chunkId].push(chunk);
+            const toolCallChunks = fields.tool_call_chunks ?? [];
+            const groupedToolCallChunks = toolCallChunks.reduce((acc, chunk) => {
+                const matchedChunkIndex = acc.findIndex(([match]) => {
+                    // If chunk has an id and index, match if both are present
+                    if ("id" in chunk &&
+                        chunk.id &&
+                        "index" in chunk &&
+                        chunk.index !== undefined) {
+                        return chunk.id === match.id && chunk.index === match.index;
+                    }
+                    // If chunk has an id, we match on id
+                    if ("id" in chunk && chunk.id) {
+                        return chunk.id === match.id;
+                    }
+                    // If chunk has an index, we match on index
+                    if ("index" in chunk && chunk.index !== undefined) {
+                        return chunk.index === match.index;
+                    }
+                    return false;
+                });
+                if (matchedChunkIndex !== -1) {
+                    acc[matchedChunkIndex].push(chunk);
+                }
+                else {
+                    acc.push([chunk]);
+                }
                 return acc;
-            }, {});
+            }, []);
             const toolCalls = [];
             const invalidToolCalls = [];
-            for (const [id, chunks] of Object.entries(groupedToolCallChunk)) {
+            for (const chunks of groupedToolCallChunks) {
                 let parsedArgs = {};
                 const name = chunks[0]?.name ?? "";
                 const joinedArgs = chunks.map((c) => c.args || "").join("");
                 const argsStr = joinedArgs.length ? joinedArgs : "{}";
-                // Use the original ID from the first chunk if it exists, otherwise use the grouped ID
-                const originalId = chunks[0]?.id || id;
+                const id = chunks[0]?.id;
                 try {
                     parsedArgs = (0, json_js_1.parsePartialJson)(argsStr);
-                    if (parsedArgs === null ||
+                    if (!id ||
+                        parsedArgs === null ||
                         typeof parsedArgs !== "object" ||
                         Array.isArray(parsedArgs)) {
                         throw new Error("Malformed tool call chunk args.");
@@ -61204,7 +61225,7 @@ class AIMessageChunk extends base_js_1.BaseMessageChunk {
                     toolCalls.push({
                         name,
                         args: parsedArgs,
-                        id: originalId,
+                        id,
                         type: "tool_call",
                     });
                 }
@@ -61212,7 +61233,7 @@ class AIMessageChunk extends base_js_1.BaseMessageChunk {
                     invalidToolCalls.push({
                         name,
                         args: argsStr,
-                        id: originalId,
+                        id,
                         error: "Malformed args.",
                         type: "invalid_tool_call",
                     });
@@ -61667,7 +61688,13 @@ right
                 // Do not merge 'type' fields
                 continue;
             }
-            merged[key] += value;
+            else if (["id", "name", "output_version", "model_provider"].includes(key)) {
+                // Keep the incoming value for these fields
+                merged[key] = value;
+            }
+            else {
+                merged[key] += value;
+            }
         }
         else if (typeof merged[key] === "object" && !Array.isArray(merged[key])) {
             merged[key] = _mergeDicts(merged[key], value);
@@ -61684,7 +61711,6 @@ right
     }
     return merged;
 }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function _mergeLists(left, right) {
     if (left === undefined && right === undefined) {
         return undefined;
@@ -61696,10 +61722,22 @@ function _mergeLists(left, right) {
         const merged = [...left];
         for (const item of right) {
             if (typeof item === "object" &&
+                item !== null &&
                 "index" in item &&
                 typeof item.index === "number") {
-                const toMerge = merged.findIndex((leftItem) => leftItem.index === item.index);
-                if (toMerge !== -1) {
+                const toMerge = merged.findIndex((leftItem) => {
+                    const isObject = typeof leftItem === "object";
+                    const indiciesMatch = "index" in leftItem && leftItem.index === item.index;
+                    const idsMatch = "id" in leftItem && "id" in item && leftItem?.id === item?.id;
+                    const eitherItemMissingID = !("id" in leftItem) ||
+                        !leftItem?.id ||
+                        !("id" in item) ||
+                        !item?.id;
+                    return isObject && indiciesMatch && (idsMatch || eitherItemMissingID);
+                });
+                if (toMerge !== -1 &&
+                    typeof merged[toMerge] === "object" &&
+                    merged[toMerge] !== null) {
                     merged[toMerge] = _mergeDicts(merged[toMerge], item);
                 }
                 else {
@@ -61707,6 +61745,7 @@ function _mergeLists(left, right) {
                 }
             }
             else if (typeof item === "object" &&
+                item !== null &&
                 "text" in item &&
                 item.text === "") {
                 // No-op - skip empty text blocks
@@ -62711,7 +62750,7 @@ async function _firstMaxTokens(messages, options) {
             break;
         }
     }
-    if (idx < messagesCopy.length - 1 && partialStrategy) {
+    if (idx < messagesCopy.length && partialStrategy) {
         let includedPartial = false;
         if (Array.isArray(messagesCopy[idx].content)) {
             const excluded = messagesCopy[idx];
@@ -63008,6 +63047,7 @@ const base_js_1 = __nccwpck_require__(95157);
 const chat_js_1 = __nccwpck_require__(10412);
 const function_js_1 = __nccwpck_require__(85602);
 const human_js_1 = __nccwpck_require__(46409);
+const modifier_js_1 = __nccwpck_require__(55445);
 const system_js_1 = __nccwpck_require__(21489);
 const tool_js_1 = __nccwpck_require__(24764);
 function _coerceToolCall(toolCall) {
@@ -63107,6 +63147,9 @@ function _constructMessageFromParams(params) {
             tool_call_id: rest.tool_call_id,
             name: rest.name,
         });
+    }
+    else if (type === "remove" && "id" in rest && typeof rest.id === "string") {
+        return new modifier_js_1.RemoveMessage({ ...rest, id: rest.id });
     }
     else {
         const error = (0, index_js_1.addLangChainErrorFields)(new Error(`Unable to coerce message from array: only human, AI, system, developer, or tool message coercion is currently supported.\n\nReceived: ${JSON.stringify(params, null, 2)}`), "MESSAGE_COERCION_FAILURE");
@@ -63995,9 +64038,14 @@ ${JSON.stringify((0, json_schema_js_1.toJsonSchema)(this.schema))}
      */
     async parse(text) {
         try {
-            const json = text.includes("```")
-                ? text.trim().split(/```(?:json)?/)[1]
-                : text.trim();
+            const trimmedText = text.trim();
+            const json = 
+            // first case: if back ticks appear at the start of the text
+            trimmedText.match(/^```(?:json)?\s*([\s\S]*?)```/)?.[1] ||
+                // second case: if back ticks with `json` appear anywhere in the text
+                trimmedText.match(/```json\s*([\s\S]*?)```/)?.[1] ||
+                // otherwise, return the trimmed text
+                trimmedText;
             const escapedJson = json
                 .replace(/"([^"\\]*(\\.[^"\\]*)*)"/g, (_match, capturedGroup) => {
                 const escapedInsideQuotes = capturedGroup.replace(/\n/g, "\\n");
@@ -65533,15 +65581,21 @@ class ChatPromptTemplate extends BaseChatPromptTemplate {
                 resultMessages.push(await this._parseImagePrompts(promptMessage, allValues));
             }
             else {
-                const inputValues = promptMessage.inputVariables.reduce((acc, inputVariable) => {
-                    if (!(inputVariable in allValues) &&
-                        !(isMessagesPlaceholder(promptMessage) && promptMessage.optional)) {
-                        const error = (0, index_js_2.addLangChainErrorFields)(new Error(`Missing value for input variable \`${inputVariable.toString()}\``), "INVALID_PROMPT_INPUT");
-                        throw error;
-                    }
-                    acc[inputVariable] = allValues[inputVariable];
-                    return acc;
-                }, {});
+                let inputValues;
+                if (this.templateFormat === "mustache") {
+                    inputValues = { ...allValues };
+                }
+                else {
+                    inputValues = promptMessage.inputVariables.reduce((acc, inputVariable) => {
+                        if (!(inputVariable in allValues) &&
+                            !(isMessagesPlaceholder(promptMessage) && promptMessage.optional)) {
+                            const error = (0, index_js_2.addLangChainErrorFields)(new Error(`Missing value for input variable \`${inputVariable.toString()}\``), "INVALID_PROMPT_INPUT");
+                            throw error;
+                        }
+                        acc[inputVariable] = allValues[inputVariable];
+                        return acc;
+                    }, {});
+                }
                 const message = await promptMessage.formatMessages(inputValues);
                 resultMessages = resultMessages.concat(message);
             }
@@ -66796,9 +66850,10 @@ exports.parseFString = parseFString;
  * to make it compatible with other LangChain string parsing template formats.
  *
  * @param {mustache.TemplateSpans} template The result of parsing a mustache template with the mustache.js library.
+ * @param {string[]} context Array of section variable names for nested context
  * @returns {ParsedTemplateNode[]}
  */
-const mustacheTemplateToNodes = (template) => {
+const mustacheTemplateToNodes = (template, context = []) => {
     const nodes = [];
     for (const temp of template) {
         if (temp[0] === "name") {
@@ -66811,7 +66866,8 @@ const mustacheTemplateToNodes = (template) => {
             nodes.push({ type: "variable", name: temp[1] });
             // If this is a section with nested content, recursively process it
             if (temp[0] === "#" && temp.length > 4 && Array.isArray(temp[4])) {
-                const nestedNodes = mustacheTemplateToNodes(temp[4]);
+                const newContext = [...context, temp[1]];
+                const nestedNodes = mustacheTemplateToNodes(temp[4], newContext);
                 nodes.push(...nestedNodes);
             }
         }
@@ -70093,6 +70149,7 @@ function _lastNode(graph, exclude = []) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.drawMermaid = drawMermaid;
 exports.drawMermaidPng = drawMermaidPng;
+exports.drawMermaidImage = drawMermaidImage;
 function _escapeNodeLabel(nodeLabel) {
     // Escapes the node label for Mermaid syntax.
     return nodeLabel.replace(/[^a-zA-Z-_0-9]/g, "_");
@@ -70215,10 +70272,33 @@ function drawMermaid(nodes, edges, config) {
     return mermaidGraph;
 }
 /**
- * Renders Mermaid graph using the Mermaid.INK API.
+ * @deprecated Use `drawMermaidImage` instead.
  */
 async function drawMermaidPng(mermaidSyntax, config) {
-    let { backgroundColor = "white" } = config ?? {};
+    return drawMermaidImage(mermaidSyntax, {
+        ...config,
+        imageType: "png",
+    });
+}
+/**
+ * Renders Mermaid graph using the Mermaid.INK API.
+ *
+ * @example
+ * ```javascript
+ * const image = await drawMermaidImage(mermaidSyntax, {
+ *   backgroundColor: "white",
+ *   imageType: "png",
+ * });
+ * fs.writeFileSync("image.png", image);
+ * ```
+ *
+ * @param mermaidSyntax - The Mermaid syntax to render.
+ * @param config - The configuration for the image.
+ * @returns The image as a Blob.
+ */
+async function drawMermaidImage(mermaidSyntax, config) {
+    let backgroundColor = config?.backgroundColor ?? "white";
+    const imageType = config?.imageType ?? "png";
     // Use btoa for compatibility, assume ASCII
     const mermaidSyntaxEncoded = btoa(mermaidSyntax);
     // Check if the background color is a hexadecimal color code using regex
@@ -70228,7 +70308,7 @@ async function drawMermaidPng(mermaidSyntax, config) {
             backgroundColor = `!${backgroundColor}`;
         }
     }
-    const imageUrl = `https://mermaid.ink/img/${mermaidSyntaxEncoded}?bgColor=${backgroundColor}`;
+    const imageUrl = `https://mermaid.ink/img/${mermaidSyntaxEncoded}?bgColor=${backgroundColor}&type=${imageType}`;
     const res = await fetch(imageUrl);
     if (!res.ok) {
         throw new Error([
