@@ -1,5 +1,5 @@
 export interface RefactorRequest {
-  dockerfileSnippet: string;
+  dockerfileSnippet?: string;
   context?: string;
   ruleType?: string;
 }

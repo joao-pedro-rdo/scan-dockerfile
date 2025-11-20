@@ -132,7 +132,7 @@ export class LR_006_joinRun implements ILinterRule {
       ${problematicLines.map((l) => `Line ${l.line}: ${l.content}`).join("\n")}
           `.trim();
 
-    console.log("Context prepared for AI:", context);
+    console.log("📧Context prepared for AI:", context);
     return {
       dockerfileSnippet,
       context,
