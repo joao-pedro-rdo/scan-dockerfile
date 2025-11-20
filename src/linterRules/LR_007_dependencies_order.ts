@@ -7,6 +7,7 @@ import { promises as fs } from "fs";
 import * as utils from "../utils";
 import { HeuristicDependenciesOrderImpl } from "../heuristic/heuristic_dependencies_order";
 import { RefactorRequest } from "../contracts/iaServiceInterface";
+import { LangchainService } from "../refactor/langChain";
 
 interface Operation {
   source: string;
@@ -22,6 +23,7 @@ export class LR_007_dependencies_order implements ILinterRule {
   constructor(
     private adapter: IGitHubActionsAdapter,
     private reporter: githubaActionsReporters, // Need to use general ClassReporter
+    private iaService: LangchainService,
     public issueTitle: string = "Ensure dependencies are installed in the correct order",
     public rule: string = "LR_007_dependencies_order",
     public heuristc = new HeuristicDependenciesOrderImpl()
@@ -48,7 +50,34 @@ export class LR_007_dependencies_order implements ILinterRule {
 
       if (hasViolation) {
         console.log("❌ Violation detected! Dependencies should come before source code.");
-        this.prepareRefactorRequest(searchResult, dockerfileContent, operations);
+        const refactorRequest = this.prepareRefactorRequest(
+          searchResult,
+          dockerfileContent,
+          operations
+        );
+        const aiSuggestion = await this.iaService.suggestRefactor(refactorRequest);
+        console.log("++++++ RETURN IA: ", aiSuggestion.code);
+        console.log("++++++ RETURN IA SUGGESTION: ", aiSuggestion.suggestion);
+        console.log("++++++ RETURN IA EXPLANATION: ", aiSuggestion.explanation);
+        console.log("++++++ RETURN IA CONFIDENCE: ", aiSuggestion.confidence);
+        const issueBody = this.formatIssueBody(searchResult, aiSuggestion, dockerfileContent);
+        const issue = await this.reporter.newIssueIfNotExists({
+          title: this.issueTitle,
+          body: issueBody,
+          labels: ["dockerfile", "LR_007_dependencies_order", "ai-suggestion"],
+        });
+        if (issue != null) {
+          this.reporter.infoWarning(`Issue created: ${issue.html_url}`);
+
+          this.reporter.addTableRow({
+            rule: this.rule,
+            status: "⚠️",
+            details: `${searchResult.length} COPY instructions out of order`,
+            link: issue.html_url,
+          });
+        }
+
+        console.log("Issue created or already exists:", issue.html_url);
         // // Reporta a issue
         // await this.reporter.newIssueIfNotExists({
         //   title: this.issueTitle,
@@ -57,6 +86,15 @@ export class LR_007_dependencies_order implements ILinterRule {
         // });
       } else {
         console.log("✅ No violations found! Dependencies are correctly ordered.");
+        this.reporter.infoSuccess(
+          `Great! No violations found! Dependencies are correctly ordered. ${dockerfilePath[0]}`
+        );
+        this.reporter.addTableRow({
+          rule: this.rule,
+          status: "✔️",
+          details: this.issueTitle,
+          link: "",
+        });
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
@@ -64,6 +102,55 @@ export class LR_007_dependencies_order implements ILinterRule {
       throw new Error(`Failed to execute ${this.rule}: ${errorMsg}`);
     }
   }
+
+  private formatIssueBody(
+    searchResult: Array<IResponseAstDockerfile>,
+    aiSuggestion: {
+      code: string;
+      suggestion: string;
+      explanation: string;
+      confidence: number;
+    },
+    dockerfileContent: string
+  ): string {
+    const affectedLines = searchResult
+      .map((res) => `Line ${res.line[0]}: ${res.keyword[0]} ${res.args.join(" ")}`)
+      .join("\n");
+
+    return `
+### Issue: Dependencies Order Violation in Dockerfile
+
+**Description:**
+The Dockerfile contains COPY instructions where dependencies are not ordered correctly. Dependencies should be copied before source code to optimize caching and build efficiency.
+
+**Affected Lines:**
+\`\`\`
+${affectedLines}
+\`\`\`
+
+**AI Suggestion:**
+\`\`\`dockerfile
+${aiSuggestion.code}
+\`\`\`
+
+**Explanation:**
+${aiSuggestion.explanation}
+
+**Confidence Level:** ${aiSuggestion.confidence}%
+    
+**Full Dockerfile Context:**
+\`\`\`dockerfile
+${dockerfileContent}
+\`\`\`
+    `;
+  }
+  /**
+   *  Prepare the context and promptrefactor request for the IA
+   * @param searchResult
+   * @param dockerfileContent
+   * @param operations
+   * @returns RefactorRequest {context: string}
+   */
   private prepareRefactorRequest(
     searchResult: Array<IResponseAstDockerfile>,
     dockerfileContent: string,
@@ -73,8 +160,7 @@ export class LR_007_dependencies_order implements ILinterRule {
     
     PROBLEM: The following Dockerfile has COPY instructions where dependencies are not ordered correctly. Dependencies should be copied before source code to optimize caching and build efficiency. Here are the operations detected:\n\n${operations
       .map(
-        (op) =>
-          `Line ${op.line}: ${op.keyword} ${op.source} -> ${op.destination} [Type: ${op.type}]`
+        (op) => `Line ${op.line}: ${op.keyword} ${op.source} ${op.destination} [Type: ${op.type}]`
       )
       .join(
         "\n"

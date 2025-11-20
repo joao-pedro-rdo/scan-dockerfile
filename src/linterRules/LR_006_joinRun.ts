@@ -116,7 +116,6 @@ export class LR_006_joinRun implements ILinterRule {
       .map((item) => `Line ${item.line}: ${item.content}`)
       .join("\n");
 
-    // ✅ Criar contexto com informações específicas
     const context = `
 
       PROBLEM: Found ${searchResult.length} consecutive RUN commands that could be optimized.

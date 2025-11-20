@@ -30,9 +30,6 @@ async function run() {
 
     console.log("Starting the scan-dockerfile action...");
 
-    const lr_007 = new LR_007_dependencies_order(adapter, reporter);
-    await lr_007.execute(name_Dockerfile);
-
     // console.log("teste of new issue");
     // const lr_001 = new LR_001_dockerignore(adapter, reporter);
     // await lr_001.execute();
@@ -58,19 +55,19 @@ async function run() {
 
     // console.log("Test LangChain refactor");
 
-    // const { LangchainService } = await import("./refactor/langChain");
-    // const API_TOKEN = core.getInput("API_TOKEN");
-    // if (!API_TOKEN) {
-    //   console.log("API_TOKEN not provided");
-    //   throw new Error("API_TOKEN is required for AI functionality");
-    // }
-    // const MODEL_NAME = core.getInput("MODEL_NAME") || "gemini-1.5-flash";
+    const { LangchainService } = await import("./refactor/langChain");
+    const API_TOKEN = core.getInput("API_TOKEN");
+    if (!API_TOKEN) {
+      console.log("API_TOKEN not provided");
+      throw new Error("API_TOKEN is required for AI functionality");
+    }
+    const MODEL_NAME = core.getInput("MODEL_NAME") || "gemini-1.5-flash";
 
-    // const langchainService = new LangchainService(MODEL_NAME, 0.2, 1000, API_TOKEN);
-    // // const testLLM = langchainService.suggestRefactor({
-    // //   dockerfileSnippet: "RUN chmod 777 /app/script.sh",
-    // //   context: "This is a mistake, use 777 permissions on linux, correct it",
-    // // });
+    const langchainService = new LangchainService(MODEL_NAME, 0.2, 1000, API_TOKEN);
+    // const testLLM = langchainService.suggestRefactor({
+    //   dockerfileSnippet: "RUN chmod 777 /app/script.sh",
+    //   context: "This is a mistake, use 777 permissions on linux, correct it",
+    // });
 
     // // console.log("Code:", (await testLLM).code);
     // // console.log("Suggestion:", (await testLLM).suggestion);
@@ -85,8 +82,10 @@ async function run() {
     // const lr_006 = new LR_006_joinRun(adapter, reporter, langchainService);
     // await lr_006.execute(name_Dockerfile);
 
-    // reporter.renderTable();
-    // core.summary.write();
+    const lr_007 = new LR_007_dependencies_order(adapter, reporter, langchainService);
+    await lr_007.execute(name_Dockerfile);
+    reporter.renderTable();
+    core.summary.write();
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     console.error(`❌ Error running the action:`, errorMsg);
