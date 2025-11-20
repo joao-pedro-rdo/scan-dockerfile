@@ -44386,6 +44386,7 @@ class LR_007_dependencies_order {
             const hasViolation = await this.verify_order(operations);
             if (hasViolation) {
                 console.log("❌ Violation detected! Dependencies should come before source code.");
+                this.prepareRefactorRequest(searchResult, dockerfileContent, operations);
                 // // Reporta a issue
                 // await this.reporter.newIssueIfNotExists({
                 //   title: this.issueTitle,
