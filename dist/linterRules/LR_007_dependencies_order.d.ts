@@ -2,15 +2,25 @@ import { IGitHubActionsAdapter } from "../contracts/githubActionsInterface";
 import { githubaActionsReporters } from "../reporters/githubaActionsReporters";
 import { ILinterRule } from "../contracts/LR_interface";
 import { HeuristicDependenciesOrderImpl } from "../heuristic/heuristic_dependencies_order";
+import { LangchainService } from "../refactor/langChain";
 export declare class LR_007_dependencies_order implements ILinterRule {
     private adapter;
     private reporter;
+    private iaService;
     issueTitle: string;
     rule: string;
     heuristc: HeuristicDependenciesOrderImpl;
     constructor(adapter: IGitHubActionsAdapter, reporter: githubaActionsReporters, // Need to use general ClassReporter
-    issueTitle?: string, rule?: string, heuristc?: HeuristicDependenciesOrderImpl);
+    iaService: LangchainService, issueTitle?: string, rule?: string, heuristc?: HeuristicDependenciesOrderImpl);
     execute(name_Dockerfile: string): Promise<any>;
+    private formatIssueBody;
+    /**
+     *  Prepare the context and promptrefactor request for the IA
+     * @param searchResult
+     * @param dockerfileContent
+     * @param operations
+     * @returns RefactorRequest {context: string}
+     */
     private prepareRefactorRequest;
     private verify_order;
     private verify_type;
