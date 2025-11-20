@@ -11,6 +11,7 @@ export declare class LR_007_dependencies_order implements ILinterRule {
     constructor(adapter: IGitHubActionsAdapter, reporter: githubaActionsReporters, // Need to use general ClassReporter
     issueTitle?: string, rule?: string, heuristc?: HeuristicDependenciesOrderImpl);
     execute(name_Dockerfile: string): Promise<any>;
+    private prepareRefactorRequest;
     private verify_order;
     private verify_type;
     private searchDockerfilePath;

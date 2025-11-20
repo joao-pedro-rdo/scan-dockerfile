@@ -44403,6 +44403,27 @@ class LR_007_dependencies_order {
             throw new Error(`Failed to execute ${this.rule}: ${errorMsg}`);
         }
     }
+    prepareRefactorRequest(searchResult, dockerfileContent, operations) {
+        const context = `
+    
+    PROBLEM: The following Dockerfile has COPY instructions where dependencies are not ordered correctly. Dependencies should be copied before source code to optimize caching and build efficiency. Here are the operations detected:\n\n${operations
+            .map((op) => `Line ${op.line}: ${op.keyword} ${op.source} -> ${op.destination} [Type: ${op.type}]`)
+            .join("\n")}\n\nPlease refactor the Dockerfile to ensure all dependencies are copied before any source code.
+      
+      AFECTED LINES:\n\n${searchResult
+            .map((res) => `Line ${res.line[0]}: ${res.keyword[0]} ${res.args.join(" ")}`)
+            .join("\n")}\n\n
+      
+      SUGGESTION: Switch the order of COPY instructions so that all dependencies are copied before source code.
+    
+    
+      FULL DOCKERFILE CONTEXT:
+      ${dockerfileContent}
+
+      `;
+        console.log(" 📧Context prepared for AI:", context);
+        return { context };
+    }
     async verify_order(obj) {
         const dependencies = obj.filter((op) => op.type === "dependency");
         const sources = obj.filter((op) => op.type === "source");
