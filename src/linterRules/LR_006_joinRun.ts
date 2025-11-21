@@ -6,7 +6,6 @@ import { promises as fs } from "fs";
 import * as utils from "../utils";
 import { LangchainService } from "../refactor/langChain";
 import { RefactorRequest, RefactorResponse } from "../contracts/iaServiceInterface";
-import { AIMessage } from "@langchain/core/messages";
 
 export class LR_006_joinRun implements ILinterRule {
   constructor(

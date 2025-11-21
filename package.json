@@ -27,8 +27,9 @@
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.1",
-    "@langchain/core": "^0.3.75",
-    "@langchain/google-genai": "^0.2.18",
+    "@langchain/core": "^1.0.6",
+    "@langchain/google-genai": "^1.0.3",
+    "@langchain/groq": "^1.0.1",
     "@octokit/webhooks-definitions": "^3.68.1",
     "dockerfile-ast": "^0.7.1",
     "fast-glob": "^3.3.2"

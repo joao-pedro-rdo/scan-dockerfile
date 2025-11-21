@@ -4,6 +4,7 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
 import { connected } from "process";
 import { RefactorRequest, RefactorResponse } from "../contracts/iaServiceInterface.js";
 import { LangchainService } from "./langChain";
+import { ChatGroq } from "@langchain/groq";
 interface testModel {
   repose: string;
 }
@@ -12,14 +13,13 @@ interface testModel {
  * It uses prompt templates and output parsers to structure interactions with the LLM.
  */
 export class LangchainServiceTestLLM {
-  private llm: ChatGoogleGenerativeAI;
+  private llm: ChatGroq;
   private outputParser: StringOutputParser;
 
   constructor(model?: string, temperature?: number, maxTokens?: number, apiKey?: string) {
-    this.llm = new ChatGoogleGenerativeAI({
+    this.llm = new ChatGroq({
       model: model || "gemini-1.5-flash",
       temperature: temperature || 0.1,
-      maxOutputTokens: maxTokens || 500,
       apiKey: apiKey || process.env.GOOGLE_API_KEY,
     });
     // Setting of output parser

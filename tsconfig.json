@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     // Module Resolution
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "node16",
+    "moduleResolution": "node16",
     "target": "es2020",
     "lib": ["es2020"],
 
