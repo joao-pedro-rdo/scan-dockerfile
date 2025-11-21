@@ -8,6 +8,7 @@ import * as utils from "../utils";
 import { HeuristicDependenciesOrderImpl } from "../heuristic/heuristic_dependencies_order";
 import { RefactorRequest } from "../contracts/iaServiceInterface";
 import { LangchainService } from "../refactor/langChain";
+import { LangchainServiceTestLLM } from "../refactor/langChainTesteLLM";
 
 interface Operation {
   source: string;
@@ -19,11 +20,11 @@ interface Operation {
   type: string;
 }
 
-export class LR_007_test implements ILinterRule {
+export class LR_007_test {
   constructor(
     private adapter: IGitHubActionsAdapter,
     private reporter: githubaActionsReporters, // Need to use general ClassReporter
-    private iaService: LangchainService,
+    private iaService: LangchainServiceTestLLM,
     public issueTitle: string = "Ensure dependencies are installed in the correct order",
     public rule: string = "LR_007_dependencies_order",
     public heuristc = new HeuristicDependenciesOrderImpl()
