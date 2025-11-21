@@ -5,6 +5,10 @@ import { githubaActionsReporters } from "./reporters/githubaActionsReporters";
 import { LR_001_dockerignore } from "./linterRules/LR_001_dockerignore";
 import { LR_002_setWorkdir } from "./linterRules/LR_002_setWorkdir";
 import { LR_007_dependencies_order } from "./linterRules/LR_007_dependencies_order";
+
+import { LR_007_test } from "./linterRules/LR_007_test";
+import { LangchainServiceTestLLM } from "./refactor/langChainTesteLLM";
+
 // Initialize the GitHub Actions adapter with the provided token and workspace
 async function run() {
   try {
@@ -82,7 +86,9 @@ async function run() {
     // const lr_006 = new LR_006_joinRun(adapter, reporter, langchainService);
     // await lr_006.execute(name_Dockerfile);
 
-    const lr_007 = new LR_007_dependencies_order(adapter, reporter, langchainService);
+    const langchainServiceTestLLM = new LangchainServiceTestLLM(MODEL_NAME, 0.2, 1000, API_TOKEN);
+
+    const lr_007 = new LR_007_test(adapter, reporter, langchainServiceTestLLM);
     await lr_007.execute(name_Dockerfile);
     reporter.renderTable();
     core.summary.write();

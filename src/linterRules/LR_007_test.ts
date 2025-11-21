@@ -19,7 +19,7 @@ interface Operation {
   type: string;
 }
 
-export class LR_007_dependencies_order implements ILinterRule {
+export class LR_007_test implements ILinterRule {
   constructor(
     private adapter: IGitHubActionsAdapter,
     private reporter: githubaActionsReporters, // Need to use general ClassReporter
@@ -151,6 +151,7 @@ ${dockerfileContent}
    * @param operations
    * @returns RefactorRequest {context: string}
    */
+
   private prepareRefactorRequest(
     searchResult: Array<IResponseAstDockerfile>,
     dockerfileContent: string,
@@ -158,51 +159,8 @@ ${dockerfileContent}
   ): RefactorRequest {
     const context = `
     
-    PROBLEM: The following Dockerfile has COPY instructions where dependencies are not ordered correctly. Dependencies should be copied before source code to optimize caching and build efficiency. Here are the operations detected:\n\n${operations
-      .map(
-        (op) => `Line ${op.line}: ${op.keyword} ${op.source} ${op.destination} [Type: ${op.type}]`
-      )
-      .join(
-        "\n"
-      )}\n\nPlease refactor the Dockerfile to ensure all dependencies are copied before any source code.
-      
-      AFECTED LINES:\n\n${searchResult
-        .map((res) => `Line ${res.line[0]}: ${res.keyword[0]} ${res.args.join(" ")}`)
-        .join("\n")}\n\n
-      
-      SUGGESTION: Switch the order of COPY instructions so that all dependencies are copied before source code.
+    PROBLEM: The following Dockerfile has COPY instructions where dependencies are not ordered correctly. Dependencies should be copied before source code to optimize caching and build efficiency. Here are the operations detected:\n\n
     
-    
-      FULL DOCKERFILE CONTEXT:
-      ${dockerfileContent}
-
-      `;
-    console.log(" 📧Context prepared for AI:", context);
-    return { context };
-  }
-
-  private prepareRefactorRequest_test(
-    searchResult: Array<IResponseAstDockerfile>,
-    dockerfileContent: string,
-    operations: Operation[]
-  ): RefactorRequest {
-    const context = `
-    
-    PROBLEM: The following Dockerfile has COPY instructions where dependencies are not ordered correctly. Dependencies should be copied before source code to optimize caching and build efficiency. Here are the operations detected:\n\n${operations
-      .map(
-        (op) => `Line ${op.line}: ${op.keyword} ${op.source} ${op.destination} [Type: ${op.type}]`
-      )
-      .join(
-        "\n"
-      )}\n\nPlease refactor the Dockerfile to ensure all dependencies are copied before any source code.
-      
-      AFECTED LINES:\n\n${searchResult
-        .map((res) => `Line ${res.line[0]}: ${res.keyword[0]} ${res.args.join(" ")}`)
-        .join("\n")}\n\n
-      
-      SUGGESTION: Switch the order of COPY instructions so that all dependencies are copied before source code.
-    
-    s
       FULL DOCKERFILE CONTEXT:
       ${dockerfileContent}
 
