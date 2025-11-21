@@ -1,9 +1,8 @@
 import { IGitHubActionsAdapter } from "../contracts/githubActionsInterface";
 import { githubaActionsReporters } from "../reporters/githubaActionsReporters";
-import { ILinterRule } from "../contracts/LR_interface";
 import { HeuristicDependenciesOrderImpl } from "../heuristic/heuristic_dependencies_order";
-import { LangchainService } from "../refactor/langChain";
-export declare class LR_007_dependencies_order implements ILinterRule {
+import { LangchainServiceTestLLM } from "../refactor/langChainTesteLLM";
+export declare class LR_007_test {
     private adapter;
     private reporter;
     private iaService;
@@ -11,7 +10,7 @@ export declare class LR_007_dependencies_order implements ILinterRule {
     rule: string;
     heuristc: HeuristicDependenciesOrderImpl;
     constructor(adapter: IGitHubActionsAdapter, reporter: githubaActionsReporters, // Need to use general ClassReporter
-    iaService: LangchainService, issueTitle?: string, rule?: string, heuristc?: HeuristicDependenciesOrderImpl);
+    iaService: LangchainServiceTestLLM, issueTitle?: string, rule?: string, heuristc?: HeuristicDependenciesOrderImpl);
     execute(name_Dockerfile: string): Promise<any>;
     private formatIssueBody;
     /**
@@ -22,7 +21,6 @@ export declare class LR_007_dependencies_order implements ILinterRule {
      * @returns RefactorRequest {context: string}
      */
     private prepareRefactorRequest;
-    private prepareRefactorRequest_test;
     private verify_order;
     private verify_type;
     private searchDockerfilePath;

@@ -51808,7 +51808,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(37484));
 const githubActions_1 = __nccwpck_require__(16850);
 const githubaActionsReporters_1 = __nccwpck_require__(37231);
-const LR_007_dependencies_order_1 = __nccwpck_require__(29950);
+const LR_007_test_1 = __nccwpck_require__(70180);
+const langChainTesteLLM_1 = __nccwpck_require__(63597);
 // Initialize the GitHub Actions adapter with the provided token and workspace
 async function run() {
     try {
@@ -51866,7 +51867,8 @@ async function run() {
         // const { LR_006_joinRun } = await import("./linterRules/LR_006_joinRun");
         // const lr_006 = new LR_006_joinRun(adapter, reporter, langchainService);
         // await lr_006.execute(name_Dockerfile);
-        const lr_007 = new LR_007_dependencies_order_1.LR_007_dependencies_order(adapter, reporter, langchainService);
+        const langchainServiceTestLLM = new langChainTesteLLM_1.LangchainServiceTestLLM(MODEL_NAME, 0.2, 1000, API_TOKEN);
+        const lr_007 = new LR_007_test_1.LR_007_test(adapter, reporter, langchainServiceTestLLM);
         await lr_007.execute(name_Dockerfile);
         reporter.renderTable();
         core.summary.write();
@@ -51897,7 +51899,7 @@ run();
 
 /***/ }),
 
-/***/ 29950:
+/***/ 70180:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -51936,12 +51938,12 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.LR_007_dependencies_order = void 0;
+exports.LR_007_test = void 0;
 const dockerfileAST_1 = __nccwpck_require__(54216);
 const fs_1 = __nccwpck_require__(79896);
 const utils = __importStar(__nccwpck_require__(71798));
 const heuristic_dependencies_order_1 = __nccwpck_require__(80933);
-class LR_007_dependencies_order {
+class LR_007_test {
     constructor(adapter, reporter, // Need to use general ClassReporter
     iaService, issueTitle = "Ensure dependencies are installed in the correct order", rule = "LR_007_dependencies_order", heuristc = new heuristic_dependencies_order_1.HeuristicDependenciesOrderImpl()
     // public listDependencies: JSON[],
@@ -52056,16 +52058,7 @@ ${dockerfileContent}
     prepareRefactorRequest(searchResult, dockerfileContent, operations) {
         const context = `
     
-    PROBLEM: The following Dockerfile has COPY instructions where dependencies are not ordered correctly. Dependencies should be copied before source code to optimize caching and build efficiency. Here are the operations detected:\n\n${operations
-            .map((op) => `Line ${op.line}: ${op.keyword} ${op.source} ${op.destination} [Type: ${op.type}]`)
-            .join("\n")}\n\nPlease refactor the Dockerfile to ensure all dependencies are copied before any source code.
-      
-      AFECTED LINES:\n\n${searchResult
-            .map((res) => `Line ${res.line[0]}: ${res.keyword[0]} ${res.args.join(" ")}`)
-            .join("\n")}\n\n
-      
-      SUGGESTION: Switch the order of COPY instructions so that all dependencies are copied before source code.
-    
+    PROBLEM: The following Dockerfile has COPY instructions where dependencies are not ordered correctly. Dependencies should be copied before source code to optimize caching and build efficiency. Here are the operations detected:\n\n
     
       FULL DOCKERFILE CONTEXT:
       ${dockerfileContent}
@@ -52156,7 +52149,7 @@ ${dockerfileContent}
         return "unknown";
     }
 }
-exports.LR_007_dependencies_order = LR_007_dependencies_order;
+exports.LR_007_test = LR_007_test;
 
 
 /***/ }),
@@ -52550,6 +52543,114 @@ class LangchainService {
     }
 }
 exports.LangchainService = LangchainService;
+
+
+/***/ }),
+
+/***/ 63597:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LangchainServiceTestLLM = void 0;
+const google_genai_1 = __nccwpck_require__(77139);
+const prompts_1 = __nccwpck_require__(45425);
+const output_parsers_1 = __nccwpck_require__(97766);
+/**
+ * LangchainService integrates with Google Gemini via LangChain to provide AI-driven suggestions for Dockerfile refactoring.
+ * It uses prompt templates and output parsers to structure interactions with the LLM.
+ */
+class LangchainServiceTestLLM {
+    constructor(model, temperature, maxTokens, apiKey) {
+        this.llm = new google_genai_1.ChatGoogleGenerativeAI({
+            model: model || "gemini-1.5-flash",
+            temperature: temperature || 0.1,
+            maxOutputTokens: maxTokens || 500,
+            apiKey: apiKey || process.env.GOOGLE_API_KEY,
+        });
+        // Setting of output parser
+        this.outputParser = new output_parsers_1.StringOutputParser();
+    }
+    // Make the prompt template dynamic based on ruleType
+    createPromptTemplate(ruleType) {
+        let systemMessage = ``;
+        return prompts_1.PromptTemplate.fromTemplate(`${systemMessage}
+    {context}
+
+    Correct them:`);
+    }
+    /**
+     *
+     * @param request: RefactorRequest
+     * @returns RefactorResponse
+     */
+    async suggestRefactor(request) {
+        try {
+            // Make the prompt and add ruleType if provided
+            const promptTemplate = this.createPromptTemplate(request.ruleType);
+            // prompt -> LLM -> parser
+            const chain = promptTemplate.pipe(this.llm).pipe(this.outputParser);
+            const response = await chain.invoke({
+                // dockerfileSnippet: request.dockerfileSnippet,
+                context: request.context || "No additional context provided",
+            });
+            try {
+                // // Remove markdown if present and parse JSON
+                // const cleanResponse = response.replace(/```json\n?|\n?```/g, "").trim();
+                // const parsed = JSON.parse(cleanResponse);
+                return {
+                    code: "AI generated response",
+                    suggestion: response,
+                    explanation: "AI generated response",
+                    confidence: 0.8,
+                };
+            }
+            catch (parseError) {
+                console.warn("Failed to parse JSON response, using raw text");
+                return {
+                    code: "Unstructured AI response",
+                    suggestion: response,
+                    explanation: "Unstructured AI response",
+                    confidence: 0.3,
+                };
+            }
+        }
+        catch (error) {
+            console.error("Error calling Gemini:", error);
+            throw new Error(`Refactoring suggestion failed: ${error instanceof Error ? error.message : String(error)}`);
+        }
+    }
+    normalizeConfidence(confidence) {
+        if (typeof confidence === "number" && confidence >= 0 && confidence <= 1) {
+            return confidence;
+        }
+        return 0.5; // Valor padrão
+    }
+    isHighConfidence(response) {
+        return (response.confidence >= 0.7 &&
+            response.suggestion !== "No improvements necessary" &&
+            response.suggestion.trim().length > 10 &&
+            !response.suggestion.toLowerCase().includes("no improvement"));
+    }
+    formatSuggestion(suggestion) {
+        return suggestion
+            .trim()
+            .replace(/```dockerfile\n?/g, "") // Remove markdown dockerfile
+            .replace(/```json\n?/g, "") // Remove markdown json
+            .replace(/```\n?/g, "") // Remove markdown genérico
+            .replace(/^\*\*|\*\*$/g, "") // Remove bold markdown
+            .trim();
+    }
+    async analyzeRule(dockerfileContent, ruleName, ruleDescription) {
+        return this.suggestRefactor({
+            dockerfileSnippet: dockerfileContent,
+            context: `Analyzing compliance with rule: ${ruleName} - ${ruleDescription}`,
+            ruleType: "best-practices",
+        });
+    }
+}
+exports.LangchainServiceTestLLM = LangchainServiceTestLLM;
 
 
 /***/ }),
