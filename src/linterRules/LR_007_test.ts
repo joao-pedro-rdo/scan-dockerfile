@@ -160,7 +160,7 @@ ${dockerfileContent}
   ): RefactorRequest {
     const context = `
     
-    PROBLEM: The following Dockerfile has COPY instructions where dependencies are not ordered correctly. Dependencies should be copied before source code to optimize caching and build efficiency. Here are the operations detected:\n\n
+   
     
       FULL DOCKERFILE CONTEXT:
       ${dockerfileContent}
