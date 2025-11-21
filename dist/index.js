@@ -56254,9 +56254,7 @@ ${dockerfileContent}
      */
     prepareRefactorRequest(searchResult, dockerfileContent, operations) {
         const context = `
-    
-   
-    
+      Analyze the dockerfile if necessary, correct them. 
       FULL DOCKERFILE CONTEXT:
       ${dockerfileContent}
 
