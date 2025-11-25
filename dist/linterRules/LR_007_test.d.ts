@@ -6,11 +6,12 @@ export declare class LR_007_test {
     private adapter;
     private reporter;
     private iaService;
+    promptRefactor: string;
     issueTitle: string;
     rule: string;
     heuristc: HeuristicDependenciesOrderImpl;
     constructor(adapter: IGitHubActionsAdapter, reporter: githubaActionsReporters, // Need to use general ClassReporter
-    iaService: LangchainServiceTestLLM, issueTitle?: string, rule?: string, heuristc?: HeuristicDependenciesOrderImpl);
+    iaService: LangchainServiceTestLLM, promptRefactor: string, issueTitle?: string, rule?: string, heuristc?: HeuristicDependenciesOrderImpl);
     execute(name_Dockerfile: string): Promise<any>;
     private formatIssueBody;
     /**

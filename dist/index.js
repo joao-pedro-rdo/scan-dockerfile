@@ -56005,6 +56005,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(37484));
 const githubActions_1 = __nccwpck_require__(16850);
 const githubaActionsReporters_1 = __nccwpck_require__(37231);
+const LR_007_dependencies_order_1 = __nccwpck_require__(29950);
 const LR_007_test_1 = __nccwpck_require__(70180);
 const langChainTesteLLM_1 = __nccwpck_require__(63597);
 // Initialize the GitHub Actions adapter with the provided token and workspace
@@ -56065,8 +56066,18 @@ async function run() {
         // const lr_006 = new LR_006_joinRun(adapter, reporter, langchainService);
         // await lr_006.execute(name_Dockerfile);
         const langchainServiceTestLLM = new langChainTesteLLM_1.LangchainServiceTestLLM(MODEL_NAME, 0.2, 1000, API_TOKEN);
-        const lr_007 = new LR_007_test_1.LR_007_test(adapter, reporter, langchainServiceTestLLM);
+        console.log("ℹ️ +++++ teste of LR_007_dependencies_order OFFICIAL ℹ️ ++++");
+        const lr_007 = new LR_007_dependencies_order_1.LR_007_dependencies_order(adapter, reporter, langchainService);
         await lr_007.execute(name_Dockerfile);
+        //! Define promptRefactor to pass to LR_007_test
+        console.log("ℹ️ +++++ teste of LR_007_test 1 with different prompt ℹ️ ++++");
+        const promptRefactor = `Analyze the dockerfile if necessary, correct them.`;
+        const lr_007_1 = new LR_007_test_1.LR_007_test(adapter, reporter, langchainServiceTestLLM, promptRefactor);
+        await lr_007_1.execute(name_Dockerfile);
+        console.log("ℹ️ +++++ teste of LR_007_test 2 with different prompt ℹ️ ++++");
+        const promptRefactor2 = `Correct the Dockerfile to ensure that all dependency installation commands (e.g., RUN apt-get install, RUN pip install) appear before any source code copying commands (e.g., COPY, ADD). This helps optimize layer caching and build efficiency.`;
+        const lr_007_2 = new LR_007_test_1.LR_007_test(adapter, reporter, langchainServiceTestLLM, promptRefactor2);
+        await lr_007_2.execute(name_Dockerfile);
         reporter.renderTable();
         core.summary.write();
     }
@@ -56096,7 +56107,7 @@ run();
 
 /***/ }),
 
-/***/ 70180:
+/***/ 29950:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -56135,12 +56146,12 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.LR_007_test = void 0;
+exports.LR_007_dependencies_order = void 0;
 const dockerfileAST_1 = __nccwpck_require__(54216);
 const fs_1 = __nccwpck_require__(79896);
 const utils = __importStar(__nccwpck_require__(71798));
 const heuristic_dependencies_order_1 = __nccwpck_require__(80933);
-class LR_007_test {
+class LR_007_dependencies_order {
     constructor(adapter, reporter, // Need to use general ClassReporter
     iaService, issueTitle = "Ensure dependencies are installed in the correct order", rule = "LR_007_dependencies_order", heuristc = new heuristic_dependencies_order_1.HeuristicDependenciesOrderImpl()
     // public listDependencies: JSON[],
@@ -56254,7 +56265,293 @@ ${dockerfileContent}
      */
     prepareRefactorRequest(searchResult, dockerfileContent, operations) {
         const context = `
-      Analyze the dockerfile if necessary, correct them. 
+    
+    PROBLEM: The following Dockerfile has COPY instructions where dependencies are not ordered correctly. Dependencies should be copied before source code to optimize caching and build efficiency. Here are the operations detected:\n\n${operations
+            .map((op) => `Line ${op.line}: ${op.keyword} ${op.source} ${op.destination} [Type: ${op.type}]`)
+            .join("\n")}\n\nPlease refactor the Dockerfile to ensure all dependencies are copied before any source code.
+      
+      AFECTED LINES:\n\n${searchResult
+            .map((res) => `Line ${res.line[0]}: ${res.keyword[0]} ${res.args.join(" ")}`)
+            .join("\n")}\n\n
+      
+      SUGGESTION: Switch the order of COPY instructions so that all dependencies are copied before source code.
+    
+    
+      FULL DOCKERFILE CONTEXT:
+      ${dockerfileContent}
+
+      `;
+        console.log(" 📧Context prepared for AI:", context);
+        return { context };
+    }
+    prepareRefactorRequest_test(searchResult, dockerfileContent, operations) {
+        const context = `
+    
+    PROBLEM: The following Dockerfile has COPY instructions where dependencies are not ordered correctly. Dependencies should be copied before source code to optimize caching and build efficiency. Here are the operations detected:\n\n${operations
+            .map((op) => `Line ${op.line}: ${op.keyword} ${op.source} ${op.destination} [Type: ${op.type}]`)
+            .join("\n")}\n\nPlease refactor the Dockerfile to ensure all dependencies are copied before any source code.
+      
+      AFECTED LINES:\n\n${searchResult
+            .map((res) => `Line ${res.line[0]}: ${res.keyword[0]} ${res.args.join(" ")}`)
+            .join("\n")}\n\n
+      
+      SUGGESTION: Switch the order of COPY instructions so that all dependencies are copied before source code.
+    
+    s
+      FULL DOCKERFILE CONTEXT:
+      ${dockerfileContent}
+
+      `;
+        console.log(" 📧Context prepared for AI:", context);
+        return { context };
+    }
+    async verify_order(obj) {
+        const dependencies = obj.filter((op) => op.type === "dependency");
+        const sources = obj.filter((op) => op.type === "source");
+        if (dependencies.length === 0 || sources.length === 0) {
+            return { hasViolation: false, violations: [] };
+        }
+        const violations = [];
+        // Para cada dependência
+        for (const dependency of dependencies) {
+            // Encontra todos os sources que vêm ANTES desta dependência
+            const sourcesBeforeIt = sources.filter((source) => source.line < dependency.line);
+            if (sourcesBeforeIt.length > 0) {
+                violations.push({
+                    dependency,
+                    sourcesBeforeIt,
+                });
+            }
+        }
+        return {
+            hasViolation: violations.length > 0,
+            violations,
+        };
+    }
+    async verify_type(obj) {
+        const operations = this.normalizeOperations(obj);
+        console.log("Normalized Operations:", operations);
+        const classified = operations.map((op) => ({
+            ...op,
+            type: this.classifyOperation(op),
+        }));
+        console.log("Classified Operations:", classified);
+        return classified;
+    }
+    async searchDockerfilePath(name_Dockerfile) {
+        const dockerfilePath = await utils.finder({
+            dir: this.adapter.workspace,
+            file: name_Dockerfile,
+            ignore: ["node_modules/**"],
+            onlyFiles: true,
+        });
+        return dockerfilePath;
+    }
+    /** Normalize operations to have one source per object, some COPY/ADD can have multiple sources
+     * @param obj Array of IResponseAstDockerfile
+     * @returns Array of normalized operations
+     * @example
+     */
+    normalizeOperations(obj) {
+        return obj.flatMap((item, itemIndex) => {
+            if (item.args.length < 2)
+                return [];
+            const destination = item.args[item.args.length - 1];
+            const sources = item.args.slice(0, -1);
+            return sources.map((source, sourceIndex) => ({
+                source,
+                destination,
+                line: item.line[0],
+                keyword: item.keyword[0],
+                itemIndex,
+                sourceIndex,
+                type: this.classifyOperation({
+                    source,
+                    destination,
+                    line: item.line[0],
+                    keyword: item.keyword[0],
+                }),
+            }));
+        });
+    }
+    // Classify operation as 'dependency' or 'source' or 'unknown'
+    classifyOperation(operation) {
+        for (let i = 0; i < this.heuristc.listDependecy.length; i++) {
+            if (operation.source === this.heuristc.listDependecy[i]) {
+                return "dependency";
+            }
+            if (operation.source === this.heuristc.listSorces[i]) {
+                return "source";
+            }
+        }
+        return "unknown";
+    }
+}
+exports.LR_007_dependencies_order = LR_007_dependencies_order;
+
+
+/***/ }),
+
+/***/ 70180:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LR_007_test = void 0;
+const dockerfileAST_1 = __nccwpck_require__(54216);
+const fs_1 = __nccwpck_require__(79896);
+const utils = __importStar(__nccwpck_require__(71798));
+const heuristic_dependencies_order_1 = __nccwpck_require__(80933);
+class LR_007_test {
+    constructor(adapter, reporter, // Need to use general ClassReporter
+    iaService, promptRefactor, issueTitle = "Ensure dependencies are installed in the correct order", rule = "LR_007_dependencies_order", heuristc = new heuristic_dependencies_order_1.HeuristicDependenciesOrderImpl()
+    // public listDependencies: JSON[],
+    // public listSource: JSON[]
+    ) {
+        this.adapter = adapter;
+        this.reporter = reporter;
+        this.iaService = iaService;
+        this.promptRefactor = promptRefactor;
+        this.issueTitle = issueTitle;
+        this.rule = rule;
+        this.heuristc = heuristc;
+    }
+    async execute(name_Dockerfile) {
+        try {
+            const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
+            const dockerfileContent = await fs_1.promises.readFile(dockerfilePath[0], "utf8");
+            const dockerfile = new dockerfileAST_1.AdapterDockerfileAST(dockerfileContent);
+            // ask the AST to search for COPY
+            const searchResult = await dockerfile.searchConsecutiveKeyword({
+                keyword: "COPY",
+                args: [],
+            });
+            console.log("SEARCH RESULT COPY", searchResult);
+            const operations = await this.verify_type(searchResult);
+            const hasViolation = await this.verify_order(operations);
+            if (hasViolation) {
+                console.log("❌ Violation detected! Dependencies should come before source code.");
+                const refactorRequest = this.prepareRefactorRequest(searchResult, dockerfileContent, operations);
+                const aiSuggestion = await this.iaService.suggestRefactor(refactorRequest);
+                console.log("++++++ RETURN IA: ", aiSuggestion.code);
+                console.log("++++++ RETURN IA SUGGESTION: ", aiSuggestion.suggestion);
+                console.log("++++++ RETURN IA EXPLANATION: ", aiSuggestion.explanation);
+                console.log("++++++ RETURN IA CONFIDENCE: ", aiSuggestion.confidence);
+                const issueBody = this.formatIssueBody(searchResult, aiSuggestion, dockerfileContent);
+                const issue = await this.reporter.newIssueIfNotExists({
+                    title: this.issueTitle,
+                    body: issueBody,
+                    labels: ["dockerfile", "LR_007_dependencies_order", "ai-suggestion"],
+                });
+                if (issue != null) {
+                    this.reporter.infoWarning(`Issue created: ${issue.html_url}`);
+                    this.reporter.addTableRow({
+                        rule: this.rule,
+                        status: "⚠️",
+                        details: `${searchResult.length} COPY instructions out of order`,
+                        link: issue.html_url,
+                    });
+                }
+                console.log("Issue created or already exists:", issue.html_url);
+                // // Reporta a issue
+                // await this.reporter.newIssueIfNotExists({
+                //   title: this.issueTitle,
+                //   body: this.formatIssueBody(operations),
+                //   labels: ["dockerfile", "optimization"],
+                // });
+            }
+            else {
+                console.log("✅ No violations found! Dependencies are correctly ordered.");
+                this.reporter.infoSuccess(`Great! No violations found! Dependencies are correctly ordered. ${dockerfilePath[0]}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "✔️",
+                    details: this.issueTitle,
+                    link: "",
+                });
+            }
+        }
+        catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error(`❌ Error executing ${this.rule}:`, errorMsg);
+            throw new Error(`Failed to execute ${this.rule}: ${errorMsg}`);
+        }
+    }
+    formatIssueBody(searchResult, aiSuggestion, dockerfileContent) {
+        const affectedLines = searchResult
+            .map((res) => `Line ${res.line[0]}: ${res.keyword[0]} ${res.args.join(" ")}`)
+            .join("\n");
+        return `
+### Issue: Dependencies Order Violation in Dockerfile
+
+**Description:**
+The Dockerfile contains COPY instructions where dependencies are not ordered correctly. Dependencies should be copied before source code to optimize caching and build efficiency.
+
+**Affected Lines:**
+\`\`\`
+${affectedLines}
+\`\`\`
+
+**AI Suggestion:**
+\`\`\`dockerfile
+${aiSuggestion.code}
+\`\`\`
+
+**Explanation:**
+${aiSuggestion.explanation}
+
+**Confidence Level:** ${aiSuggestion.confidence}%
+    
+**Full Dockerfile Context:**
+\`\`\`dockerfile
+${dockerfileContent}
+\`\`\`
+    `;
+    }
+    /**
+     *  Prepare the context and promptrefactor request for the IA
+     * @param searchResult
+     * @param dockerfileContent
+     * @param operations
+     * @returns RefactorRequest {context: string}
+     */
+    prepareRefactorRequest(searchResult, dockerfileContent, operations) {
+        const context = `
+      ${this.promptRefactor}
       FULL DOCKERFILE CONTEXT:
       ${dockerfileContent}
 
