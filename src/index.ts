@@ -98,7 +98,7 @@ async function run() {
     await lr_007_1.execute(name_Dockerfile);
 
     console.log("ℹ️ +++++ teste of LR_007_test 2 with different prompt ℹ️ ++++");
-    const promptRefactor2 = `Correct the Dockerfile to ensure that all dependency installation commands (e.g., RUN apt-get install, RUN pip install) appear before any source code copying commands (e.g., COPY, ADD). This helps optimize layer caching and build efficiency.`;
+    const promptRefactor2 = `Correct the Dockerfile to ensure that all dependency installation commands  (Ex: RUN npm install, RUN pip install) appear before any source code copying commands (e.g., COPY, ADD). This helps optimize layer caching and build efficiency.`;
     const lr_007_2 = new LR_007_test(adapter, reporter, langchainServiceTestLLM, promptRefactor2);
     await lr_007_2.execute(name_Dockerfile);
 

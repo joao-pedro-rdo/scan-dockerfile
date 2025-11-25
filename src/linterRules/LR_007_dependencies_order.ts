@@ -200,7 +200,8 @@ ${dockerfileContent}
         .map((res) => `Line ${res.line[0]}: ${res.keyword[0]} ${res.args.join(" ")}`)
         .join("\n")}\n\n
       
-      SUGGESTION: Switch the order of COPY instructions so that all dependencies are copied before source code.
+      SUGGESTION: Switch the order of COPY instructions so that all dependencies are copied before source code, and line of
+      install dependency come before line of copy source for improve image layers .
     
     s
       FULL DOCKERFILE CONTEXT:
