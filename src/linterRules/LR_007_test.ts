@@ -25,6 +25,7 @@ export class LR_007_test {
     private adapter: IGitHubActionsAdapter,
     private reporter: githubaActionsReporters, // Need to use general ClassReporter
     private iaService: LangchainServiceTestLLM,
+    public promptRefactor: string,
     public issueTitle: string = "Ensure dependencies are installed in the correct order",
     public rule: string = "LR_007_dependencies_order",
     public heuristc = new HeuristicDependenciesOrderImpl()
@@ -159,7 +160,7 @@ ${dockerfileContent}
     operations: Operation[]
   ): RefactorRequest {
     const context = `
-      Analyze the dockerfile if necessary, correct them. 
+      ${this.promptRefactor}
       FULL DOCKERFILE CONTEXT:
       ${dockerfileContent}
 

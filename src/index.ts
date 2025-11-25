@@ -85,11 +85,23 @@ async function run() {
     // const { LR_006_joinRun } = await import("./linterRules/LR_006_joinRun");
     // const lr_006 = new LR_006_joinRun(adapter, reporter, langchainService);
     // await lr_006.execute(name_Dockerfile);
-
     const langchainServiceTestLLM = new LangchainServiceTestLLM(MODEL_NAME, 0.2, 1000, API_TOKEN);
 
-    const lr_007 = new LR_007_test(adapter, reporter, langchainServiceTestLLM);
+    console.log("ℹ️ +++++ teste of LR_007_dependencies_order OFFICIAL ℹ️ ++++");
+    const lr_007 = new LR_007_dependencies_order(adapter, reporter, langchainService);
     await lr_007.execute(name_Dockerfile);
+
+    //! Define promptRefactor to pass to LR_007_test
+    console.log("ℹ️ +++++ teste of LR_007_test 1 with different prompt ℹ️ ++++");
+    const promptRefactor = `Analyze the dockerfile if necessary, correct them.`;
+    const lr_007_1 = new LR_007_test(adapter, reporter, langchainServiceTestLLM, promptRefactor);
+    await lr_007_1.execute(name_Dockerfile);
+
+    console.log("ℹ️ +++++ teste of LR_007_test 2 with different prompt ℹ️ ++++");
+    const promptRefactor2 = `Correct the Dockerfile to ensure that all dependency installation commands (e.g., RUN apt-get install, RUN pip install) appear before any source code copying commands (e.g., COPY, ADD). This helps optimize layer caching and build efficiency.`;
+    const lr_007_2 = new LR_007_test(adapter, reporter, langchainServiceTestLLM, promptRefactor2);
+    await lr_007_2.execute(name_Dockerfile);
+
     reporter.renderTable();
     core.summary.write();
   } catch (error) {
