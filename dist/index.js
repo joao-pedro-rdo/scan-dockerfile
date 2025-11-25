@@ -55828,6 +55828,13 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GitHubActionsAdapter = void 0;
 const github = __importStar(__nccwpck_require__(93228));
 class GitHubActionsAdapter {
+    // TODO: Verify if need to private
+    token; //? I Think this should be private but Interface does not allow
+    workspace;
+    owner;
+    repo;
+    octokit;
+    context;
     constructor(token, workspace) {
         this.token = token;
         this.workspace = workspace;
@@ -55920,43 +55927,43 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.HeuristicDependenciesOrderImpl = void 0;
 class HeuristicDependenciesOrderImpl {
     constructor() {
-        this.listDependecy = [
-            "package.json",
-            "package*.json",
-            "package-lock.json",
-            "yarn.lock",
-            "pnpm-lock.yaml",
-            "requirements.txt",
-            "requirements/*.txt",
-            "Pipfile",
-            "Pipfile.lock",
-            "go.mod",
-            "go.sum",
-            "Cargo.toml",
-            "Cargo.lock",
-            "pom.xml",
-            "build.gradle",
-            "composer.json",
-        ];
-        this.listSorces = [
-            ".",
-            "./",
-            "./*",
-            "src",
-            "src/",
-            "src/*",
-            "app",
-            "app/",
-            "app/*",
-            "*.py",
-            "*.js",
-            "*.ts",
-            "*.java",
-            "*.go",
-        ];
         // this.listDependecy = listRequirement;
         // this.listSorces = listSorces;
     }
+    listDependecy = [
+        "package.json",
+        "package*.json",
+        "package-lock.json",
+        "yarn.lock",
+        "pnpm-lock.yaml",
+        "requirements.txt",
+        "requirements/*.txt",
+        "Pipfile",
+        "Pipfile.lock",
+        "go.mod",
+        "go.sum",
+        "Cargo.toml",
+        "Cargo.lock",
+        "pom.xml",
+        "build.gradle",
+        "composer.json",
+    ];
+    listSorces = [
+        ".",
+        "./",
+        "./*",
+        "src",
+        "src/",
+        "src/*",
+        "app",
+        "app/",
+        "app/*",
+        "*.py",
+        "*.js",
+        "*.ts",
+        "*.java",
+        "*.go",
+    ];
 }
 exports.HeuristicDependenciesOrderImpl = HeuristicDependenciesOrderImpl;
 
@@ -56006,6 +56013,7 @@ const core = __importStar(__nccwpck_require__(37484));
 const githubActions_1 = __nccwpck_require__(16850);
 const githubaActionsReporters_1 = __nccwpck_require__(37231);
 const LR_007_dependencies_order_1 = __nccwpck_require__(29950);
+const langChain_1 = __nccwpck_require__(72903);
 const LR_007_test_1 = __nccwpck_require__(70180);
 const langChainTesteLLM_1 = __nccwpck_require__(63597);
 // Initialize the GitHub Actions adapter with the provided token and workspace
@@ -56043,14 +56051,13 @@ async function run() {
         // const lr_005 = new LR_005_avoidPipUpgrade(adapter, reporter);
         // await lr_005.execute(name_Dockerfile);
         // console.log("Test LangChain refactor");
-        const { LangchainService } = await Promise.all(/* import() */[__nccwpck_require__.e(728), __nccwpck_require__.e(903)]).then(__nccwpck_require__.bind(__nccwpck_require__, 72903));
         const API_TOKEN = core.getInput("API_TOKEN");
         if (!API_TOKEN) {
             console.log("API_TOKEN not provided");
             throw new Error("API_TOKEN is required for AI functionality");
         }
         const MODEL_NAME = core.getInput("MODEL_NAME") || "gemini-1.5-flash";
-        const langchainService = new LangchainService(MODEL_NAME, 0.2, 1000, API_TOKEN);
+        const langchainService = new langChain_1.LangchainService(MODEL_NAME, 0.2, 1000, API_TOKEN);
         // const testLLM = langchainService.suggestRefactor({
         //   dockerfileSnippet: "RUN chmod 777 /app/script.sh",
         //   context: "This is a mistake, use 777 permissions on linux, correct it",
@@ -56152,6 +56159,12 @@ const fs_1 = __nccwpck_require__(79896);
 const utils = __importStar(__nccwpck_require__(71798));
 const heuristic_dependencies_order_1 = __nccwpck_require__(80933);
 class LR_007_dependencies_order {
+    adapter;
+    reporter;
+    iaService;
+    issueTitle;
+    rule;
+    heuristc;
     constructor(adapter, reporter, // Need to use general ClassReporter
     iaService, issueTitle = "Ensure dependencies are installed in the correct order", rule = "LR_007_dependencies_order", heuristc = new heuristic_dependencies_order_1.HeuristicDependenciesOrderImpl()
     // public listDependencies: JSON[],
@@ -56437,6 +56450,13 @@ const fs_1 = __nccwpck_require__(79896);
 const utils = __importStar(__nccwpck_require__(71798));
 const heuristic_dependencies_order_1 = __nccwpck_require__(80933);
 class LR_007_test {
+    adapter;
+    reporter;
+    iaService;
+    promptRefactor;
+    issueTitle;
+    rule;
+    heuristc;
     constructor(adapter, reporter, // Need to use general ClassReporter
     iaService, promptRefactor, issueTitle = "Ensure dependencies are installed in the correct order", rule = "LR_007_dependencies_order", heuristc = new heuristic_dependencies_order_1.HeuristicDependenciesOrderImpl()
     // public listDependencies: JSON[],
@@ -56661,6 +56681,7 @@ const dockerfile_ast_1 = __nccwpck_require__(78390);
  * It provides methods to parse and analyze Dockerfile content.
  */
 class AdapterDockerfileAST {
+    content;
     constructor(content) {
         this.content = content;
         this.content = dockerfile_ast_1.DockerfileParser.parse(content);
@@ -56892,6 +56913,154 @@ exports.AdapterDockerfileAST = AdapterDockerfileAST;
 
 /***/ }),
 
+/***/ 72903:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LangchainService = void 0;
+const prompts_1 = __nccwpck_require__(3061);
+const output_parsers_1 = __nccwpck_require__(70512);
+const groq_1 = __nccwpck_require__(74507);
+/**
+ * LangchainService integrates with Google Gemini via LangChain to provide AI-driven suggestions for Dockerfile refactoring.
+ * It uses prompt templates and output parsers to structure interactions with the LLM.
+ */
+class LangchainService {
+    llm;
+    outputParser;
+    constructor(model, temperature, maxTokens, apiKey) {
+        this.llm = new groq_1.ChatGroq({
+            model: model || "gemini-1.5-flash",
+            temperature: temperature || 0.1,
+            apiKey: apiKey || process.env.GOOGLE_API_KEY,
+        });
+        // Setting of output parser
+        this.outputParser = new output_parsers_1.StringOutputParser();
+    }
+    // Make the prompt template dynamic based on ruleType
+    createPromptTemplate(ruleType) {
+        let systemMessage = `You are a Docker and DevOps expert. Analyze the provided Dockerfile snippet and suggest a refactoring following best practices.
+
+    RULES:
+    - Respond in English
+    - Be specific and practical
+    - Briefly explain the reason for the change
+    - If no improvements are needed, say "No improvements necessary"
+    - Format the response as JSON with these fields: code (string), suggestion  (string), explanation (string), confidence (number between 0 and 1)
+
+     EXAMPLE INPUT:
+  {{
+    "dockerfileSnippet": "RUN chmod 777 /app/script.sh",
+    "context": "This is a mistake, use 777 permissions on linux, correct it"
+  }}
+
+  EXAMPLE RESPONSE:
+  {{
+    "code": "RUN chmod +x /app/script.sh",
+    "suggestion": "Replace 'chmod 777' with 'chmod +x' to enhance security.",
+    "explanation": "Using 777 permissions can expose the application to security risks by allowing write access to all users.",
+    "confidence": 0.9
+  }}`;
+        // // REMOVE FOR TEST
+        // if (ruleType === "security") {
+        //   systemMessage += `\n- Security: non-root users, secure base images, secrets management`;
+        // } else if (ruleType === "performance") {
+        //   systemMessage += `\n- Performance: cache optimization, layer reduction, multi-stage builds`;
+        // } else if (ruleType === "best-practices") {
+        //   systemMessage += `\n- Best practices: WORKDIR, proper COPY usage, package management`;
+        // } else {
+        //   systemMessage += `\n- General: security, performance, and best practices`;
+        // }
+        // if (suggestion) {
+        //   systemMessage += `\n\nSPECIFIC SUGGESTION TO VALIDATE: ${suggestion}`;
+        // }
+        return prompts_1.PromptTemplate.fromTemplate(`${systemMessage}
+
+    DOCKERFILE SNIPPET:
+    {dockerfileSnippet}
+
+    ADDITIONAL CONTEXT:
+    {context}
+
+    ANALYSIS:`);
+    }
+    /**
+     *
+     * @param request: RefactorRequest
+     * @returns RefactorResponse
+     */
+    async suggestRefactor(request) {
+        try {
+            // Make the prompt and add ruleType if provided
+            const promptTemplate = this.createPromptTemplate(request.ruleType);
+            // prompt -> LLM -> parser
+            const chain = promptTemplate.pipe(this.llm).pipe(this.outputParser);
+            const response = await chain.invoke({
+                dockerfileSnippet: request.dockerfileSnippet,
+                context: request.context || "No additional context provided",
+            });
+            try {
+                // Remove markdown if present and parse JSON
+                const cleanResponse = response.replace(/```json\n?|\n?```/g, "").trim();
+                const parsed = JSON.parse(cleanResponse);
+                return {
+                    code: parsed.code,
+                    suggestion: parsed.suggestion,
+                    explanation: parsed.explanation || "No explanation provided",
+                    confidence: this.normalizeConfidence(parsed.confidence),
+                };
+            }
+            catch (parseError) {
+                console.warn("Failed to parse JSON response, using raw text");
+                return {
+                    code: "Unstructured AI response",
+                    suggestion: response,
+                    explanation: "Unstructured AI response",
+                    confidence: 0.3,
+                };
+            }
+        }
+        catch (error) {
+            console.error("Error calling Gemini:", error);
+            throw new Error(`Refactoring suggestion failed: ${error instanceof Error ? error.message : String(error)}`);
+        }
+    }
+    normalizeConfidence(confidence) {
+        if (typeof confidence === "number" && confidence >= 0 && confidence <= 1) {
+            return confidence;
+        }
+        return 0.5; // Valor padrão
+    }
+    isHighConfidence(response) {
+        return (response.confidence >= 0.7 &&
+            response.suggestion !== "No improvements necessary" &&
+            response.suggestion.trim().length > 10 &&
+            !response.suggestion.toLowerCase().includes("no improvement"));
+    }
+    formatSuggestion(suggestion) {
+        return suggestion
+            .trim()
+            .replace(/```dockerfile\n?/g, "") // Remove markdown dockerfile
+            .replace(/```json\n?/g, "") // Remove markdown json
+            .replace(/```\n?/g, "") // Remove markdown genérico
+            .replace(/^\*\*|\*\*$/g, "") // Remove bold markdown
+            .trim();
+    }
+    async analyzeRule(dockerfileContent, ruleName, ruleDescription) {
+        return this.suggestRefactor({
+            dockerfileSnippet: dockerfileContent,
+            context: `Analyzing compliance with rule: ${ruleName} - ${ruleDescription}`,
+            ruleType: "best-practices",
+        });
+    }
+}
+exports.LangchainService = LangchainService;
+
+
+/***/ }),
+
 /***/ 63597:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -56907,6 +57076,8 @@ const groq_1 = __nccwpck_require__(74507);
  * It uses prompt templates and output parsers to structure interactions with the LLM.
  */
 class LangchainServiceTestLLM {
+    llm;
+    outputParser;
     constructor(model, temperature, maxTokens, apiKey) {
         this.llm = new groq_1.ChatGroq({
             model: model || "gemini-1.5-flash",
@@ -57012,8 +57183,10 @@ const core = __nccwpck_require__(37484);
  * Class for reporting GitHub Actions events.
  */
 class githubaActionsReporters {
+    //  TODO Analise how to implement reporting generic
+    IGitHubActionsAdapter;
+    tableRows = [];
     constructor(adapter) {
-        this.tableRows = [];
         this.IGitHubActionsAdapter = adapter;
     }
     addDebug(msg) {
@@ -107999,37 +108172,7 @@ module.exports = /*#__PURE__*/JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__nccwpck_require__.m = __webpack_modules__;
-/******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/ensure chunk */
-/******/ 	(() => {
-/******/ 		__nccwpck_require__.f = {};
-/******/ 		// This file contains only the entry chunk.
-/******/ 		// The chunk loading function for additional chunks
-/******/ 		__nccwpck_require__.e = (chunkId) => {
-/******/ 			return Promise.all(Object.keys(__nccwpck_require__.f).reduce((promises, key) => {
-/******/ 				__nccwpck_require__.f[key](chunkId, promises);
-/******/ 				return promises;
-/******/ 			}, []));
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/get javascript chunk filename */
-/******/ 	(() => {
-/******/ 		// This function allow to reference async chunks
-/******/ 		__nccwpck_require__.u = (chunkId) => {
-/******/ 			// return url for filenames based on template
-/******/ 			return "" + chunkId + ".index.js";
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/node module decorator */
 /******/ 	(() => {
 /******/ 		__nccwpck_require__.nmd = (module) => {
@@ -108042,48 +108185,6 @@ module.exports = /*#__PURE__*/JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
-/******/ 	
-/******/ 	/* webpack/runtime/require chunk loading */
-/******/ 	(() => {
-/******/ 		// no baseURI
-/******/ 		
-/******/ 		// object to store loaded chunks
-/******/ 		// "1" means "loaded", otherwise not loaded yet
-/******/ 		var installedChunks = {
-/******/ 			792: 1
-/******/ 		};
-/******/ 		
-/******/ 		// no on chunks loaded
-/******/ 		
-/******/ 		var installChunk = (chunk) => {
-/******/ 			var moreModules = chunk.modules, chunkIds = chunk.ids, runtime = chunk.runtime;
-/******/ 			for(var moduleId in moreModules) {
-/******/ 				if(__nccwpck_require__.o(moreModules, moduleId)) {
-/******/ 					__nccwpck_require__.m[moduleId] = moreModules[moduleId];
-/******/ 				}
-/******/ 			}
-/******/ 			if(runtime) runtime(__nccwpck_require__);
-/******/ 			for(var i = 0; i < chunkIds.length; i++)
-/******/ 				installedChunks[chunkIds[i]] = 1;
-/******/ 		
-/******/ 		};
-/******/ 		
-/******/ 		// require() chunk loading for javascript
-/******/ 		__nccwpck_require__.f.require = (chunkId, promises) => {
-/******/ 			// "1" is the signal for "already loaded"
-/******/ 			if(!installedChunks[chunkId]) {
-/******/ 				if(true) { // all chunks have JS
-/******/ 					installChunk(require("./" + __nccwpck_require__.u(chunkId)));
-/******/ 				} else installedChunks[chunkId] = 1;
-/******/ 			}
-/******/ 		};
-/******/ 		
-/******/ 		// no external install chunk
-/******/ 		
-/******/ 		// no HMR
-/******/ 		
-/******/ 		// no HMR manifest
-/******/ 	})();
 /******/ 	
 /************************************************************************/
 /******/ 	
