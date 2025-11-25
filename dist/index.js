@@ -56082,7 +56082,7 @@ async function run() {
         const lr_007_1 = new LR_007_test_1.LR_007_test(adapter, reporter, langchainServiceTestLLM, promptRefactor);
         await lr_007_1.execute(name_Dockerfile);
         console.log("ℹ️ +++++ teste of LR_007_test 2 with different prompt ℹ️ ++++");
-        const promptRefactor2 = `Correct the Dockerfile to ensure that all dependency installation commands (e.g., RUN apt-get install, RUN pip install) appear before any source code copying commands (e.g., COPY, ADD). This helps optimize layer caching and build efficiency.`;
+        const promptRefactor2 = `Correct the Dockerfile to ensure that all dependency installation commands  (Ex: RUN npm install, RUN pip install) appear before any source code copying commands (e.g., COPY, ADD). This helps optimize layer caching and build efficiency.`;
         const lr_007_2 = new LR_007_test_1.LR_007_test(adapter, reporter, langchainServiceTestLLM, promptRefactor2);
         await lr_007_2.execute(name_Dockerfile);
         reporter.renderTable();
@@ -56308,7 +56308,8 @@ ${dockerfileContent}
             .map((res) => `Line ${res.line[0]}: ${res.keyword[0]} ${res.args.join(" ")}`)
             .join("\n")}\n\n
       
-      SUGGESTION: Switch the order of COPY instructions so that all dependencies are copied before source code.
+      SUGGESTION: Switch the order of COPY instructions so that all dependencies are copied before source code, and line of
+      install dependency come before line of copy source for improve image layers .
     
     s
       FULL DOCKERFILE CONTEXT:
@@ -56941,28 +56942,29 @@ class LangchainService {
     }
     // Make the prompt template dynamic based on ruleType
     createPromptTemplate(ruleType) {
-        let systemMessage = `You are a Docker and DevOps expert. Analyze the provided Dockerfile snippet and suggest a refactoring following best practices.
+        let systemMessage = `You are a Docker and DevOps expert. Analyze the provided Dockerfile snippet and suggest refactoring following best practices.
 
     RULES:
     - Respond in English
     - Be specific and practical
     - Briefly explain the reason for the change
-    - If no improvements are needed, say "No improvements necessary"
-    - Format the response as JSON with these fields: code (string), suggestion  (string), explanation (string), confidence (number between 0 and 1)
+    - Make the change based on ADDITIONAL CONTEXT if provided
+    - If no improvements are needed, say "No improvements necessary"  
+    - Format the response as JSON with these fields: code (string), suggestion (string), explanation (string), confidence (number between 0 and 1)
 
      EXAMPLE INPUT:
-  {{
+    {{
     "dockerfileSnippet": "RUN chmod 777 /app/script.sh",
-    "context": "This is a mistake, use 777 permissions on linux, correct it"
-  }}
+    "context": "This is a security issue - avoid using 777 permissions on Linux. Please correct it."
+    }}
 
-  EXAMPLE RESPONSE:
-  {{
+    EXAMPLE RESPONSE:
+    {{
     "code": "RUN chmod +x /app/script.sh",
     "suggestion": "Replace 'chmod 777' with 'chmod +x' to enhance security.",
     "explanation": "Using 777 permissions can expose the application to security risks by allowing write access to all users.",
     "confidence": 0.9
-  }}`;
+    }}`;
         // // REMOVE FOR TEST
         // if (ruleType === "security") {
         //   systemMessage += `\n- Security: non-root users, secure base images, secrets management`;
