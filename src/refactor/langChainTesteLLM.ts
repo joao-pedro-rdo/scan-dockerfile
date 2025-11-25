@@ -3,7 +3,6 @@ import { PromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { connected } from "process";
 import { RefactorRequest, RefactorResponse } from "../contracts/iaServiceInterface.js";
-import { LangchainService } from "./langChain";
 import { ChatGroq } from "@langchain/groq";
 interface testModel {
   repose: string;

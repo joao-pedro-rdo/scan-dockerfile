@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
-    // Module Resolution
-    "module": "node16",
+    // import https://www.npmjs.com/package/@tsconfig/node22
+    "lib": ["es2024", "ESNext.Array", "ESNext.Collection", "ESNext.Iterator"],
+    "module": "nodenext",
+    "target": "es2022",
     "moduleResolution": "node16",
-    "target": "es2020",
-    "lib": ["es2020"],
-
     // File Layout
     "rootDir": "./src",
     "outDir": "./dist",
@@ -26,7 +25,11 @@
 
     // Node.js Types
     "types": ["node"],
-    "typeRoots": ["./node_modules/@types"]
+    "typeRoots": ["./node_modules/@types"],
+
+    // ADICIONE ESTAS CONFIGURAÇÕES
+    "allowJs": true,
+    "resolveJsonModule": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]

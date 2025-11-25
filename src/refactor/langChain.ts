@@ -3,26 +3,25 @@ import { PromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { connected } from "process";
 import { RefactorRequest, RefactorResponse } from "../contracts/iaServiceInterface.js";
+import { ChatGroq } from "@langchain/groq";
 
 /**
  * LangchainService integrates with Google Gemini via LangChain to provide AI-driven suggestions for Dockerfile refactoring.
  * It uses prompt templates and output parsers to structure interactions with the LLM.
  */
 export class LangchainService {
-  private llm: ChatGoogleGenerativeAI;
+  private llm: ChatGroq;
   private outputParser: StringOutputParser;
 
   constructor(model?: string, temperature?: number, maxTokens?: number, apiKey?: string) {
-    this.llm = new ChatGoogleGenerativeAI({
+    this.llm = new ChatGroq({
       model: model || "gemini-1.5-flash",
       temperature: temperature || 0.1,
-      maxOutputTokens: maxTokens || 500,
       apiKey: apiKey || process.env.GOOGLE_API_KEY,
     });
     // Setting of output parser
     this.outputParser = new StringOutputParser();
   }
-
   // Make the prompt template dynamic based on ruleType
   private createPromptTemplate(ruleType?: string): PromptTemplate {
     let systemMessage = `You are a Docker and DevOps expert. Analyze the provided Dockerfile snippet and suggest a refactoring following best practices.

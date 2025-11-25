@@ -5,6 +5,7 @@ import { githubaActionsReporters } from "./reporters/githubaActionsReporters";
 import { LR_001_dockerignore } from "./linterRules/LR_001_dockerignore";
 import { LR_002_setWorkdir } from "./linterRules/LR_002_setWorkdir";
 import { LR_007_dependencies_order } from "./linterRules/LR_007_dependencies_order";
+import { LangchainService } from "./refactor/langChain";
 
 import { LR_007_test } from "./linterRules/LR_007_test";
 import { LangchainServiceTestLLM } from "./refactor/langChainTesteLLM";
@@ -59,7 +60,6 @@ async function run() {
 
     // console.log("Test LangChain refactor");
 
-    const { LangchainService } = await import("./refactor/langChain");
     const API_TOKEN = core.getInput("API_TOKEN");
     if (!API_TOKEN) {
       console.log("API_TOKEN not provided");
