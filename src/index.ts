@@ -6,6 +6,10 @@ import { LR_001_dockerignore } from "./linterRules/LR_001_dockerignore";
 import { LR_002_setWorkdir } from "./linterRules/LR_002_setWorkdir";
 import { LR_007_dependencies_order } from "./linterRules/LR_007_dependencies_order";
 import { LangchainService } from "./refactor/langChain";
+import { LR_003_declarePortUsage } from "./linterRules/LR_003_declarePortUsage";
+import { LR_004_user } from "./linterRules/LR_004_user";
+import { LR_005_avoidPipUpgrade } from "./linterRules/LR_005_avoidPipUpgrade";
+import { LR_006_joinRun } from "./linterRules/LR_006_joinRun";
 
 import { LR_007_test } from "./linterRules/LR_007_test";
 import { LangchainServiceTestLLM } from "./refactor/langChainTesteLLM";
@@ -35,30 +39,28 @@ async function run() {
 
     console.log("Starting the scan-dockerfile action...");
 
-    // console.log("teste of new issue");
-    // const lr_001 = new LR_001_dockerignore(adapter, reporter);
-    // await lr_001.execute();
+    console.log("teste of new issue");
+    const lr_001 = new LR_001_dockerignore(adapter, reporter);
+    await lr_001.execute();
 
-    // console.log("teste of LR_002");
-    // const lr_002 = new LR_002_setWorkdir(adapter, reporter);
-    // await lr_002.execute(name_Dockerfile);
+    console.log("teste of LR_002");
+    const lr_002 = new LR_002_setWorkdir(adapter, reporter);
+    await lr_002.execute(name_Dockerfile);
 
-    // console.log("teste of LR_003");
-    // const { LR_003_declarePortUsage } = await import("./linterRules/LR_003_declarePortUsage");
-    // const lr_003 = new LR_003_declarePortUsage(adapter, reporter);
-    // await lr_003.execute(name_Dockerfile);
+    console.log("teste of LR_003");
 
-    // console.log("teste of LR_004");
-    // const { LR_004_user } = await import("./linterRules/LR_004_user"); // Should use file extension .ts
-    // const lr_004 = new LR_004_user(adapter, reporter);
-    // await lr_004.execute(name_Dockerfile);
+    const lr_003 = new LR_003_declarePortUsage(adapter, reporter);
+    await lr_003.execute(name_Dockerfile);
 
-    // console.log("teste of LR_005");
-    // const { LR_005_avoidPipUpgrade } = await import("./linterRules/LR_005_avoidPipUpgrade");
-    // const lr_005 = new LR_005_avoidPipUpgrade(adapter, reporter);
-    // await lr_005.execute(name_Dockerfile);
+    console.log("teste of LR_004");
+    const lr_004 = new LR_004_user(adapter, reporter);
+    await lr_004.execute(name_Dockerfile);
 
-    // console.log("Test LangChain refactor");
+    console.log("teste of LR_005");
+    const lr_005 = new LR_005_avoidPipUpgrade(adapter, reporter);
+    await lr_005.execute(name_Dockerfile);
+
+    console.log("Test LangChain refactor");
 
     const API_TOKEN = core.getInput("API_TOKEN");
     if (!API_TOKEN) {
@@ -81,10 +83,9 @@ async function run() {
     // // console.log("REFACTOR SUGGESTION FORMATTED:");
     // // console.log(langchainService.formatSuggestion((await testLLM).suggestion));
 
-    // console.log("+++++ teste of LR_006");
-    // const { LR_006_joinRun } = await import("./linterRules/LR_006_joinRun");
-    // const lr_006 = new LR_006_joinRun(adapter, reporter, langchainService);
-    // await lr_006.execute(name_Dockerfile);
+    console.log("+++++ teste of LR_006");
+    const lr_006 = new LR_006_joinRun(adapter, reporter, langchainService);
+    await lr_006.execute(name_Dockerfile);
     const langchainServiceTestLLM = new LangchainServiceTestLLM(MODEL_NAME, 0.2, 1000, API_TOKEN);
 
     console.log("ℹ️ +++++ teste of LR_007_dependencies_order OFFICIAL ℹ️ ++++");
@@ -92,15 +93,15 @@ async function run() {
     await lr_007.execute(name_Dockerfile);
 
     //! Define promptRefactor to pass to LR_007_test
-    console.log("ℹ️ +++++ teste of LR_007_test 1 with different prompt ℹ️ ++++");
-    const promptRefactor = `Analyze the dockerfile if necessary, correct them.`;
-    const lr_007_1 = new LR_007_test(adapter, reporter, langchainServiceTestLLM, promptRefactor);
-    await lr_007_1.execute(name_Dockerfile);
+    // console.log("ℹ️ +++++ teste of LR_007_test 1 with different prompt ℹ️ ++++");
+    // const promptRefactor = `Analyze the dockerfile if necessary, correct them.`;
+    // const lr_007_1 = new LR_007_test(adapter, reporter, langchainServiceTestLLM, promptRefactor);
+    // await lr_007_1.execute(name_Dockerfile);
 
-    console.log("ℹ️ +++++ teste of LR_007_test 2 with different prompt ℹ️ ++++");
-    const promptRefactor2 = `Correct the Dockerfile to ensure that all dependency installation commands  (Ex: RUN npm install, RUN pip install) appear before any source code copying commands (e.g., COPY, ADD). This helps optimize layer caching and build efficiency.`;
-    const lr_007_2 = new LR_007_test(adapter, reporter, langchainServiceTestLLM, promptRefactor2);
-    await lr_007_2.execute(name_Dockerfile);
+    // console.log("ℹ️ +++++ teste of LR_007_test 2 with different prompt ℹ️ ++++");
+    // const promptRefactor2 = `Correct the Dockerfile to ensure that all dependency installation commands  (Ex: RUN npm install, RUN pip install) appear before any source code copying commands (e.g., COPY, ADD). This helps optimize layer caching and build efficiency.`;
+    // const lr_007_2 = new LR_007_test(adapter, reporter, langchainServiceTestLLM, promptRefactor2);
+    // await lr_007_2.execute(name_Dockerfile);
 
     reporter.renderTable();
     core.summary.write();
