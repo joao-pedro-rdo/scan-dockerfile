@@ -48,7 +48,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: joao-pedro-rdo/SentinelCI@v0.1.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           API_TOKEN: ${{ secrets.API_TOKEN }}
 ```
 
