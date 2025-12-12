@@ -56012,9 +56012,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(37484));
 const githubActions_1 = __nccwpck_require__(16850);
 const githubaActionsReporters_1 = __nccwpck_require__(37231);
+const LR_001_dockerignore_1 = __nccwpck_require__(16380);
+const LR_002_setWorkdir_1 = __nccwpck_require__(85549);
 const LR_007_dependencies_order_1 = __nccwpck_require__(29950);
 const langChain_1 = __nccwpck_require__(72903);
-const LR_007_test_1 = __nccwpck_require__(70180);
+const LR_003_declarePortUsage_1 = __nccwpck_require__(9124);
+const LR_004_user_1 = __nccwpck_require__(25692);
+const LR_005_avoidPipUpgrade_1 = __nccwpck_require__(57746);
+const LR_006_joinRun_1 = __nccwpck_require__(57944);
 const langChainTesteLLM_1 = __nccwpck_require__(63597);
 // Initialize the GitHub Actions adapter with the provided token and workspace
 async function run() {
@@ -56032,25 +56037,22 @@ async function run() {
         // console.log("List of issues:", listIssue);
         reporter.startTable();
         console.log("Starting the scan-dockerfile action...");
-        // console.log("teste of new issue");
-        // const lr_001 = new LR_001_dockerignore(adapter, reporter);
-        // await lr_001.execute();
-        // console.log("teste of LR_002");
-        // const lr_002 = new LR_002_setWorkdir(adapter, reporter);
-        // await lr_002.execute(name_Dockerfile);
-        // console.log("teste of LR_003");
-        // const { LR_003_declarePortUsage } = await import("./linterRules/LR_003_declarePortUsage");
-        // const lr_003 = new LR_003_declarePortUsage(adapter, reporter);
-        // await lr_003.execute(name_Dockerfile);
-        // console.log("teste of LR_004");
-        // const { LR_004_user } = await import("./linterRules/LR_004_user"); // Should use file extension .ts
-        // const lr_004 = new LR_004_user(adapter, reporter);
-        // await lr_004.execute(name_Dockerfile);
-        // console.log("teste of LR_005");
-        // const { LR_005_avoidPipUpgrade } = await import("./linterRules/LR_005_avoidPipUpgrade");
-        // const lr_005 = new LR_005_avoidPipUpgrade(adapter, reporter);
-        // await lr_005.execute(name_Dockerfile);
-        // console.log("Test LangChain refactor");
+        console.log("teste of new issue");
+        const lr_001 = new LR_001_dockerignore_1.LR_001_dockerignore(adapter, reporter);
+        await lr_001.execute();
+        console.log("teste of LR_002");
+        const lr_002 = new LR_002_setWorkdir_1.LR_002_setWorkdir(adapter, reporter);
+        await lr_002.execute(name_Dockerfile);
+        console.log("teste of LR_003");
+        const lr_003 = new LR_003_declarePortUsage_1.LR_003_declarePortUsage(adapter, reporter);
+        await lr_003.execute(name_Dockerfile);
+        console.log("teste of LR_004");
+        const lr_004 = new LR_004_user_1.LR_004_user(adapter, reporter);
+        await lr_004.execute(name_Dockerfile);
+        console.log("teste of LR_005");
+        const lr_005 = new LR_005_avoidPipUpgrade_1.LR_005_avoidPipUpgrade(adapter, reporter);
+        await lr_005.execute(name_Dockerfile);
+        console.log("Test LangChain refactor");
         const API_TOKEN = core.getInput("API_TOKEN");
         if (!API_TOKEN) {
             console.log("API_TOKEN not provided");
@@ -56068,23 +56070,22 @@ async function run() {
         // // console.log("CONFIDENCE:", (await testLLM).confidence);
         // // console.log("REFACTOR SUGGESTION FORMATTED:");
         // // console.log(langchainService.formatSuggestion((await testLLM).suggestion));
-        // console.log("+++++ teste of LR_006");
-        // const { LR_006_joinRun } = await import("./linterRules/LR_006_joinRun");
-        // const lr_006 = new LR_006_joinRun(adapter, reporter, langchainService);
-        // await lr_006.execute(name_Dockerfile);
+        console.log("+++++ teste of LR_006");
+        const lr_006 = new LR_006_joinRun_1.LR_006_joinRun(adapter, reporter, langchainService);
+        await lr_006.execute(name_Dockerfile);
         const langchainServiceTestLLM = new langChainTesteLLM_1.LangchainServiceTestLLM(MODEL_NAME, 0.2, 1000, API_TOKEN);
         console.log("ℹ️ +++++ teste of LR_007_dependencies_order OFFICIAL ℹ️ ++++");
         const lr_007 = new LR_007_dependencies_order_1.LR_007_dependencies_order(adapter, reporter, langchainService);
         await lr_007.execute(name_Dockerfile);
         //! Define promptRefactor to pass to LR_007_test
-        console.log("ℹ️ +++++ teste of LR_007_test 1 with different prompt ℹ️ ++++");
-        const promptRefactor = `Analyze the dockerfile if necessary, correct them.`;
-        const lr_007_1 = new LR_007_test_1.LR_007_test(adapter, reporter, langchainServiceTestLLM, promptRefactor);
-        await lr_007_1.execute(name_Dockerfile);
-        console.log("ℹ️ +++++ teste of LR_007_test 2 with different prompt ℹ️ ++++");
-        const promptRefactor2 = `Correct the Dockerfile to ensure that all dependency installation commands  (Ex: RUN npm install, RUN pip install) appear before any source code copying commands (e.g., COPY, ADD). This helps optimize layer caching and build efficiency.`;
-        const lr_007_2 = new LR_007_test_1.LR_007_test(adapter, reporter, langchainServiceTestLLM, promptRefactor2);
-        await lr_007_2.execute(name_Dockerfile);
+        // console.log("ℹ️ +++++ teste of LR_007_test 1 with different prompt ℹ️ ++++");
+        // const promptRefactor = `Analyze the dockerfile if necessary, correct them.`;
+        // const lr_007_1 = new LR_007_test(adapter, reporter, langchainServiceTestLLM, promptRefactor);
+        // await lr_007_1.execute(name_Dockerfile);
+        // console.log("ℹ️ +++++ teste of LR_007_test 2 with different prompt ℹ️ ++++");
+        // const promptRefactor2 = `Correct the Dockerfile to ensure that all dependency installation commands  (Ex: RUN npm install, RUN pip install) appear before any source code copying commands (e.g., COPY, ADD). This helps optimize layer caching and build efficiency.`;
+        // const lr_007_2 = new LR_007_test(adapter, reporter, langchainServiceTestLLM, promptRefactor2);
+        // await lr_007_2.execute(name_Dockerfile);
         reporter.renderTable();
         core.summary.write();
     }
@@ -56110,6 +56111,849 @@ run();
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
+/***/ }),
+
+/***/ 16380:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LR_001_dockerignore = void 0;
+const utils = __importStar(__nccwpck_require__(71798));
+/**
+ * Linter rule LR_001_dockerignore checks if a .dockerignore file exists in the repository.
+ * @param {IAdapter} adapter - The GitHub Actions adapter for accessing the workspace.
+ * @param {IgithubaActionsReporters} reporter - The reporter for logging and issue creation.
+ */
+class LR_001_dockerignore {
+    adapter;
+    reporter;
+    issueTitle;
+    rule;
+    constructor(adapter, reporter, // Need to use general ClassReporter
+    issueTitle = "No .dockerignore files found", rule = "LR_001_dockerignore") {
+        this.adapter = adapter;
+        this.reporter = reporter;
+        this.issueTitle = issueTitle;
+        this.rule = rule;
+    }
+    /**
+     * This method checks for the presence of a .dockerignore file in the repository.
+     * If not found, it creates a GitHub issue recommending adding one.
+     * This method uses a file finder utility to search for the .dockerignore file automatically.
+     * @returns {Promise<void>} - A promise that resolves when the check is complete.
+     */
+    async execute() {
+        try {
+            const dockerignoreFiles = await utils.finder({
+                dir: this.adapter.workspace,
+                file: ".dockerignore",
+                ignore: ["node_modules/**"],
+                onlyFiles: true,
+            });
+            if (dockerignoreFiles.length > 0) {
+                this.reporter.infoSuccess(`Great you have a .dockerignore file found at: ${dockerignoreFiles.join(", ")}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "✔️",
+                    details: this.issueTitle,
+                    link: "",
+                });
+                return;
+            }
+            //* Test of method newIssueIfNotExists
+            const issue = await this.reporter.newIssueIfNotExists({
+                title: this.issueTitle,
+                body: "Your project don't have .dockerignore files, this can lead to larger image sizes and potential security risks. It's recommended to add a .dockerignore file to exclude unnecessary files and directories from your Docker images. This pratices breachs the LR_001_dockerignore rule.",
+                labels: ["LR_001_dockerignore", "dockerfile", "scan-dockerfile"],
+            });
+            //* Issue never be null here, because if dont exists, the method create one
+            if (issue != null) {
+                this.reporter.infoWarning(`Issue created: ${issue.html_url} - No .dockerignore files found`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "❌",
+                    details: this.issueTitle,
+                    link: issue.html_url,
+                });
+                return;
+            }
+            // await this.reporter.newIssue({
+            //   title: this.issueTitle,
+            //   body: "Your project don't have .dockerignore files, this can lead to larger image sizes and potential security risks. It's recommended to add a .dockerignore file to exclude unnecessary files and directories from your Docker images. This pratices breachs the LR_001_dockerignore rule.",
+            //   labels: ["LR_001_dockerignore", "dockerfile", "scan-dockerfile"],
+            // });
+            this.reporter.infoWarning("No .dockerignore files found");
+        }
+        catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error(`❌ Error executing LR_001_dockerignore:`, errorMsg);
+            throw new Error(`Failed to execute LR_001_dockerignore: ${errorMsg}`);
+        }
+    }
+}
+exports.LR_001_dockerignore = LR_001_dockerignore;
+
+
+/***/ }),
+
+/***/ 85549:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LR_002_setWorkdir = void 0;
+const fs_1 = __nccwpck_require__(79896);
+const utils = __importStar(__nccwpck_require__(71798));
+const dockerfileAST_1 = __nccwpck_require__(54216);
+/**
+ * Linter rule LR_002_setWorkdir checks if a Dockerfile contains a WORKDIR instruction.
+ * @param {GitHubActionsAdapter} adapter - The GitHub Actions adapter for accessing the workspace.
+ * @param {githubaActionsReporters} reporter - The reporter for logging and issue creation.
+ */
+class LR_002_setWorkdir {
+    adapter;
+    reporter;
+    issueTitle;
+    rule;
+    constructor(adapter, reporter, // Need to use general ClassReporter
+    issueTitle = "No WORKDIR instruction found in Dockerfile", rule = "LR_002_setWorkdir") {
+        this.adapter = adapter;
+        this.reporter = reporter;
+        this.issueTitle = issueTitle;
+        this.rule = rule;
+    }
+    async searchDockerfilePath(name_Dockerfile) {
+        const dockerfilePath = await utils.finder({
+            dir: this.adapter.workspace,
+            file: name_Dockerfile,
+            ignore: ["node_modules/**"],
+            onlyFiles: true,
+        });
+        return dockerfilePath;
+    }
+    /** Check if the Dockerfile contains a WORKDIR instruction.
+     * If not, create a GitHub issue recommending adding a WORKDIR instruction.
+     * This method uses the AdapterDockerfileAST to parse and analyze the Dockerfile.
+     * And search your Dockerfile automatically
+     * @returns {Promise<void>} - A promise that resolves when the check is complete.
+     * @param name_Dockerfile - Name of the Dockerfile to search for
+     */
+    async execute(name_Dockerfile) {
+        try {
+            const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
+            if (dockerfilePath.length === 0) {
+                throw new Error("No Dockerfile found in LR_002_setWorkdir");
+            }
+            //TODO Adapter in this function for AST parsing
+            //TODO: Consider multiple dockerfiles
+            const dockerfileContent = await fs_1.promises.readFile(dockerfilePath[0], "utf8");
+            const dockerfile = new dockerfileAST_1.AdapterDockerfileAST(dockerfileContent);
+            // ask the AST to search for WORKDIR
+            const searchResult = await dockerfile.searchKeyword({
+                keyword: "WORKDIR",
+                args: [],
+            });
+            // Check if the search result contains a WORKDIR instruction
+            const { keyword, line } = searchResult;
+            if (keyword.length > 0) {
+                this.reporter.infoSuccess(`Great you have a WORKDIR instruction in your Dockerfile at: ${dockerfilePath[0]}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "✔️",
+                    details: this.issueTitle,
+                    link: "",
+                });
+                return;
+            }
+            // If i dont make return in the for loop, means that no WORKDIR was found
+            // await this.reporter.newIssue({
+            //   title: this.issueTitle,
+            //   body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a WORKDIR instruction. It's recommended to set a WORKDIR to ensure that your application runs in the correct directory context. This practice breaches the LR_002_setWorkdir rule.`,
+            //   labels: ["LR_002_setWorkdir", "dockerfile", "scan-dockerfile"],
+            // });
+            const issue = await this.reporter.newIssueIfNotExists({
+                title: this.issueTitle,
+                body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a WORKDIR instruction. It's recommended to set a WORKDIR to ensure that your application runs in the correct directory context. This practice breaches the LR_002_setWorkdir rule.`,
+                labels: ["LR_002_setWorkdir", "dockerfile", "scan-dockerfile"],
+            });
+            if (issue != null) {
+                this.reporter.infoWarning(`Issue created: ${issue.html_url}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "❌",
+                    details: this.issueTitle,
+                    link: issue.html_url,
+                });
+            }
+            // this.reporter.infoWarning(
+            //   `No WORKDIR instruction found in your Dockerfile at: ${dockerfilePath[0]}`
+            // );
+            return;
+        }
+        catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error(`❌ Error executing LR_002_setWorkdir:`, errorMsg);
+            throw new Error(`Failed to execute LR_002_setWorkdir: ${errorMsg}`);
+        }
+    }
+}
+exports.LR_002_setWorkdir = LR_002_setWorkdir;
+
+
+/***/ }),
+
+/***/ 9124:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LR_003_declarePortUsage = void 0;
+const dockerfileAST_1 = __nccwpck_require__(54216);
+const fs_1 = __nccwpck_require__(79896);
+const utils = __importStar(__nccwpck_require__(71798));
+class LR_003_declarePortUsage {
+    adapter;
+    reporter;
+    issueTitle;
+    rule;
+    constructor(adapter, reporter, // Need to use general ClassReporter
+    issueTitle = "EXPOSE instruction found in Dockerfile", rule = "LR_003_declarePortUsage") {
+        this.adapter = adapter;
+        this.reporter = reporter;
+        this.issueTitle = issueTitle;
+        this.rule = rule;
+    }
+    async searchDockerfilePath(name_Dockerfile) {
+        const dockerfilePath = await utils.finder({
+            dir: this.adapter.workspace,
+            file: name_Dockerfile,
+            ignore: ["node_modules/**"],
+            onlyFiles: true,
+        });
+        return dockerfilePath;
+    }
+    /** Check if the Dockerfile contains a WORKDIR instruction.
+     * If not, create a GitHub issue recommending adding a WORKDIR instruction.
+     * This method uses the AdapterDockerfileAST to parse and analyze the Dockerfile.
+     * And search your Dockerfile automatically
+     * @returns {Promise<void>} - A promise that resolves when the check is complete.
+     * @param name_Dockerfile - Name of the Dockerfile to search for
+     */
+    async execute(name_Dockerfile) {
+        try {
+            const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
+            if (dockerfilePath.length === 0) {
+                throw new Error("No Dockerfile found in LR_003_declarePortUsage");
+            }
+            //TODO: Consider multiple dockerfiles
+            const dockerfileContent = await fs_1.promises.readFile(dockerfilePath[0], "utf8");
+            const dockerfile = new dockerfileAST_1.AdapterDockerfileAST(dockerfileContent);
+            // ask the AST to search for EXPOSE
+            const searchResult = await dockerfile.searchKeyword({
+                keyword: "EXPOSE",
+                args: [],
+            });
+            // Check if the search result contains a WORKDIR instruction
+            const { keyword, line } = searchResult;
+            if (keyword.length > 0) {
+                this.reporter.infoSuccess(`Great you have a EXPOSE instruction in your Dockerfile and Declared port usage at: ${dockerfilePath[0]}:${line}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "✔️",
+                    details: this.issueTitle,
+                    link: "",
+                });
+                return;
+            }
+            const issue = await this.reporter.newIssueIfNotExists({
+                title: this.issueTitle,
+                body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a EXPOSE instruction. It's recommended to set a EXPOSE to ensure that your application runs in the correct directory context. This practice breaches the LR_003_declarePortUsage rule.`,
+                labels: ["LR_003_declarePortUsage", "dockerfile", "scan-dockerfile"],
+            });
+            if (issue != null) {
+                this.reporter.infoWarning(`Issue created: ${issue.html_url}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "❌",
+                    details: this.issueTitle,
+                    link: issue.html_url,
+                });
+            }
+            return;
+        }
+        catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error(`❌ Error executing LR_003_declarePortUsage:`, errorMsg);
+            throw new Error(`Failed to execute LR_003_declarePortUsage: ${errorMsg}`);
+        }
+    }
+}
+exports.LR_003_declarePortUsage = LR_003_declarePortUsage;
+
+
+/***/ }),
+
+/***/ 25692:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LR_004_user = void 0;
+const dockerfileAST_1 = __nccwpck_require__(54216);
+const fs_1 = __nccwpck_require__(79896);
+const utils = __importStar(__nccwpck_require__(71798));
+class LR_004_user {
+    adapter;
+    reporter;
+    issueTitle;
+    rule;
+    constructor(adapter, reporter, // Need to use general ClassReporter
+    issueTitle = "User instruction found in Dockerfile", rule = "LR_004_user") {
+        this.adapter = adapter;
+        this.reporter = reporter;
+        this.issueTitle = issueTitle;
+        this.rule = rule;
+    }
+    async searchDockerfilePath(name_Dockerfile) {
+        const dockerfilePath = await utils.finder({
+            dir: this.adapter.workspace,
+            file: name_Dockerfile,
+            ignore: ["node_modules/**"],
+            onlyFiles: true,
+        });
+        return dockerfilePath;
+    }
+    /** Check if the Dockerfile contains a WORKDIR instruction.
+     * If not, create a GitHub issue recommending adding a WORKDIR instruction.
+     * This method uses the AdapterDockerfileAST to parse and analyze the Dockerfile.
+     * And search your Dockerfile automatically
+     * @returns {Promise<void>} - A promise that resolves when the check is complete.
+     * @param name_Dockerfile - Name of the Dockerfile to search for
+     */
+    async execute(name_Dockerfile) {
+        try {
+            const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
+            if (dockerfilePath.length === 0) {
+                throw new Error("No Dockerfile found in LR_004_declarePortUsage");
+            }
+            //TODO: Consider multiple dockerfiles
+            const dockerfileContent = await fs_1.promises.readFile(dockerfilePath[0], "utf8");
+            const dockerfile = new dockerfileAST_1.AdapterDockerfileAST(dockerfileContent);
+            // ask the AST to search for RUN
+            const searchResult_01 = await dockerfile.searchKeyword({
+                keyword: "RUN",
+                args: ["useradd"],
+            });
+            const searchResult_02 = await dockerfile.searchKeyword({
+                keyword: "USER",
+                args: [],
+            });
+            if (searchResult_01.keyword.length > 0 && searchResult_02.keyword.length > 0) {
+                this.reporter.infoSuccess(`Great you have a USER instruction in your Dockerfile and Declared user at: ${dockerfilePath[0]}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "✔️",
+                    details: this.issueTitle,
+                    link: "",
+                });
+                return;
+            }
+            const issue = await this.reporter.newIssueIfNotExists({
+                title: this.issueTitle,
+                body: `Your Dockerfile located at ${dockerfilePath[0]} does not contain a USER instruction. It's recommended to set a USER to ensure that your application runs in the correct directory context. This practice breaches the LR_004_USER rule.`,
+                labels: ["LR_004_USER", "dockerfile", "scan-dockerfile"],
+            });
+            // TODO Correct bug
+            //! I think in the fist time with the method is execute, this method dont create a row in the asummary
+            if (issue != null) {
+                this.reporter.infoWarning(`Issue created: ${issue.html_url}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "❌",
+                    details: this.issueTitle,
+                    link: issue.html_url,
+                });
+            }
+            return;
+        }
+        catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error(`❌ Error executing LR_004_user:`, errorMsg);
+            throw new Error(`Failed to execute LR_004_user: ${errorMsg}`);
+        }
+    }
+}
+exports.LR_004_user = LR_004_user;
+
+
+/***/ }),
+
+/***/ 57746:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LR_005_avoidPipUpgrade = void 0;
+const dockerfileAST_1 = __nccwpck_require__(54216);
+const fs_1 = __nccwpck_require__(79896);
+const utils = __importStar(__nccwpck_require__(71798));
+class LR_005_avoidPipUpgrade {
+    adapter;
+    reporter;
+    issueTitle;
+    rule;
+    constructor(adapter, reporter, // Need to use general ClassReporter
+    issueTitle = "Avoid using 'pip install --upgrade'", rule = "LR_005_avoidPipUpgrade") {
+        this.adapter = adapter;
+        this.reporter = reporter;
+        this.issueTitle = issueTitle;
+        this.rule = rule;
+    }
+    // Padrões a detectar no Dockerfile
+    problematicPatterns = [
+        /pip\s+install\s+--upgrade/,
+        /pip\s+install\s+-U/,
+        /pip3\s+install\s+--upgrade/,
+        /pip3\s+install\s+-U/,
+    ];
+    async searchDockerfilePath(name_Dockerfile) {
+        const dockerfilePath = await utils.finder({
+            dir: this.adapter.workspace,
+            file: name_Dockerfile,
+            ignore: ["node_modules/**"],
+            onlyFiles: true,
+        });
+        return dockerfilePath;
+    }
+    /** Check if the Dockerfile contains a WORKDIR instruction.
+     * If not, create a GitHub issue recommending adding a WORKDIR instruction.
+     * This method uses the AdapterDockerfileAST to parse and analyze the Dockerfile.
+     * And search your Dockerfile automatically
+     * @returns {Promise<void>} - A promise that resolves when the check is complete.
+     * @param name_Dockerfile - Name of the Dockerfile to search for
+     */
+    async execute(name_Dockerfile) {
+        try {
+            const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
+            if (dockerfilePath.length === 0) {
+                throw new Error("No Dockerfile found in LR_005_avoidPipUpgrade");
+            }
+            const dockerfileContent = await fs_1.promises.readFile(dockerfilePath[0], "utf8");
+            const dockerfile = new dockerfileAST_1.AdapterDockerfileAST(dockerfileContent);
+            //   const searchResult = dockerfile.searchPattern(this.problematicPatterns);
+            const searchResult = dockerfile.searchFirstPattern(this.problematicPatterns);
+            console.log("💻💻💻💻💻Search Result:", searchResult);
+            if ((await searchResult).found == false) {
+                this.reporter.infoSuccess(`Great! No 'pip install --upgrade' found in your Dockerfile at: ${dockerfilePath[0]}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "✔️",
+                    details: this.issueTitle,
+                    link: "",
+                });
+                return;
+            }
+            const issue = await this.reporter.newIssueIfNotExists({
+                title: this.issueTitle,
+                body: `Your Dockerfile located at ${dockerfilePath[0]} contains a 'pip install --upgrade' command at line ${(await searchResult).line}. Using '--upgrade' can lead to unpredictable builds and potential compatibility issues. It's recommended to specify exact package versions to ensure consistent and reliable builds. This practice breaches the LR_005_avoidPipUpgrade rule.`,
+                labels: ["LR_005_avoidPipUpgrade", "dockerfile", "scan-dockerfile"],
+            });
+            if (issue != null) {
+                this.reporter.infoWarning(`Issue created: ${issue.html_url}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "❌",
+                    details: this.issueTitle,
+                    link: issue.html_url,
+                });
+            }
+        }
+        catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error(`❌ Error executing ${this.rule}:`, errorMsg);
+            throw new Error(`Failed to execute ${this.rule}: ${errorMsg}`);
+        }
+    }
+}
+exports.LR_005_avoidPipUpgrade = LR_005_avoidPipUpgrade;
+
+
+/***/ }),
+
+/***/ 57944:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LR_006_joinRun = void 0;
+const dockerfileAST_1 = __nccwpck_require__(54216);
+const fs_1 = __nccwpck_require__(79896);
+const utils = __importStar(__nccwpck_require__(71798));
+class LR_006_joinRun {
+    adapter;
+    reporter;
+    iaService;
+    issueTitle;
+    rule;
+    constructor(adapter, reporter, iaService, issueTitle = "Join RUN commands to reduce layers", rule = "LR_006_joinRun") {
+        this.adapter = adapter;
+        this.reporter = reporter;
+        this.iaService = iaService;
+        this.issueTitle = issueTitle;
+        this.rule = rule;
+    }
+    //todo i NEDD CONSIDER TROW ERROR
+    async searchDockerfilePath(name_Dockerfile) {
+        const dockerfilePath = await utils.finder({
+            dir: this.adapter.workspace,
+            file: name_Dockerfile,
+            ignore: ["node_modules/**"],
+            onlyFiles: true,
+        });
+        return dockerfilePath;
+    }
+    /** Check if the Dockerfile contains a WORKDIR instruction.
+     * If not, create a GitHub issue recommending adding a WORKDIR instruction.
+     * This method uses the AdapterDockerfileAST to parse and analyze the Dockerfile.
+     * And search your Dockerfile automatically
+     * @returns {Promise<void>} - A promise that resolves when the check is complete.
+     * @param name_Dockerfile - Name of the Dockerfile to search for
+     */
+    async execute(name_Dockerfile) {
+        try {
+            const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
+            // if no dockerfile found, throw error
+            if (dockerfilePath.length === 0) {
+                throw new Error("No Dockerfile found in LR_006_joinRun");
+            }
+            // Read the content of the Dockerfile
+            const dockerfileContent = await fs_1.promises.readFile(dockerfilePath[0], "utf8");
+            const dockerfile = new dockerfileAST_1.AdapterDockerfileAST(dockerfileContent);
+            // Search for join consecutive RUN instructions
+            const searchResult = await dockerfile.searchConsecutiveKeyword({
+                keyword: "RUN",
+                args: [],
+            });
+            if (searchResult && searchResult.length > 1) {
+                const refactorRequest = this.prepareRefactorRequest(searchResult, dockerfileContent);
+                const aiSuggestion = await this.iaService.suggestRefactor(refactorRequest);
+                console.log("++++++ RETURN IA: ", aiSuggestion.code);
+                console.log("++++++ RETURN IA SUGGESTION: ", aiSuggestion.suggestion);
+                console.log("++++++ RETURN IA EXPLANATION: ", aiSuggestion.explanation);
+                console.log("++++++ RETURN IA CONFIDENCE: ", aiSuggestion.confidence);
+                const issueBody = this.formatIssueBody(searchResult, aiSuggestion, dockerfileContent);
+                const issue = await this.reporter.newIssueIfNotExists({
+                    title: this.issueTitle,
+                    body: issueBody, // ← Aqui usa o body formatado
+                    labels: ["LR_006_joinRun", "performance", "ai-suggested"],
+                });
+                if (issue != null) {
+                    this.reporter.infoWarning(`Issue created: ${issue.html_url}`);
+                    this.reporter.addTableRow({
+                        rule: this.rule,
+                        status: "⚠️",
+                        details: `${searchResult.length} consecutive RUNs found`,
+                        link: issue.html_url,
+                    });
+                }
+            }
+            else {
+                this.reporter.infoSuccess(`Great! No consecutive RUN commands found in your Dockerfile at: ${dockerfilePath[0]}`);
+                this.reporter.addTableRow({
+                    rule: this.rule,
+                    status: "✔️",
+                    details: this.issueTitle,
+                    link: "",
+                });
+            }
+        }
+        catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error(`❌ Error executing LR_006_joinRun:`, errorMsg);
+            throw new Error(`Failed to execute LR_006_joinRun : ${errorMsg}`);
+        }
+    }
+    /**
+     * Prepara o request para a IA baseado nos resultados do search
+     */
+    prepareRefactorRequest(searchResult, dockerfileContent) {
+        const problematicLines = searchResult.map((result) => {
+            const command = result.keyword.join(" ");
+            const args = result.args.join(" ");
+            const lineNumber = result.line[0];
+            return {
+                line: lineNumber,
+                content: `${command} ${args}`.trim(),
+            };
+        });
+        const dockerfileSnippet = problematicLines
+            .map((item) => `Line ${item.line}: ${item.content}`)
+            .join("\n");
+        const context = `
+
+      PROBLEM: Found ${searchResult.length} consecutive RUN commands that could be optimized.
+
+      AFFECTED LINES: ${problematicLines.map((l) => l.line).join(", ")}
+
+      SUGGESTION: Combine these RUN commands into a single command to reduce Docker layers and improve build performance.
+
+      FULL DOCKERFILE CONTEXT:
+      ${dockerfileContent}
+
+      SPECIFIC COMMANDS TO OPTIMIZE:
+      ${problematicLines.map((l) => `Line ${l.line}: ${l.content}`).join("\n")}
+          `.trim();
+        console.log("📧Context prepared for AI:", context);
+        return {
+            dockerfileSnippet,
+            context,
+            // ruleType: "performance",
+        };
+    }
+    formatIssueBody(searchResult, aiSuggestion, dockerfileContent) {
+        const problematicLines = searchResult.map((result) => {
+            const command = result.keyword.join(" ");
+            const args = result.args.join(" ");
+            const lineNumber = result.line[0];
+            return { line: lineNumber, content: `${command} ${args}`.trim() };
+        });
+        return `## 🐳 ${this.issueTitle}
+
+### 📍 **Issue Found:**
+Found **${searchResult.length}** consecutive RUN commands that can be optimized to reduce Docker layers.
+
+### 🔍 **Affected Lines:**
+${problematicLines.map((l) => `- **Line ${l.line}:** \`${l.content}\``).join("\n")}
+
+### 🤖 **AI Suggestion (Confidence: ${(aiSuggestion.confidence * 100).toFixed(1)}%):**
+
+**Recommended Fix:**
+\`\`\`dockerfile
+${aiSuggestion.code}
+\`\`\`
+
+**Explanation:**
+${aiSuggestion.explanation}
+
+**Why this matters:**
+${aiSuggestion.suggestion}
+
+### 🔧 **How to Fix:**
+1. Replace the consecutive RUN commands with the suggested optimized version
+2. Test your Docker build to ensure functionality remains intact
+
+---
+*This issue was automatically detected by our Dockerfile linter and enhanced with AI suggestions.*`;
+    }
+}
+exports.LR_006_joinRun = LR_006_joinRun;
 
 
 /***/ }),
@@ -56308,7 +57152,7 @@ ${dockerfileContent}
             .map((res) => `Line ${res.line[0]}: ${res.keyword[0]} ${res.args.join(" ")}`)
             .join("\n")}\n\n
       
-      SUGGESTION: Switch the order of COPY instructions so that all dependencies are copied before source code, and line of
+      SUGGESTION: Switch the order of COPY instructions so that all dependencies are copied befo re source code, and line of
       install dependency come before line of copy source for improve image layers .
     
     s
@@ -56402,267 +57246,6 @@ ${dockerfileContent}
     }
 }
 exports.LR_007_dependencies_order = LR_007_dependencies_order;
-
-
-/***/ }),
-
-/***/ 70180:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.LR_007_test = void 0;
-const dockerfileAST_1 = __nccwpck_require__(54216);
-const fs_1 = __nccwpck_require__(79896);
-const utils = __importStar(__nccwpck_require__(71798));
-const heuristic_dependencies_order_1 = __nccwpck_require__(80933);
-class LR_007_test {
-    adapter;
-    reporter;
-    iaService;
-    promptRefactor;
-    issueTitle;
-    rule;
-    heuristc;
-    constructor(adapter, reporter, // Need to use general ClassReporter
-    iaService, promptRefactor, issueTitle = "Ensure dependencies are installed in the correct order", rule = "LR_007_dependencies_order", heuristc = new heuristic_dependencies_order_1.HeuristicDependenciesOrderImpl()
-    // public listDependencies: JSON[],
-    // public listSource: JSON[]
-    ) {
-        this.adapter = adapter;
-        this.reporter = reporter;
-        this.iaService = iaService;
-        this.promptRefactor = promptRefactor;
-        this.issueTitle = issueTitle;
-        this.rule = rule;
-        this.heuristc = heuristc;
-    }
-    async execute(name_Dockerfile) {
-        try {
-            const dockerfilePath = await this.searchDockerfilePath(name_Dockerfile);
-            const dockerfileContent = await fs_1.promises.readFile(dockerfilePath[0], "utf8");
-            const dockerfile = new dockerfileAST_1.AdapterDockerfileAST(dockerfileContent);
-            // ask the AST to search for COPY
-            const searchResult = await dockerfile.searchConsecutiveKeyword({
-                keyword: "COPY",
-                args: [],
-            });
-            console.log("SEARCH RESULT COPY", searchResult);
-            const operations = await this.verify_type(searchResult);
-            const hasViolation = await this.verify_order(operations);
-            if (hasViolation) {
-                console.log("❌ Violation detected! Dependencies should come before source code.");
-                const refactorRequest = this.prepareRefactorRequest(searchResult, dockerfileContent, operations);
-                const aiSuggestion = await this.iaService.suggestRefactor(refactorRequest);
-                console.log("++++++ RETURN IA: ", aiSuggestion.code);
-                console.log("++++++ RETURN IA SUGGESTION: ", aiSuggestion.suggestion);
-                console.log("++++++ RETURN IA EXPLANATION: ", aiSuggestion.explanation);
-                console.log("++++++ RETURN IA CONFIDENCE: ", aiSuggestion.confidence);
-                const issueBody = this.formatIssueBody(searchResult, aiSuggestion, dockerfileContent);
-                const issue = await this.reporter.newIssueIfNotExists({
-                    title: this.issueTitle,
-                    body: issueBody,
-                    labels: ["dockerfile", "LR_007_dependencies_order", "ai-suggestion"],
-                });
-                if (issue != null) {
-                    this.reporter.infoWarning(`Issue created: ${issue.html_url}`);
-                    this.reporter.addTableRow({
-                        rule: this.rule,
-                        status: "⚠️",
-                        details: `${searchResult.length} COPY instructions out of order`,
-                        link: issue.html_url,
-                    });
-                }
-                console.log("Issue created or already exists:", issue.html_url);
-                // // Reporta a issue
-                // await this.reporter.newIssueIfNotExists({
-                //   title: this.issueTitle,
-                //   body: this.formatIssueBody(operations),
-                //   labels: ["dockerfile", "optimization"],
-                // });
-            }
-            else {
-                console.log("✅ No violations found! Dependencies are correctly ordered.");
-                this.reporter.infoSuccess(`Great! No violations found! Dependencies are correctly ordered. ${dockerfilePath[0]}`);
-                this.reporter.addTableRow({
-                    rule: this.rule,
-                    status: "✔️",
-                    details: this.issueTitle,
-                    link: "",
-                });
-            }
-        }
-        catch (error) {
-            const errorMsg = error instanceof Error ? error.message : String(error);
-            console.error(`❌ Error executing ${this.rule}:`, errorMsg);
-            throw new Error(`Failed to execute ${this.rule}: ${errorMsg}`);
-        }
-    }
-    formatIssueBody(searchResult, aiSuggestion, dockerfileContent) {
-        const affectedLines = searchResult
-            .map((res) => `Line ${res.line[0]}: ${res.keyword[0]} ${res.args.join(" ")}`)
-            .join("\n");
-        return `
-### Issue: Dependencies Order Violation in Dockerfile
-
-**Description:**
-The Dockerfile contains COPY instructions where dependencies are not ordered correctly. Dependencies should be copied before source code to optimize caching and build efficiency.
-
-**Affected Lines:**
-\`\`\`
-${affectedLines}
-\`\`\`
-
-**AI Suggestion:**
-\`\`\`dockerfile
-${aiSuggestion.code}
-\`\`\`
-
-**Explanation:**
-${aiSuggestion.explanation}
-
-**Confidence Level:** ${aiSuggestion.confidence}%
-    
-**Full Dockerfile Context:**
-\`\`\`dockerfile
-${dockerfileContent}
-\`\`\`
-    `;
-    }
-    /**
-     *  Prepare the context and promptrefactor request for the IA
-     * @param searchResult
-     * @param dockerfileContent
-     * @param operations
-     * @returns RefactorRequest {context: string}
-     */
-    prepareRefactorRequest(searchResult, dockerfileContent, operations) {
-        const context = `
-      ${this.promptRefactor}
-      FULL DOCKERFILE CONTEXT:
-      ${dockerfileContent}
-
-      `;
-        console.log(" 📧Context prepared for AI:", context);
-        return { context };
-    }
-    async verify_order(obj) {
-        const dependencies = obj.filter((op) => op.type === "dependency");
-        const sources = obj.filter((op) => op.type === "source");
-        if (dependencies.length === 0 || sources.length === 0) {
-            return { hasViolation: false, violations: [] };
-        }
-        const violations = [];
-        // Para cada dependência
-        for (const dependency of dependencies) {
-            // Encontra todos os sources que vêm ANTES desta dependência
-            const sourcesBeforeIt = sources.filter((source) => source.line < dependency.line);
-            if (sourcesBeforeIt.length > 0) {
-                violations.push({
-                    dependency,
-                    sourcesBeforeIt,
-                });
-            }
-        }
-        return {
-            hasViolation: violations.length > 0,
-            violations,
-        };
-    }
-    async verify_type(obj) {
-        const operations = this.normalizeOperations(obj);
-        console.log("Normalized Operations:", operations);
-        const classified = operations.map((op) => ({
-            ...op,
-            type: this.classifyOperation(op),
-        }));
-        console.log("Classified Operations:", classified);
-        return classified;
-    }
-    async searchDockerfilePath(name_Dockerfile) {
-        const dockerfilePath = await utils.finder({
-            dir: this.adapter.workspace,
-            file: name_Dockerfile,
-            ignore: ["node_modules/**"],
-            onlyFiles: true,
-        });
-        return dockerfilePath;
-    }
-    /** Normalize operations to have one source per object, some COPY/ADD can have multiple sources
-     * @param obj Array of IResponseAstDockerfile
-     * @returns Array of normalized operations
-     * @example
-     */
-    normalizeOperations(obj) {
-        return obj.flatMap((item, itemIndex) => {
-            if (item.args.length < 2)
-                return [];
-            const destination = item.args[item.args.length - 1];
-            const sources = item.args.slice(0, -1);
-            return sources.map((source, sourceIndex) => ({
-                source,
-                destination,
-                line: item.line[0],
-                keyword: item.keyword[0],
-                itemIndex,
-                sourceIndex,
-                type: this.classifyOperation({
-                    source,
-                    destination,
-                    line: item.line[0],
-                    keyword: item.keyword[0],
-                }),
-            }));
-        });
-    }
-    // Classify operation as 'dependency' or 'source' or 'unknown'
-    classifyOperation(operation) {
-        for (let i = 0; i < this.heuristc.listDependecy.length; i++) {
-            if (operation.source === this.heuristc.listDependecy[i]) {
-                return "dependency";
-            }
-            if (operation.source === this.heuristc.listSorces[i]) {
-                return "source";
-            }
-        }
-        return "unknown";
-    }
-}
-exports.LR_007_test = LR_007_test;
 
 
 /***/ }),
