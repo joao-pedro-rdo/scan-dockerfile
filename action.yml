@@ -1,4 +1,4 @@
-name: "Scan Dockerfile"
+name: "SentinelCI"
 description: "AI-powered Dockerfile scanner for security, optimization, and best practices with automated issue reporting."
 author: "Joao Pedro Ramos de Oliveira"
 
