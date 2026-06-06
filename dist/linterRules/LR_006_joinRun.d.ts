@@ -5,10 +5,10 @@ import { LangchainService } from "../refactor/langChain";
 export declare class LR_006_joinRun implements ILinterRule {
     private adapter;
     private reporter;
-    private iaService;
+    private iaService?;
     issueTitle: string;
     rule: string;
-    constructor(adapter: IGitHubActionsAdapter, reporter: githubaActionsReporters, iaService: LangchainService, issueTitle?: string, rule?: string);
+    constructor(adapter: IGitHubActionsAdapter, reporter: githubaActionsReporters, iaService?: LangchainService | undefined, issueTitle?: string, rule?: string);
     private searchDockerfilePath;
     /** Check if the Dockerfile contains a WORKDIR instruction.
      * If not, create a GitHub issue recommending adding a WORKDIR instruction.

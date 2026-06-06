@@ -14,6 +14,7 @@ export interface IgithubaActionsReporters extends IReporter {
         details: string;
         link: string;
     }): unknown;
+    getDetectedAgentIds(): string[];
     IGitHubActionsAdapter: IGitHubActionsAdapter;
     infoSuccess(text: string): void;
     infoWarning(text: string): void;

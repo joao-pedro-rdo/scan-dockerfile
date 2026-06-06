@@ -14,10 +14,20 @@ const core = require("@actions/core");
 /**
  * Class for reporting GitHub Actions events.
  */
+/**
+ * Table-row statuses that represent a static-analysis violation (the rule found
+ * a problem). Used to derive which agent ids should be sent to the SentinelCI
+ * API for AI refactoring. "✔️" means the rule passed and is intentionally absent.
+ */
+const VIOLATION_STATUSES = new Set(["❌", "⚠️"]);
+
 export class githubaActionsReporters implements IgithubaActionsReporters {
   //  TODO Analise how to implement reporting generic
   IGitHubActionsAdapter: IGitHubActionsAdapter;
   private tableRows: any[][] = [];
+  // Agent ids (lr_00x) for rules that the static analysis flagged as violated.
+  // Populated automatically as rules report their results via addTableRow.
+  private detectedAgentIds: Set<string> = new Set();
 
   constructor(adapter: IGitHubActionsAdapter) {
     this.IGitHubActionsAdapter = adapter;
@@ -170,6 +180,33 @@ export class githubaActionsReporters implements IgithubaActionsReporters {
 
   addTableRow(obj: ITableRow) {
     this.tableRows.push([obj.rule, obj.status, obj.details, obj.link]);
+
+    // As each rule reports a violation, register the matching agent id so the
+    // SentinelCI API only runs the agents for the problems actually found.
+    if (VIOLATION_STATUSES.has(obj.status)) {
+      const agentId = this.ruleToAgentId(obj.rule);
+      if (agentId) {
+        this.detectedAgentIds.add(agentId);
+      }
+    }
+  }
+
+  /**
+   * Maps a linter rule name (e.g. "LR_002_setWorkdir") to its API agent id
+   * (e.g. "lr_002"). Returns null when the rule name does not follow the
+   * LR_00N convention (e.g. the SentinelCI_API summary row).
+   */
+  private ruleToAgentId(rule: string): string | null {
+    const match = /^(LR_\d{3})/i.exec(rule);
+    return match ? match[1].toLowerCase() : null;
+  }
+
+  /**
+   * Agent ids (lr_00x) for every rule that the static analysis flagged as
+   * violated during this run. Drives agent selection on the SentinelCI API.
+   */
+  getDetectedAgentIds(): string[] {
+    return Array.from(this.detectedAgentIds).sort();
   }
 
   renderTable() {

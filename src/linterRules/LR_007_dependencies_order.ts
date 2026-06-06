@@ -23,7 +23,10 @@ export class LR_007_dependencies_order implements ILinterRule {
   constructor(
     private adapter: IGitHubActionsAdapter,
     private reporter: githubaActionsReporters, // Need to use general ClassReporter
-    private iaService: LangchainService,
+    // Optional: when omitted, the rule only DETECTS the violation (and registers
+    // the agent id) — the SentinelCI API performs the actual refactoring. The
+    // legacy LangChain path is kept for historical comparison (TCC).
+    private iaService?: LangchainService,
     public issueTitle: string = "Ensure dependencies are installed in the correct order",
     public rule: string = "LR_007_dependencies_order",
     public heuristc = new HeuristicDependenciesOrderImpl()
@@ -50,6 +53,23 @@ export class LR_007_dependencies_order implements ILinterRule {
 
       if (hasViolation) {
         console.log("❌ Violation detected! Dependencies should come before source code.");
+
+        if (!this.iaService) {
+          // Detection-only: report the violation so the SentinelCI API selects
+          // the lr_007 agent. The API performs the refactoring.
+          this.reporter.infoWarning(
+            `Dependencies order violation detected — will be handled by the SentinelCI API.`
+          );
+          this.reporter.addTableRow({
+            rule: this.rule,
+            status: "⚠️",
+            details: `${searchResult.length} COPY instructions out of order`,
+            link: "",
+          });
+          return;
+        }
+
+        // ── Legacy LangChain refactoring path (kept for historical comparison) ──
         const refactorRequest = this.prepareRefactorRequest(
           searchResult,
           dockerfileContent,

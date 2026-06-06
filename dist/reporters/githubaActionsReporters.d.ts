@@ -1,12 +1,10 @@
 import { addLinkIssue, INewIssue, ISummary, ITableRow } from "../contracts/reporterInterfce";
 import { IgithubaActionsReporters } from "../contracts/reporterInterfce";
 import { IGitHubActionsAdapter, IGitHubIssue } from "../contracts/githubActionsInterface";
-/**
- * Class for reporting GitHub Actions events.
- */
 export declare class githubaActionsReporters implements IgithubaActionsReporters {
     IGitHubActionsAdapter: IGitHubActionsAdapter;
     private tableRows;
+    private detectedAgentIds;
     constructor(adapter: IGitHubActionsAdapter);
     addDebug?(msg: string): void;
     /**
@@ -52,5 +50,16 @@ export declare class githubaActionsReporters implements IgithubaActionsReporters
     createSummary(): Promise<void>;
     startTable(): void;
     addTableRow(obj: ITableRow): void;
+    /**
+     * Maps a linter rule name (e.g. "LR_002_setWorkdir") to its API agent id
+     * (e.g. "lr_002"). Returns null when the rule name does not follow the
+     * LR_00N convention (e.g. the SentinelCI_API summary row).
+     */
+    private ruleToAgentId;
+    /**
+     * Agent ids (lr_00x) for every rule that the static analysis flagged as
+     * violated during this run. Drives agent selection on the SentinelCI API.
+     */
+    getDetectedAgentIds(): string[];
     renderTable(): void;
 }

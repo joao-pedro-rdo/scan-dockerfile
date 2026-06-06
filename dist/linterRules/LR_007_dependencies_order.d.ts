@@ -6,12 +6,12 @@ import { LangchainService } from "../refactor/langChain";
 export declare class LR_007_dependencies_order implements ILinterRule {
     private adapter;
     private reporter;
-    private iaService;
+    private iaService?;
     issueTitle: string;
     rule: string;
     heuristc: HeuristicDependenciesOrderImpl;
     constructor(adapter: IGitHubActionsAdapter, reporter: githubaActionsReporters, // Need to use general ClassReporter
-    iaService: LangchainService, issueTitle?: string, rule?: string, heuristc?: HeuristicDependenciesOrderImpl);
+    iaService?: LangchainService | undefined, issueTitle?: string, rule?: string, heuristc?: HeuristicDependenciesOrderImpl);
     execute(name_Dockerfile: string): Promise<any>;
     private formatIssueBody;
     /**

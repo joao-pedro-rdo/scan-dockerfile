@@ -13,6 +13,7 @@ export interface IReporter {
 
 export interface IgithubaActionsReporters extends IReporter {
   addTableRow(arg0: { rule: string; status: string; details: string; link: string }): unknown;
+  getDetectedAgentIds(): string[];
   // I need this interface because i cant use method newIssue? from Ireporter bcau  se is a possible undefined
   IGitHubActionsAdapter: IGitHubActionsAdapter;
 

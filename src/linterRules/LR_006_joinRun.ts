@@ -11,7 +11,10 @@ export class LR_006_joinRun implements ILinterRule {
   constructor(
     private adapter: IGitHubActionsAdapter,
     private reporter: githubaActionsReporters,
-    private iaService: LangchainService,
+    // Optional: when omitted, the rule only DETECTS the violation (and registers
+    // the agent id) — the SentinelCI API performs the actual refactoring. The
+    // legacy LangChain path is kept for historical comparison (TCC).
+    private iaService?: LangchainService,
     public issueTitle: string = "Join RUN commands to reduce layers",
     public rule: string = "LR_006_joinRun"
   ) {}
@@ -51,6 +54,22 @@ export class LR_006_joinRun implements ILinterRule {
       });
 
       if (searchResult && searchResult.length > 1) {
+        if (!this.iaService) {
+          // Detection-only: report the violation so the SentinelCI API selects
+          // the lr_006 agent. The API performs the refactoring.
+          this.reporter.infoWarning(
+            `Found ${searchResult.length} consecutive RUN commands — will be handled by the SentinelCI API.`
+          );
+          this.reporter.addTableRow({
+            rule: this.rule,
+            status: "⚠️",
+            details: `${searchResult.length} consecutive RUNs found`,
+            link: "",
+          });
+          return;
+        }
+
+        // ── Legacy LangChain refactoring path (kept for historical comparison) ──
         const refactorRequest = this.prepareRefactorRequest(searchResult, dockerfileContent);
         const aiSuggestion = await this.iaService.suggestRefactor(refactorRequest);
         console.log("++++++ RETURN IA: ", aiSuggestion.code);

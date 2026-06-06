@@ -16,18 +16,35 @@ inputs:
       - contents:read, issues:write, pull-requests:write
     required: true
 
-  #TODO: change to API_KEY make optional
+  # Legacy: LLM key for the local LangChain refactoring path (LR_006 / LR_007).
+  # No longer used by the default flow — refactoring is now done by the
+  # SentinelCI API (see API_URL / API_KEY). Kept optional for the legacy path.
   API_TOKEN:
-    description: "API key for the language model (e.g., OpenAI API key)"
-    required: true
+    description: "Legacy LLM key for the local LangChain rules (no longer required; superseded by the SentinelCI API)"
+    required: false
   MODEL_NAME:
-    description: "Name of the language model to use (default: gemini-1.5-flash)"
+    description: "Legacy: name of the language model for the local LangChain rules (default: gemini-1.5-flash)"
     required: false
     default: "gemini-1.5-flash"
   NAME_DOCKERFILE:
     description: "Name of the Dockerfile to scan (default: Dockerfile), multiple dockerfile dont supported yet."
     required: false
     default: "Dockerfile"
+
+  API_URL:
+    description: |
+      Base URL of the SentinelCI API used for AI-powered multi-agent refactoring
+      (e.g. https://your-sentinelci-api.example.com). The analysis endpoint
+      (/api/v1/analysis/dockerfile) is appended automatically.
+      When omitted, the SentinelCI API integration is skipped.
+    required: false
+
+  API_KEY:
+    description: |
+      SentinelCI API access key. Sent in the "X-SentinelCI-API-Key" header to
+      authenticate the action against the SentinelCI API.
+      When omitted, the SentinelCI API integration is skipped.
+    required: false
 
 outputs:
   COMMENT_ID:

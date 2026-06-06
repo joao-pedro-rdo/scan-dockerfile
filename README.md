@@ -38,7 +38,8 @@ A GitHub Action that scans Dockerfiles in your repository and suggests best prac
 > Currently, only supports Dockerfiles named `Dockerfile`
 
 > [!NOTE]  
-> Currently, only supports models from Gemini
+> AI refactoring runs on the **SentinelCI API** (Agno multi-agent). The model
+> provider is configured server-side (chatgpt / gemini).
 
 ```yaml
 name: Dockerfile Scanner
@@ -56,19 +57,59 @@ jobs:
       - uses: joao-pedro-rdo/scan-dockerfile@v1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          API_TOKEN: ${{ secrets.API_TOKEN }} # Required
-          MODEL_NAME: "gemini-1.5-flash" # Optional, defaults to gemini-1.5-flash
+          # AI multi-agent refactoring via the SentinelCI API:
+          API_URL: ${{ secrets.SENTINELCI_API_URL }}
+          API_KEY: ${{ secrets.SENTINELCI_API_KEY }}
           NAME_DOCKERFILE: "Dockerfile-back" # Optional, defaults to Dockerfile
 ```
 
+## 🤖 SentinelCI API Integration (AI multi-agent refactoring)
+
+The action can offload AI-powered refactoring to the **SentinelCI API** (an
+Agno multi-agent backend). When the `API_URL` and `API_KEY` inputs are both
+provided, the action:
+
+1. Runs the local static-analysis rules and records **which rules were
+   violated**.
+2. Sends the Dockerfile plus the violated **rule ids** (e.g. `lr_002`,
+   `lr_007`) and identifying metadata (repository, commit, workflow) to
+   `POST {API_URL}/api/v1/analysis/dockerfile`, authenticated with the
+   `X-SentinelCI-API-Key` header.
+3. The API selects only the agents matching the detected problems and returns a
+   corrected Dockerfile, a comment, and **usage metrics** (token usage and cost
+   per pipeline stage). The action prints all of it to the logs and the job
+   summary (including a per-stage metrics table).
+
+If no violations are found, the API call is skipped (nothing to refactor). If
+either input is missing, the integration is skipped and the local scan still
+runs. A full example is available at
+[`examples/sentinelci-scan.yml`](examples/sentinelci-scan.yml).
+
+> [!NOTE]
+> AI refactoring was **migrated from the local LangChain LLM to the SentinelCI
+> API**. The `LangchainService` classes remain in the repo (under
+> `src/refactor/`) for historical comparison and can be re-enabled by passing a
+> service to `LR_006`/`LR_007` in `src/index.ts`.
+
+> [!NOTE]
+> Current stage: the API response is only **displayed** (logs + job summary). It
+> does not yet open a PR with the corrected Dockerfile.
+
 ## 📋 Inputs
 
-| Input             | Description                                                   | Required | Default          |
-| ----------------- | ------------------------------------------------------------- | -------- | ---------------- |
-| `GITHUB_TOKEN`    | GitHub token for API access                                   | ✅       | -                |
-| `API_TOKEN`       | API token for external service access                         | ✅       | -                |
-| `MODEL_NAME`      | Name of the language model to use                             | ❌       | gemini-1.5-flash |
-| `NAME_DOCKERFILE` | Name of the Dockerfile to scan (only one supported currently) | ❌       | Dockerfile       |
+| Input             | Description                                                          | Required | Default          |
+| ----------------- | ------------------------------------------------------------------- | -------- | ---------------- |
+| `GITHUB_TOKEN`    | GitHub token for API access                                         | ✅       | -                |
+| `API_URL`         | Base URL of the SentinelCI API (enables AI multi-agent refactoring) | ❌       | -                |
+| `API_KEY`         | SentinelCI API access key (`X-SentinelCI-API-Key`)                  | ❌       | -                |
+| `NAME_DOCKERFILE` | Name of the Dockerfile to scan (only one supported currently)       | ❌       | Dockerfile       |
+| `API_TOKEN`       | _Legacy_ LLM key for the local LangChain rules (no longer required) | ❌       | -                |
+| `MODEL_NAME`      | _Legacy_ model name for the local LangChain rules                   | ❌       | gemini-1.5-flash |
+
+> [!NOTE]
+> `API_URL` and `API_KEY` work together — both must be set to enable the
+> SentinelCI API integration. `API_TOKEN`/`MODEL_NAME` are legacy inputs for the
+> superseded local LangChain path and are no longer required.
 
 ## 📤 Outputs
 
@@ -78,11 +119,11 @@ jobs:
 
 ## ✨ Next Features
 
-- 🔜 Support all models on LangChain
+- ✅ Migrate AI refactoring to the SentinelCI API (Agno multi-agent)
+- ✅ `API_TOKEN` no longer required (refactoring moved to the API)
+- 🔜 Apply the API's corrected Dockerfile (open a PR automatically)
 - 🔜 Support custom Dockerfile names and paths
 - 🔜 Setting which Linter Rules you want to enable
-- 🔜 API_TOKEN not required
-- 🔜 Create PR to fix recommendations automatically
 - 🔜 Add support for multiple Dockerfile paths
 - 🔜 More control over issue creation (labels, assignees, etc)
 - 🔜 Support other platforms (GitLab, CLI ...)
@@ -147,11 +188,13 @@ npm install
 ├── src/
 │ ├── index.ts # Main entry point
 │ ├── linterRules/ # Linter rules
-│ ├── refactor/ # Refactoring logic
-│ ├── reporters/ # Reporting logic
+│ ├── refactor/ # Refactoring logic (local LangChain LLM)
+│ ├── services/ # SentinelCI API HTTP client
+│ ├── reporters/ # Reporting logic (also collects detected agent ids)
 │ └── adapters/ # GitHub API interactions
 │ └── contracts/ # TypeScript interfaces
 │ └── utils.ts # Utility functions
+├── examples/ # Example consumer workflows
 ├── dist/ # Compiled JavaScript
 ├── action.yml # Action metadata
 └── README.md

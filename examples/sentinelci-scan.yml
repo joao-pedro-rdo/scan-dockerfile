@@ -1,0 +1,47 @@
+# Example workflow: scan Dockerfiles and request AI refactoring from the SentinelCI API.
+#
+# Copy this file into your repository at .github/workflows/sentinelci-scan.yml
+# and configure the repository secrets referenced below:
+#   - SENTINELCI_API_URL : Base URL of your SentinelCI API (e.g. https://api.your-domain.com)
+#   - SENTINELCI_API_KEY : Access key for the SentinelCI API (sent as X-SentinelCI-API-Key)
+#
+# GITHUB_TOKEN is provided automatically by GitHub Actions.
+# (API_TOKEN / MODEL_NAME are legacy inputs for the old local LangChain path and
+#  are no longer required — refactoring now runs on the SentinelCI API.)
+
+name: SentinelCI Dockerfile Scan
+
+on:
+  push:
+    paths:
+      - "**/Dockerfile*"
+  pull_request:
+    paths:
+      - "**/Dockerfile*"
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # read repository files
+      issues: write # open issues with findings
+      pull-requests: write # comment on PRs
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan Dockerfile with SentinelCI
+        uses: joao-pedro-rdo/scan-dockerfile@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          # ── SentinelCI API integration (AI multi-agent refactoring) ──
+          # When both are set, the action sends the Dockerfile plus the rule ids
+          # flagged by the static analysis to the SentinelCI API, which selects
+          # the matching agents and returns a corrected Dockerfile + usage metrics.
+          # If either is omitted, this integration is skipped (the local scan
+          # still runs).
+          API_URL: ${{ secrets.SENTINELCI_API_URL }}
+          API_KEY: ${{ secrets.SENTINELCI_API_KEY }}
+
+          # Optional:
+          NAME_DOCKERFILE: "Dockerfile" # defaults to Dockerfile
