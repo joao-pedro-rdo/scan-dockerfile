@@ -46,6 +46,16 @@ inputs:
       When omitted, the SentinelCI API integration is skipped.
     required: false
 
+  CREATE_PULL_REQUEST:
+    description: |
+      When "true" (default), the corrected Dockerfile returned by the SentinelCI
+      API is committed to a new branch and opened as a pull request against the
+      branch that triggered the action. Set to "false" to only display the
+      result without opening a PR. Requires GITHUB_TOKEN with contents:write and
+      pull-requests:write permissions.
+    required: false
+    default: "true"
+
 outputs:
   COMMENT_ID:
     description: "ID of the comment where the scan results were posted"

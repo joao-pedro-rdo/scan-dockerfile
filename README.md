@@ -47,10 +47,10 @@ on: [push, pull_request]
 
 jobs:
   scan:
-   permissions:
-      contents: read
+    permissions:
+      contents: write # required to push the fix branch (PR creation)
       issues: write
-      pull-requests: write
+      pull-requests: write # required to open the PR with the corrected Dockerfile
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -61,7 +61,14 @@ jobs:
           API_URL: ${{ secrets.SENTINELCI_API_URL }}
           API_KEY: ${{ secrets.SENTINELCI_API_KEY }}
           NAME_DOCKERFILE: "Dockerfile-back" # Optional, defaults to Dockerfile
+          CREATE_PULL_REQUEST: "true" # Optional, opens a PR with the fix (default: true)
 ```
+
+> [!IMPORTANT]
+> Opening a pull request requires `contents: write` **and** `pull-requests: write`
+> permissions on the job. With the default `GITHUB_TOKEN`, also enable
+> _Settings → Actions → General → Workflow permissions → "Allow GitHub Actions to
+> create and approve pull requests"_.
 
 ## 🤖 SentinelCI API Integration (AI multi-agent refactoring)
 
@@ -79,6 +86,11 @@ provided, the action:
    corrected Dockerfile, a comment, and **usage metrics** (token usage and cost
    per pipeline stage). The action prints all of it to the logs and the job
    summary (including a per-stage metrics table).
+4. Unless `CREATE_PULL_REQUEST` is `"false"`, the action commits the corrected
+   Dockerfile to a new branch (`sentinelci/fix-dockerfile-<run-id>`) and opens a
+   **pull request** against the branch that triggered the run. The PR description
+   carries the API's comment and the metrics table; the PR is skipped when the
+   correction is identical to the original Dockerfile.
 
 If no violations are found, the API call is skipped (nothing to refactor). If
 either input is missing, the integration is skipped and the local scan still
@@ -92,19 +104,21 @@ runs. A full example is available at
 > service to `LR_006`/`LR_007` in `src/index.ts`.
 
 > [!NOTE]
-> Current stage: the API response is only **displayed** (logs + job summary). It
-> does not yet open a PR with the corrected Dockerfile.
+> The action now **opens a pull request** with the corrected Dockerfile (in
+> addition to logging the response and job summary). Disable it with
+> `CREATE_PULL_REQUEST: "false"` to keep the display-only behaviour.
 
 ## 📋 Inputs
 
-| Input             | Description                                                          | Required | Default          |
-| ----------------- | ------------------------------------------------------------------- | -------- | ---------------- |
-| `GITHUB_TOKEN`    | GitHub token for API access                                         | ✅       | -                |
-| `API_URL`         | Base URL of the SentinelCI API (enables AI multi-agent refactoring) | ❌       | -                |
-| `API_KEY`         | SentinelCI API access key (`X-SentinelCI-API-Key`)                  | ❌       | -                |
-| `NAME_DOCKERFILE` | Name of the Dockerfile to scan (only one supported currently)       | ❌       | Dockerfile       |
-| `API_TOKEN`       | _Legacy_ LLM key for the local LangChain rules (no longer required) | ❌       | -                |
-| `MODEL_NAME`      | _Legacy_ model name for the local LangChain rules                   | ❌       | gemini-1.5-flash |
+| Input                 | Description                                                         | Required | Default          |
+| --------------------- | ------------------------------------------------------------------- | -------- | ---------------- |
+| `GITHUB_TOKEN`        | GitHub token for API access                                         | ✅       | -                |
+| `API_URL`             | Base URL of the SentinelCI API (enables AI multi-agent refactoring) | ❌       | -                |
+| `API_KEY`             | SentinelCI API access key (`X-SentinelCI-API-Key`)                  | ❌       | -                |
+| `NAME_DOCKERFILE`     | Name of the Dockerfile to scan (only one supported currently)       | ❌       | Dockerfile       |
+| `CREATE_PULL_REQUEST` | Open a PR with the corrected Dockerfile (`"true"`/`"false"`)        | ❌       | true             |
+| `API_TOKEN`           | _Legacy_ LLM key for the local LangChain rules (no longer required) | ❌       | -                |
+| `MODEL_NAME`          | _Legacy_ model name for the local LangChain rules                   | ❌       | gemini-1.5-flash |
 
 > [!NOTE]
 > `API_URL` and `API_KEY` work together — both must be set to enable the
@@ -121,7 +135,7 @@ runs. A full example is available at
 
 - ✅ Migrate AI refactoring to the SentinelCI API (Agno multi-agent)
 - ✅ `API_TOKEN` no longer required (refactoring moved to the API)
-- 🔜 Apply the API's corrected Dockerfile (open a PR automatically)
+- ✅ Apply the API's corrected Dockerfile (open a PR automatically)
 - 🔜 Support custom Dockerfile names and paths
 - 🔜 Setting which Linter Rules you want to enable
 - 🔜 Add support for multiple Dockerfile paths

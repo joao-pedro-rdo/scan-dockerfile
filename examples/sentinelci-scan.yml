@@ -23,9 +23,9 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     permissions:
-      contents: read # read repository files
+      contents: write # read repository files AND push the fix branch
       issues: write # open issues with findings
-      pull-requests: write # comment on PRs
+      pull-requests: write # comment on PRs and open the correction PR
     steps:
       - uses: actions/checkout@v4
 
@@ -45,3 +45,12 @@ jobs:
 
           # Optional:
           NAME_DOCKERFILE: "Dockerfile" # defaults to Dockerfile
+
+          # When "true" (default), the corrected Dockerfile returned by the API
+          # is committed to a new branch (sentinelci/fix-dockerfile-<run-id>) and
+          # opened as a pull request against the branch that triggered the run.
+          # Requires contents:write + pull-requests:write (set above). Note: with
+          # the default GITHUB_TOKEN you must also enable
+          # "Allow GitHub Actions to create and approve pull requests" under
+          # Settings → Actions → General → Workflow permissions.
+          CREATE_PULL_REQUEST: "true"

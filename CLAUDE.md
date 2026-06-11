@@ -24,6 +24,7 @@ There are no tests currently (`npm test` is a placeholder).
 **Entry point:** `src/index.ts` — creates the GitHub adapter and reporter, then runs linter rules sequentially.
 
 **Key abstractions (`src/contracts/`):**
+
 - `ILinterRule` — interface all linter rules implement; each rule receives the adapter + reporter + Dockerfile AST
 - `IGitHubActionsAdapter` — wraps Octokit for GitHub API calls
 - `IReporter` / `IgithubaActionsReporters` — output abstraction (logs, issues, PR comments)
@@ -36,6 +37,7 @@ reporter). The actual refactoring is delegated to the SentinelCI API. `LR_006` (
 `index.ts`) they are detection-only; when provided they run the legacy local-LLM refactoring path.
 
 **AI layer (`src/refactor/`) — legacy, kept for historical comparison (TCC):**
+
 - `dockerfileAST.ts` — wraps `dockerfile-ast` library with an `AdapterDockerfileAST` class (still used
   by the detectors).
 - `langChain.ts` — `LangchainService` using Groq; `langChainTesteLLM.ts` is a test/stub variant. These
@@ -44,6 +46,7 @@ reporter). The actual refactoring is delegated to the SentinelCI API. `LR_006` (
   nothing instantiates them in the live path, ncc tree-shakes LangChain out of `dist/index.js`.
 
 **SentinelCI API layer (`src/services/`):**
+
 - `sentinelApiService.ts` — `SentinelApiService`, a thin HTTP client (native `fetch`, no extra deps) that
   POSTs to `{API_URL}/api/v1/analysis/dockerfile` with the `X-SentinelCI-API-Key` header. Sends a
   `SentinelAnalysisRequest` and returns a `SentinelAnalysisResponse`. Also exports

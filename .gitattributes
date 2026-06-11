@@ -1,0 +1,17 @@
+# Normaliza quebras de linha: o repositório guarda tudo em LF.
+# Combina com o Prettier (endOfLine: "lf") e elimina o ruído de CRLF no Windows.
+* text=auto eol=lf
+
+# Arquivos binários: nunca alterar quebras de linha.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

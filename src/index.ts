@@ -1,5 +1,6 @@
 import * as core from "@actions/core";
 import { promises as fs } from "fs";
+import * as path from "path";
 
 import * as utils from "./utils";
 import { GitHubActionsAdapter } from "./adapters/githubActions";
@@ -16,11 +17,9 @@ import { LR_006_joinRun } from "./linterRules/LR_006_joinRun";
 import { LR_007_test } from "./linterRules/LR_007_test";
 import { LangchainServiceTestLLM } from "./refactor/langChainTesteLLM";
 
-import {
-  SentinelApiService,
-  SENTINEL_DEFAULT_RULE_IDS,
-} from "./services/sentinelApiService";
-import { SentinelUsageMetrics } from "./contracts/sentinelApiInterface";
+import { SentinelApiService, SENTINEL_DEFAULT_RULE_IDS } from "./services/sentinelApiService";
+import { PullRequestService } from "./services/pullRequestService";
+import { SentinelAnalysisResponse, SentinelUsageMetrics } from "./contracts/sentinelApiInterface";
 
 // Initialize the GitHub Actions adapter with the provided token and workspace
 async function run() {
@@ -101,9 +100,7 @@ async function run() {
     const API_KEY = core.getInput("API_KEY");
 
     if (!API_URL || !API_KEY) {
-      console.log(
-        "ℹ️ API_URL/API_KEY not provided — skipping SentinelCI API integration."
-      );
+      console.log("ℹ️ API_URL/API_KEY not provided — skipping SentinelCI API integration.");
     } else {
       // Only the rules that the static analysis above actually flagged are sent,
       // so the API selects just the agents needed for the detected problems.
@@ -152,9 +149,7 @@ async function runSentinelApiAnalysis(
       console.log(
         "ℹ️ No violations detected by static analysis — nothing to refactor; skipping SentinelCI API call."
       );
-      reporter.infoSuccess(
-        "SentinelCI API: no violations detected — no AI refactoring needed."
-      );
+      reporter.infoSuccess("SentinelCI API: no violations detected — no AI refactoring needed.");
       return;
     }
 
@@ -224,6 +219,15 @@ async function runSentinelApiAnalysis(
       details: `AI refactor (${response.selected_agents.join(", ")})`,
       link: "",
     });
+
+    // Final stage: open a pull request applying the corrected Dockerfile.
+    await openSentinelPullRequest(
+      adapter,
+      reporter,
+      response,
+      dockerfilePaths[0],
+      dockerfileContent
+    );
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     console.error("❌ SentinelCI API analysis failed:", errorMsg);
@@ -239,6 +243,174 @@ async function runSentinelApiAnalysis(
 }
 
 /**
+ * Opens a pull request that applies the corrected Dockerfile returned by the
+ * SentinelCI API. Gated by the CREATE_PULL_REQUEST input (default "true").
+ *
+ * Skips silently (logs only) when the input is disabled, the API did not
+ * complete, the corrected content is empty, or it is identical to the original
+ * (nothing to fix). The PR is opened against the branch that triggered the
+ * action; a unique branch (named with the workflow run id) is created per run.
+ */
+async function openSentinelPullRequest(
+  adapter: GitHubActionsAdapter,
+  reporter: githubaActionsReporters,
+  response: SentinelAnalysisResponse,
+  dockerfileAbsPath: string,
+  originalContent: string
+): Promise<void> {
+  const createPr = (core.getInput("CREATE_PULL_REQUEST") || "true").toLowerCase();
+  if (createPr === "false") {
+    console.log("ℹ️ CREATE_PULL_REQUEST=false — skipping pull request creation.");
+    return;
+  }
+
+  const corrected = response.full_dockerfile_correct?.trim();
+  if (response.status !== "completed" || !corrected) {
+    console.log(
+      `ℹ️ SentinelCI API status='${response.status}' or empty correction — no pull request opened.`
+    );
+    return;
+  }
+
+  if (corrected === originalContent.trim()) {
+    console.log("ℹ️ Corrected Dockerfile is identical to the original — no pull request needed.");
+    reporter.infoSuccess("SentinelCI API: Dockerfile already compliant — no PR opened.");
+    return;
+  }
+
+  const ctx = adapter.context;
+  const baseBranch = resolveBaseBranch(ctx);
+  if (!baseBranch) {
+    reporter.infoWarning(
+      "SentinelCI API: could not resolve the base branch from the workflow context — skipping PR creation."
+    );
+    return;
+  }
+
+  // Repo-relative path with forward slashes (required by the GitHub Contents API).
+  const repoRelativePath = path
+    .relative(adapter.workspace, dockerfileAbsPath)
+    .split(path.sep)
+    .join("/");
+
+  const runId = ctx?.runId != null ? String(ctx.runId) : `${Date.now()}`;
+  const newBranch = `sentinelci/fix-dockerfile-${runId}`;
+  const agents = response.selected_agents.join(", ");
+
+  const title = `🛰️ SentinelCI: correções no Dockerfile (${agents || "AI"})`;
+  const body = buildPullRequestBody(response, repoRelativePath, baseBranch);
+
+  try {
+    const prService = new PullRequestService(adapter);
+    const pr = await prService.createRefactorPullRequest({
+      baseBranch,
+      newBranch,
+      filePath: repoRelativePath,
+      fileContent: response.full_dockerfile_correct,
+      commitMessage: `fix(dockerfile): apply SentinelCI corrections (${agents || "AI"})`,
+      title,
+      body,
+    });
+
+    console.log(`✅ Pull request created: ${pr.html_url} (#${pr.number})`);
+    reporter.infoSuccess(`SentinelCI API: pull request #${pr.number} opened — ${pr.html_url}`);
+
+    core.summary.addHeading("Pull Request", "3");
+    core.summary.addRaw(
+      `Opened [#${pr.number}](${pr.html_url}) — \`${pr.head}\` → \`${pr.base}\`\n\n`
+    );
+
+    reporter.addTableRow({
+      rule: "SentinelCI_PR",
+      status: "🔀",
+      details: `PR #${pr.number} (${pr.head} → ${pr.base})`,
+      link: pr.html_url,
+    });
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error("❌ Failed to open SentinelCI pull request:", errorMsg);
+    reporter.infoError(`SentinelCI API: failed to open pull request: ${errorMsg}`);
+    reporter.addTableRow({
+      rule: "SentinelCI_PR",
+      status: "❌",
+      details: `PR creation failed: ${errorMsg}`,
+      link: "",
+    });
+  }
+}
+
+/**
+ * Resolves the branch the action ran on, to target the pull request against.
+ * For pull_request events this is the PR head branch; for push events it is the
+ * ref (refs/heads/<branch>). Returns an empty string when it cannot be derived.
+ */
+function resolveBaseBranch(ctx: any): string {
+  const prHead = ctx?.payload?.pull_request?.head?.ref;
+  if (prHead) return prHead;
+
+  const ref: string | undefined = ctx?.ref;
+  if (ref?.startsWith("refs/heads/")) {
+    return ref.slice("refs/heads/".length);
+  }
+  return "";
+}
+
+/**
+ * Builds the pull request description (markdown): the API comment, the agents
+ * that ran, and the per-stage token-usage / cost metrics table.
+ */
+function buildPullRequestBody(
+  response: SentinelAnalysisResponse,
+  filePath: string,
+  baseBranch: string
+): string {
+  const fmtCost = (cost?: number | null) => (cost != null ? `$${cost.toFixed(6)}` : "—");
+  const fmtDuration = (duration?: number | null) =>
+    duration != null ? `${duration.toFixed(2)}s` : "—";
+
+  const lines: string[] = [];
+  lines.push("## 🛰️ SentinelCI — Correção automática do Dockerfile");
+  lines.push("");
+  lines.push(
+    `Este PR aplica a correção sugerida pela **SentinelCI API** ao arquivo \`${filePath}\` (base: \`${baseBranch}\`).`
+  );
+  lines.push("");
+  lines.push(`**Status:** ${response.status}`);
+  lines.push(`**Agentes executados:** ${response.selected_agents.join(", ") || "—"}`);
+  lines.push("");
+  lines.push("### 📝 Comentário dos agentes");
+  lines.push("");
+  lines.push(response.comment || "_Nenhum comentário retornado pela API._");
+  lines.push("");
+
+  const metrics = response.metrics;
+  if (metrics) {
+    lines.push("### 📊 Métricas (uso de tokens & custo)");
+    lines.push("");
+    lines.push("| Stage | Agente | Modelo | Input | Output | Total | Custo | Duração |");
+    lines.push("| --- | --- | --- | ---: | ---: | ---: | ---: | ---: |");
+    for (const s of metrics.stages) {
+      lines.push(
+        `| ${s.stage} | ${s.name} | ${s.model ?? "—"} | ${s.input_tokens} | ` +
+          `${s.output_tokens} | ${s.total_tokens} | ${fmtCost(s.cost)} | ${fmtDuration(s.duration)} |`
+      );
+    }
+    lines.push("");
+    lines.push(
+      `**Total:** ${metrics.total_tokens} tokens ` +
+        `(in: ${metrics.total_input_tokens}, out: ${metrics.total_output_tokens}) — ` +
+        `custo: ${fmtCost(metrics.total_cost)}`
+    );
+    lines.push("");
+  }
+
+  lines.push("---");
+  lines.push("_Gerado automaticamente pela GitHub Action **SentinelCI**._");
+
+  return lines.join("\n");
+}
+
+/**
  * Displays the token-usage / cost metrics returned by the SentinelCI API,
  * both in the logs and in the GitHub Actions job summary. Safe to call when
  * metrics are absent (older API versions).
@@ -249,8 +421,7 @@ function displaySentinelMetrics(metrics?: SentinelUsageMetrics): void {
     return;
   }
 
-  const fmtCost = (cost?: number | null) =>
-    cost != null ? `$${cost.toFixed(6)}` : "—";
+  const fmtCost = (cost?: number | null) => (cost != null ? `$${cost.toFixed(6)}` : "—");
   const fmtDuration = (duration?: number | null) =>
     duration != null ? `${duration.toFixed(2)}s` : "—";
 
