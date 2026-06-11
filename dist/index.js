@@ -44232,6 +44232,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7484));
 const fs_1 = __nccwpck_require__(9896);
+const path = __importStar(__nccwpck_require__(6928));
 const utils = __importStar(__nccwpck_require__(1798));
 const githubActions_1 = __nccwpck_require__(6850);
 const githubaActionsReporters_1 = __nccwpck_require__(7231);
@@ -44243,6 +44244,7 @@ const LR_004_user_1 = __nccwpck_require__(3311);
 const LR_005_avoidPipUpgrade_1 = __nccwpck_require__(7746);
 const LR_006_joinRun_1 = __nccwpck_require__(7944);
 const sentinelApiService_1 = __nccwpck_require__(813);
+const pullRequestService_1 = __nccwpck_require__(8069);
 // Initialize the GitHub Actions adapter with the provided token and workspace
 async function run() {
     try {
@@ -44390,6 +44392,8 @@ async function runSentinelApiAnalysis(adapter, reporter, apiUrl, apiKey, name_Do
             details: `AI refactor (${response.selected_agents.join(", ")})`,
             link: "",
         });
+        // Final stage: open a pull request applying the corrected Dockerfile.
+        await openSentinelPullRequest(adapter, reporter, response, dockerfilePaths[0], dockerfileContent);
     }
     catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
@@ -44405,6 +44409,135 @@ async function runSentinelApiAnalysis(adapter, reporter, apiUrl, apiKey, name_Do
     }
 }
 /**
+ * Opens a pull request that applies the corrected Dockerfile returned by the
+ * SentinelCI API. Gated by the CREATE_PULL_REQUEST input (default "true").
+ *
+ * Skips silently (logs only) when the input is disabled, the API did not
+ * complete, the corrected content is empty, or it is identical to the original
+ * (nothing to fix). The PR is opened against the branch that triggered the
+ * action; a unique branch (named with the workflow run id) is created per run.
+ */
+async function openSentinelPullRequest(adapter, reporter, response, dockerfileAbsPath, originalContent) {
+    const createPr = (core.getInput("CREATE_PULL_REQUEST") || "true").toLowerCase();
+    if (createPr === "false") {
+        console.log("ℹ️ CREATE_PULL_REQUEST=false — skipping pull request creation.");
+        return;
+    }
+    const corrected = response.full_dockerfile_correct?.trim();
+    if (response.status !== "completed" || !corrected) {
+        console.log(`ℹ️ SentinelCI API status='${response.status}' or empty correction — no pull request opened.`);
+        return;
+    }
+    if (corrected === originalContent.trim()) {
+        console.log("ℹ️ Corrected Dockerfile is identical to the original — no pull request needed.");
+        reporter.infoSuccess("SentinelCI API: Dockerfile already compliant — no PR opened.");
+        return;
+    }
+    const ctx = adapter.context;
+    const baseBranch = resolveBaseBranch(ctx);
+    if (!baseBranch) {
+        reporter.infoWarning("SentinelCI API: could not resolve the base branch from the workflow context — skipping PR creation.");
+        return;
+    }
+    // Repo-relative path with forward slashes (required by the GitHub Contents API).
+    const repoRelativePath = path
+        .relative(adapter.workspace, dockerfileAbsPath)
+        .split(path.sep)
+        .join("/");
+    const runId = ctx?.runId != null ? String(ctx.runId) : `${Date.now()}`;
+    const newBranch = `sentinelci/fix-dockerfile-${runId}`;
+    const agents = response.selected_agents.join(", ");
+    const title = `🛰️ SentinelCI: correções no Dockerfile (${agents || "AI"})`;
+    const body = buildPullRequestBody(response, repoRelativePath, baseBranch);
+    try {
+        const prService = new pullRequestService_1.PullRequestService(adapter);
+        const pr = await prService.createRefactorPullRequest({
+            baseBranch,
+            newBranch,
+            filePath: repoRelativePath,
+            fileContent: response.full_dockerfile_correct,
+            commitMessage: `fix(dockerfile): apply SentinelCI corrections (${agents || "AI"})`,
+            title,
+            body,
+        });
+        console.log(`✅ Pull request created: ${pr.html_url} (#${pr.number})`);
+        reporter.infoSuccess(`SentinelCI API: pull request #${pr.number} opened — ${pr.html_url}`);
+        core.summary.addHeading("Pull Request", "3");
+        core.summary.addRaw(`Opened [#${pr.number}](${pr.html_url}) — \`${pr.head}\` → \`${pr.base}\`\n\n`);
+        reporter.addTableRow({
+            rule: "SentinelCI_PR",
+            status: "🔀",
+            details: `PR #${pr.number} (${pr.head} → ${pr.base})`,
+            link: pr.html_url,
+        });
+    }
+    catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        console.error("❌ Failed to open SentinelCI pull request:", errorMsg);
+        reporter.infoError(`SentinelCI API: failed to open pull request: ${errorMsg}`);
+        reporter.addTableRow({
+            rule: "SentinelCI_PR",
+            status: "❌",
+            details: `PR creation failed: ${errorMsg}`,
+            link: "",
+        });
+    }
+}
+/**
+ * Resolves the branch the action ran on, to target the pull request against.
+ * For pull_request events this is the PR head branch; for push events it is the
+ * ref (refs/heads/<branch>). Returns an empty string when it cannot be derived.
+ */
+function resolveBaseBranch(ctx) {
+    const prHead = ctx?.payload?.pull_request?.head?.ref;
+    if (prHead)
+        return prHead;
+    const ref = ctx?.ref;
+    if (ref?.startsWith("refs/heads/")) {
+        return ref.slice("refs/heads/".length);
+    }
+    return "";
+}
+/**
+ * Builds the pull request description (markdown): the API comment, the agents
+ * that ran, and the per-stage token-usage / cost metrics table.
+ */
+function buildPullRequestBody(response, filePath, baseBranch) {
+    const fmtCost = (cost) => (cost != null ? `$${cost.toFixed(6)}` : "—");
+    const fmtDuration = (duration) => duration != null ? `${duration.toFixed(2)}s` : "—";
+    const lines = [];
+    lines.push("## 🛰️ SentinelCI — Correção automática do Dockerfile");
+    lines.push("");
+    lines.push(`Este PR aplica a correção sugerida pela **SentinelCI API** ao arquivo \`${filePath}\` (base: \`${baseBranch}\`).`);
+    lines.push("");
+    lines.push(`**Status:** ${response.status}`);
+    lines.push(`**Agentes executados:** ${response.selected_agents.join(", ") || "—"}`);
+    lines.push("");
+    lines.push("### 📝 Comentário dos agentes");
+    lines.push("");
+    lines.push(response.comment || "_Nenhum comentário retornado pela API._");
+    lines.push("");
+    const metrics = response.metrics;
+    if (metrics) {
+        lines.push("### 📊 Métricas (uso de tokens & custo)");
+        lines.push("");
+        lines.push("| Stage | Agente | Modelo | Input | Output | Total | Custo | Duração |");
+        lines.push("| --- | --- | --- | ---: | ---: | ---: | ---: | ---: |");
+        for (const s of metrics.stages) {
+            lines.push(`| ${s.stage} | ${s.name} | ${s.model ?? "—"} | ${s.input_tokens} | ` +
+                `${s.output_tokens} | ${s.total_tokens} | ${fmtCost(s.cost)} | ${fmtDuration(s.duration)} |`);
+        }
+        lines.push("");
+        lines.push(`**Total:** ${metrics.total_tokens} tokens ` +
+            `(in: ${metrics.total_input_tokens}, out: ${metrics.total_output_tokens}) — ` +
+            `custo: ${fmtCost(metrics.total_cost)}`);
+        lines.push("");
+    }
+    lines.push("---");
+    lines.push("_Gerado automaticamente pela GitHub Action **SentinelCI**._");
+    return lines.join("\n");
+}
+/**
  * Displays the token-usage / cost metrics returned by the SentinelCI API,
  * both in the logs and in the GitHub Actions job summary. Safe to call when
  * metrics are absent (older API versions).
@@ -44414,7 +44547,7 @@ function displaySentinelMetrics(metrics) {
         console.log("ℹ️ SentinelCI API: no metrics in the response.");
         return;
     }
-    const fmtCost = (cost) => cost != null ? `$${cost.toFixed(6)}` : "—";
+    const fmtCost = (cost) => (cost != null ? `$${cost.toFixed(6)}` : "—");
     const fmtDuration = (duration) => duration != null ? `${duration.toFixed(2)}s` : "—";
     console.log("📊 SentinelCI API metrics:");
     console.log(`   total tokens: ${metrics.total_tokens} ` +
@@ -46091,6 +46224,112 @@ class githubaActionsReporters {
     }
 }
 exports.githubaActionsReporters = githubaActionsReporters;
+
+
+/***/ }),
+
+/***/ 8069:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.PullRequestService = void 0;
+/**
+ * Creates a pull request that applies the SentinelCI API's corrected Dockerfile,
+ * entirely through the GitHub REST API (Octokit) — no local git push required.
+ *
+ * Flow: resolve base branch head → create a new branch → commit the corrected
+ * file on it (Contents API) → open the PR.
+ */
+class PullRequestService {
+    adapter;
+    constructor(adapter) {
+        this.adapter = adapter;
+    }
+    async createRefactorPullRequest(input) {
+        const octokit = this.adapter.octokit;
+        const owner = this.adapter.owner;
+        const repo = this.adapter.repo;
+        // 1. Resolve the base branch head SHA (the branch the PR will target).
+        const baseRef = await octokit.rest.git.getRef({
+            owner,
+            repo,
+            ref: `heads/${input.baseBranch}`,
+        });
+        const baseSha = baseRef.data.object.sha;
+        // 2. Create the new branch pointing at the base head. If it already exists
+        //    (a re-run with the same name), fast-forward/reset it to the base head.
+        try {
+            await octokit.rest.git.createRef({
+                owner,
+                repo,
+                ref: `refs/heads/${input.newBranch}`,
+                sha: baseSha,
+            });
+        }
+        catch (error) {
+            if (error?.status === 422) {
+                // Reference already exists — point it back at the base head.
+                await octokit.rest.git.updateRef({
+                    owner,
+                    repo,
+                    ref: `heads/${input.newBranch}`,
+                    sha: baseSha,
+                    force: true,
+                });
+            }
+            else {
+                throw error;
+            }
+        }
+        // 3. The Contents API needs the current blob SHA to update an existing file.
+        //    Fetch it from the new branch; absent (404) means the file is new.
+        let fileSha;
+        try {
+            const existing = await octokit.rest.repos.getContent({
+                owner,
+                repo,
+                path: input.filePath,
+                ref: input.newBranch,
+            });
+            if (!Array.isArray(existing.data) && existing.data?.sha) {
+                fileSha = existing.data.sha;
+            }
+        }
+        catch (error) {
+            if (error?.status !== 404) {
+                throw error;
+            }
+        }
+        // 4. Commit the corrected file to the new branch.
+        await octokit.rest.repos.createOrUpdateFileContents({
+            owner,
+            repo,
+            path: input.filePath,
+            branch: input.newBranch,
+            message: input.commitMessage,
+            content: Buffer.from(input.fileContent, "utf8").toString("base64"),
+            sha: fileSha,
+        });
+        // 5. Open the pull request.
+        const pr = await octokit.rest.pulls.create({
+            owner,
+            repo,
+            title: input.title,
+            body: input.body,
+            head: input.newBranch,
+            base: input.baseBranch,
+        });
+        return {
+            number: pr.data.number,
+            html_url: pr.data.html_url,
+            head: input.newBranch,
+            base: input.baseBranch,
+        };
+    }
+}
+exports.PullRequestService = PullRequestService;
 
 
 /***/ }),
